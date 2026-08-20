@@ -1,7 +1,15 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  typedRoutes: true,
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "airbnbnew.cybersoft.edu.vn",
+      },
+    ],
+  },
 };
 
 export default nextConfig;

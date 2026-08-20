@@ -1,36 +1,85 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BC95 Booking
 
-## Getting Started
+Repo FE cho website đặt phòng dùng `Next.js 16`, `React 19` và `Tailwind CSS 4`.
 
-First, run the development server:
+## Chạy dự án
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Mở `http://localhost:3000` để xem giao diện.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Biến môi trường
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Repo hiện hỗ trợ cả 2 cách đặt tên biến:
 
-## Learn More
+```bash
+API_URL=https://airbnbnew.cybersoft.edu.vn
+TOKEN=your_token_here
+```
 
-To learn more about Next.js, take a look at the following resources:
+hoặc:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+NEXT_PUBLIC_API_URL=https://airbnbnew.cybersoft.edu.vn
+NEXT_PUBLIC_CYBERSOFT_TOKEN=your_token_here
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+`tokenCybersoft` là bắt buộc vì Swagger của API yêu cầu header này cho toàn bộ nhóm endpoint. [$TRAE_REF](https://airbnbnew.cybersoft.edu.vn/swagger/index.html)[$TRAE_REF](https://airbnbnew.cybersoft.edu.vn/swagger/v1/swagger.json)
 
-## Deploy on Vercel
+## Thư viện đã setup
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `clsx` + `tailwind-merge`: gộp className sạch và dễ tái sử dụng
+- `lucide-react`: icon gọn, đồng nhất
+- `react-hook-form`: quản lý form
+- `zod` + `@hookform/resolvers`: validate form rõ ràng
+- `sonner`: toast thông báo
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Cấu trúc chính
+
+```text
+src/
+  app/
+    (public)/        -> khu khách ghé qua
+    (customer)/      -> khu khách đặt phòng
+    (host)/          -> khu chủ cho thuê
+    (admin)/         -> khu quản trị viên
+  components/
+    layout/          -> layout dùng chung
+    shared/          -> component dùng lại nhiều nơi
+  config/            -> config điều hướng, site
+  lib/               -> hàm tiện ích
+  services/          -> lớp gọi API theo từng nhóm endpoint
+  types/             -> kiểu dữ liệu API và domain
+```
+
+## Quy ước triển khai
+
+- `app` chỉ giữ routing, layout và page
+- component dùng chung đặt trong `src/components`
+- config điều hướng theo role đặt trong `src/config/navigation.ts`
+- cấu hình môi trường API đặt trong `src/config/env.ts`
+- dùng `src/lib/api-client.ts` làm lớp gọi API chung
+- tách service theo domain ở `src/services`
+- nếu một component chỉ dùng trong một route, ưu tiên đặt vào private folder như `src/app/(public)/_components`
+- route mới nên bám theo đúng nhóm vai trò để tránh lẫn business logic
+
+## Các route mẫu đã có
+
+- `/`: trang giới thiệu
+- `/phong`: danh sách phòng đã nối API thật
+- `/phong/[slug]`: chi tiết phòng đã nối API thật theo `id` phòng
+- `/tai-khoan`, `/dat-phong`, `/chuyen-di`
+- `/chu-cho-thue`, `/chu-cho-thue/phong`, `/chu-cho-thue/dat-cho`
+- `/quan-tri`, `/quan-tri/nguoi-dung`, `/quan-tri/bao-cao`
+
+## Các service đã có
+
+- `authService`
+- `usersService`
+- `roomsService`
+- `locationsService`
+- `bookingsService`
+- `commentsService`
