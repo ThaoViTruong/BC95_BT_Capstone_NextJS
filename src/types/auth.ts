@@ -23,3 +23,7 @@ export type StoredAuth = {
   token: string;
   user: AuthUser | null;
 };
+
+export type RememberedSignIn = {
+  email: string;
+};

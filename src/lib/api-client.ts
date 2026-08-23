@@ -1,4 +1,5 @@
 import { getApiEnv, getMissingApiEnv } from "@/config/env";
+import { ApiError } from "@/lib/api-error";
 import { getAccessToken } from "@/lib/auth-storage";
 import type { ApiEnvelope, SearchParamsValue } from "@/types/api";
 
@@ -11,16 +12,6 @@ type ApiRequestOptions = {
   searchParams?: Record<string, SearchParamsValue>;
   cache?: RequestCache;
 };
-
-export class ApiError extends Error {
-  status: number;
-
-  constructor(message: string, status: number) {
-    super(message);
-    this.name = "ApiError";
-    this.status = status;
-  }
-}
 
 function createUrl(path: string, searchParams?: Record<string, SearchParamsValue>) {
   const { apiUrl } = getApiEnv();

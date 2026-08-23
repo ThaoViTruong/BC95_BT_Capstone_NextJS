@@ -11,24 +11,6 @@ npm run dev
 
 Mở `http://localhost:3000` để xem giao diện.
 
-## Biến môi trường
-
-Repo hiện hỗ trợ cả 2 cách đặt tên biến:
-
-```bash
-API_URL=https://airbnbnew.cybersoft.edu.vn
-TOKEN=your_token_here
-```
-
-hoặc:
-
-```bash
-NEXT_PUBLIC_API_URL=https://airbnbnew.cybersoft.edu.vn
-NEXT_PUBLIC_CYBERSOFT_TOKEN=your_token_here
-```
-
-`tokenCybersoft` là bắt buộc vì Swagger của API yêu cầu header này cho toàn bộ nhóm endpoint. [$TRAE_REF](https://airbnbnew.cybersoft.edu.vn/swagger/index.html)[$TRAE_REF](https://airbnbnew.cybersoft.edu.vn/swagger/v1/swagger.json)
-
 ## Thư viện đã setup
 
 - `clsx` + `tailwind-merge`: gộp className sạch và dễ tái sử dụng

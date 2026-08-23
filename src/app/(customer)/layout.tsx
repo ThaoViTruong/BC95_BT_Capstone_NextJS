@@ -1,3 +1,7 @@
+"use client";
+
+import { usePathname } from "next/navigation";
+
 import { RoleShell } from "@/components/layout/role-shell";
 import { getRole } from "@/config/navigation";
 
@@ -8,7 +12,13 @@ type CustomerLayoutProps = {
 };
 
 export default function CustomerLayout({ children }: CustomerLayoutProps) {
+  const pathname = usePathname();
+
   if (!role) {
+    return children;
+  }
+
+  if (pathname === "/tai-khoan") {
     return children;
   }
 

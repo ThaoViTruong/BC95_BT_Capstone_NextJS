@@ -1,31 +1,97 @@
-const infoList = [
-  { label: "Thông tin cá nhân", value: "Hồ sơ, số điện thoại, email" },
-  { label: "Ưu đãi hiện có", value: "Mã giảm giá, điểm thưởng" },
-  { label: "Phương thức thanh toán", value: "Thẻ, ví điện tử, hóa đơn" },
-];
+import { getAuthSession } from "@/lib/auth-session";
+import { bookingsService } from "@/services/bookings.service";
+import { commentsService } from "@/services/comments.service";
+import { locationsService } from "@/services/locations.service";
+import { roomsService } from "@/services/rooms.service";
 
-export default function CustomerPage() {
-  return (
-    <>
-      <section className="rounded-3xl border border-line bg-card p-6 shadow-sm">
-        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
-          Khách đặt phòng
-        </p>
-        <h2 className="mt-2 text-3xl font-bold text-slate-950">Tổng quan tài khoản</h2>
-        <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">
-          Khu vực này nên chứa hồ sơ khách, trạng thái xác minh và các widget hỗ trợ
-          ra quyết định đặt phòng nhanh.
-        </p>
-      </section>
+import { AccountOverview } from "./_components/account-overview";
+import { AuthFormPanel } from "./_components/auth-form-panel";
 
-      <section className="grid gap-4 md:grid-cols-3">
-        {infoList.map((item) => (
-          <article key={item.label} className="rounded-3xl border border-line bg-card p-5 shadow-sm">
-            <p className="text-sm font-semibold text-slate-500">{item.label}</p>
-            <p className="mt-3 text-lg font-bold text-slate-950">{item.value}</p>
-          </article>
-        ))}
-      </section>
-    </>
-  );
+type ProfileRoomItem = {
+  bookingId: number;
+  roomId: number;
+  roomName: string;
+  roomImage: string;
+  roomPrice: number;
+  guestCount: number;
+  checkIn: string;
+  checkOut: string;
+  locationText: string;
+  ratingValue: number;
+  ratingCount: number;
+};
+
+export const dynamic = "force-dynamic";
+
+export default async function CustomerPage() {
+  const authSession = await getAuthSession();
+
+  if (authSession?.user) {
+    const fallbackUser = authSession.user;
+    const hasUserId = typeof fallbackUser.id === "number" && fallbackUser.id > 0;
+    const bookings = hasUserId
+      ? await bookingsService.getByUser(fallbackUser.id, authSession.token).catch(() => [])
+      : [];
+    const roomIds = [...new Set(bookings.map((item) => item.maPhong))];
+    const roomMap = new Map<number, Awaited<ReturnType<typeof roomsService.getById>>>();
+    const locationMap = new Map<number, Awaited<ReturnType<typeof locationsService.getById>> | null>();
+    const commentMap = new Map<number, Awaited<ReturnType<typeof commentsService.getByRoom>>>();
+
+    await Promise.all(
+      roomIds.map(async (roomId) => {
+        try {
+          const room = await roomsService.getById(roomId);
+          roomMap.set(roomId, room);
+
+          const [location, comments] = await Promise.all([
+            locationsService.getById(room.maViTri).catch(() => null),
+            commentsService.getByRoom(roomId).catch(() => []),
+          ]);
+
+          locationMap.set(roomId, location);
+          commentMap.set(roomId, comments);
+        } catch {
+          // Bỏ qua phòng không tải được để không chặn toàn bộ trang profile.
+          locationMap.set(roomId, null);
+          commentMap.set(roomId, []);
+        }
+      }),
+    );
+
+    const rentedRooms: ProfileRoomItem[] = bookings
+      .slice()
+      .sort(
+        (left, right) =>
+          new Date(right.ngayDen).getTime() - new Date(left.ngayDen).getTime(),
+      )
+      .map((booking) => {
+        const room = roomMap.get(booking.maPhong);
+        const location = locationMap.get(booking.maPhong);
+        const comments = commentMap.get(booking.maPhong) || [];
+        const ratingValue =
+          comments.length > 0
+            ? comments.reduce((total, item) => total + item.saoBinhLuan, 0) / comments.length
+            : 5;
+
+        return {
+          bookingId: booking.id,
+          roomId: booking.maPhong,
+          roomName: room?.tenPhong || `Phòng #${booking.maPhong}`,
+          roomImage: room?.hinhAnh || "",
+          roomPrice: room?.giaTien || 0,
+          guestCount: booking.soLuongKhach,
+          checkIn: booking.ngayDen,
+          checkOut: booking.ngayDi,
+          locationText: location
+            ? `${location.tenViTri}, ${location.tinhThanh}`
+            : "Địa điểm đang cập nhật",
+          ratingValue,
+          ratingCount: comments.length,
+        };
+      });
+
+    return <AccountOverview initialUser={fallbackUser} rentedRooms={rentedRooms} />;
+  }
+
+  return <AuthFormPanel />;
 }

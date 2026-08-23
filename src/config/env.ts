@@ -10,10 +10,10 @@ function getTrimmedEnv(...keys: string[]) {
   return "";
 }
 
-const apiUrl = getTrimmedEnv("NEXT_PUBLIC_API_URL", "API_URL");
-const cybersoftToken = getTrimmedEnv("NEXT_PUBLIC_CYBERSOFT_TOKEN", "TOKEN");
-
 export function getApiEnv() {
+  const apiUrl = getTrimmedEnv("NEXT_PUBLIC_API_URL", "API_URL");
+  const cybersoftToken = getTrimmedEnv("NEXT_PUBLIC_CYBERSOFT_TOKEN", "TOKEN");
+
   return {
     apiUrl,
     cybersoftToken,
@@ -22,6 +22,7 @@ export function getApiEnv() {
 }
 
 export function getMissingApiEnv() {
+  const { apiUrl, cybersoftToken } = getApiEnv();
   const missing: string[] = [];
 
   if (!apiUrl) {
