@@ -17,11 +17,27 @@ function encodeSeed(seed: ProfileSeed) {
 }
 
 function decodeSeed(value: string): ProfileSeed | null {
-  try {
-    return JSON.parse(decodeURIComponent(value)) as ProfileSeed;
-  } catch {
-    return null;
+  const candidates = [value];
+  let nextValue = value;
+
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      nextValue = decodeURIComponent(nextValue);
+      candidates.push(nextValue);
+    } catch {
+      break;
+    }
   }
+
+  for (const candidate of candidates) {
+    try {
+      return JSON.parse(candidate) as ProfileSeed;
+    } catch {
+      // Thử các định dạng cũ của cookie nếu có.
+    }
+  }
+
+  return null;
 }
 
 export async function getProfileSeed() {

@@ -30,8 +30,14 @@ function resolveAccountLink(role?: UserRole) {
 
 export function AuthAccountMenu() {
   const router = useRouter();
-  const [currentUser, setCurrentUser] = useState(() => getCurrentUser());
+  const [currentUser, setCurrentUser] = useState<ReturnType<typeof getCurrentUser>>(null);
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const displayName = useMemo(() => {
+    const name = currentUser?.name?.trim();
+    const email = currentUser?.email?.trim();
+
+    return name || email || "Tài khoản";
+  }, [currentUser?.email, currentUser?.name]);
   const accountLink = useMemo(
     () => resolveAccountLink(currentUser?.role),
     [currentUser?.role],
@@ -86,7 +92,7 @@ export function AuthAccountMenu() {
         className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-semibold text-[#0f2f8e] transition hover:bg-slate-100"
       >
         <CircleUserRound className="h-4 w-4" />
-        <span>{currentUser.name}</span>
+        <span>{displayName}</span>
       </Link>
       <button
         type="button"

@@ -1,4 +1,5 @@
 import { getAuthSession } from "@/lib/auth-session";
+import { resolveSessionUser } from "@/lib/auth-session-user";
 import { bookingsService } from "@/services/bookings.service";
 import { commentsService } from "@/services/comments.service";
 import { locationsService } from "@/services/locations.service";
@@ -28,9 +29,15 @@ export default async function CustomerPage() {
 
   if (authSession?.user) {
     const fallbackUser = authSession.user;
-    const hasUserId = typeof fallbackUser.id === "number" && fallbackUser.id > 0;
-    const bookings = hasUserId
-      ? await bookingsService.getByUser(fallbackUser.id, authSession.token).catch(() => [])
+    const resolvedUser = authSession ? await resolveSessionUser(authSession) : null;
+    const bookingUserId =
+      typeof resolvedUser?.id === "number" && resolvedUser.id > 0
+        ? resolvedUser.id
+        : typeof fallbackUser.id === "number" && fallbackUser.id > 0
+          ? fallbackUser.id
+          : 0;
+    const bookings = bookingUserId
+      ? await bookingsService.getByUser(bookingUserId, authSession.token).catch(() => [])
       : [];
     const roomIds = [...new Set(bookings.map((item) => item.maPhong))];
     const roomMap = new Map<number, Awaited<ReturnType<typeof roomsService.getById>>>();

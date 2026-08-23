@@ -34,12 +34,27 @@ function encodeSession(data: AuthSessionPayload) {
 }
 
 function decodeSession(value: string): AuthSessionPayload | null {
-  try {
-    const raw = decodeURIComponent(value);
-    return JSON.parse(raw) as AuthSessionPayload;
-  } catch {
-    return null;
+  const candidates = [value];
+  let nextValue = value;
+
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      nextValue = decodeURIComponent(nextValue);
+      candidates.push(nextValue);
+    } catch {
+      break;
+    }
   }
+
+  for (const candidate of candidates) {
+    try {
+      return JSON.parse(candidate) as AuthSessionPayload;
+    } catch {
+      // Thử các định dạng cũ của cookie nếu có.
+    }
+  }
+
+  return null;
 }
 
 export async function getAuthSession(): Promise<AuthSession | null> {

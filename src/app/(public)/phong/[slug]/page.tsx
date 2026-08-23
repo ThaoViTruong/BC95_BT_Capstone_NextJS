@@ -376,6 +376,8 @@ export default async function RoomDetailPage({ params }: RoomDetailPageProps) {
 
         <aside className="lg:sticky lg:top-28 lg:h-fit">
           <BookingCard
+            roomId={room.id}
+            roomName={room.tenPhong}
             pricePerNight={room.giaTien}
             ratingText={ratingText}
             reviewCountText={reviewCountText}
