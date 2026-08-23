@@ -27,8 +27,11 @@ import type { LucideIcon } from "lucide-react";
 
 import { SetupPanel } from "@/components/shared/setup-panel";
 import { ApiError } from "@/lib/api-error";
-import { formatDate } from "@/lib/format";
+import { getAuthSession } from "@/lib/auth-session";
+import { resolveSessionUser } from "@/lib/auth-session-user";
+import { isRenderableCommentContent } from "@/lib/comment-validation";
 import { getRoomImageSrc } from "@/lib/room-image";
+import { bookingsService } from "@/services/bookings.service";
 import { commentsService } from "@/services/comments.service";
 import { locationsService } from "@/services/locations.service";
 import { roomsService } from "@/services/rooms.service";
@@ -37,7 +40,8 @@ import type { Location } from "@/types/location";
 import type { Room } from "@/types/room";
 
 import { BookingCard } from "./_components/booking-card";
-import { ExpandableComment } from "./_components/expandable-comment";
+import { CommentForm } from "./_components/comment-form";
+import { RoomComments } from "./_components/room-comments";
 
 type RoomDetailPageProps = {
   params: Promise<{ slug: string }>;
@@ -125,6 +129,19 @@ export default async function RoomDetailPage({ params }: RoomDetailPageProps) {
   }
 
   const { room, comments, location } = data;
+  const visibleComments = comments.filter((comment) =>
+    isRenderableCommentContent(comment.noiDung),
+  );
+  const authSession = await getAuthSession();
+  const resolvedUser = authSession ? await resolveSessionUser(authSession) : null;
+  const userBookings =
+    authSession?.token && resolvedUser?.id
+      ? await bookingsService.getByUser(resolvedUser.id, authSession.token).catch(() => [])
+      : [];
+  const canComment =
+    authSession?.roleKey === "customer" &&
+    userBookings.some((booking) => booking.maPhong === room.id);
+  const isAuthenticated = Boolean(authSession?.token && resolvedUser?.id);
   const roomImageSrc = getRoomImageSrc(room.hinhAnh);
   const amenityList: AmenityItem[] = [
     room.mayGiat ? { key: "mayGiat", label: "Máy giặt", icon: Shirt } : null,
@@ -138,8 +155,9 @@ export default async function RoomDetailPage({ params }: RoomDetailPageProps) {
     room.banUi ? { key: "banUi", label: "Bàn ủi", icon: Shirt } : null,
   ].filter((item): item is AmenityItem => Boolean(item));
   const averageRating =
-    comments.length > 0
-      ? comments.reduce((total, item) => total + item.saoBinhLuan, 0) / comments.length
+    visibleComments.length > 0
+      ? visibleComments.reduce((total, item) => total + item.saoBinhLuan, 0) /
+        visibleComments.length
       : 5;
   const ratingText = new Intl.NumberFormat("vi-VN", {
     minimumFractionDigits: 1,
@@ -148,7 +166,7 @@ export default async function RoomDetailPage({ params }: RoomDetailPageProps) {
   const locationText = location
     ? `${location.tenViTri}, ${location.tinhThanh}, ${location.quocGia}`
     : `Khu vực #${room.maViTri}`;
-  const reviewCountText = `${comments.length} đánh giá`;
+  const reviewCountText = `${visibleComments.length} đánh giá`;
   const highlightList: HighlightItem[] = [
     {
       key: "private-space",
@@ -182,11 +200,11 @@ export default async function RoomDetailPage({ params }: RoomDetailPageProps) {
       <section className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <Link
-            href="/phong"
+            href="/"
             className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-slate-900"
           >
             <ArrowLeft className="h-4 w-4" />
-            Quay lại danh sách phòng
+            Quay lại trang chủ
           </Link>
 
           <h1 className="mt-3 text-3xl font-extrabold text-slate-950 sm:text-4xl">
@@ -198,7 +216,7 @@ export default async function RoomDetailPage({ params }: RoomDetailPageProps) {
               <Star className="h-4 w-4 fill-[#f59e0b] text-[#f59e0b]" />
               {ratingText}
             </span>
-            <span>({comments.length} đánh giá)</span>
+            <span>({visibleComments.length} đánh giá)</span>
             <span className="text-slate-300">|</span>
             <span className="inline-flex items-center gap-1">
               <MapPin className="h-4 w-4" />
@@ -233,7 +251,7 @@ export default async function RoomDetailPage({ params }: RoomDetailPageProps) {
       </section>
 
       <section className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_400px]">
-        <div className="space-y-8">
+        <div className="min-w-0 space-y-8">
           <article className="rounded-[28px] border border-line bg-white p-6 text-slate-950 shadow-sm sm:p-8">
             <div className="flex flex-wrap items-start justify-between gap-5 border-b border-line pb-6">
               <div>
@@ -328,7 +346,7 @@ export default async function RoomDetailPage({ params }: RoomDetailPageProps) {
             )}
           </article>
 
-          <article className="rounded-[28px] border border-line bg-white p-6 shadow-sm">
+          <article className="min-w-0 rounded-[28px] border border-line bg-white p-6 shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
@@ -337,39 +355,17 @@ export default async function RoomDetailPage({ params }: RoomDetailPageProps) {
                 <h2 className="mt-2 text-2xl font-bold text-slate-950">Đánh giá từ khách đã ở</h2>
               </div>
               <span className="rounded-full bg-[#0f2f8e] px-4 py-2 text-sm font-semibold text-white">
-                {comments.length} bình luận
+                {visibleComments.length} bình luận
               </span>
             </div>
 
-            <div className="mt-6 space-y-4">
-              {comments.length > 0 ? (
-                comments.map((item) => (
-                  <article key={item.id} className="rounded-3xl border border-line bg-slate-50 p-5">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#0f2f8e] text-sm font-bold text-white">
-                          {(item.tenNguoiBinhLuan || "U").slice(0, 1).toUpperCase()}
-                        </div>
-                        <div>
-                          <p className="font-semibold text-slate-950">
-                            {item.tenNguoiBinhLuan || `Người dùng #${item.maNguoiBinhLuan}`}
-                          </p>
-                          <p className="text-sm text-slate-500">{formatDate(item.ngayBinhLuan)}</p>
-                        </div>
-                      </div>
-                      <span className="rounded-full bg-white px-3 py-1 text-sm font-semibold text-slate-700">
-                        {item.saoBinhLuan}/5
-                      </span>
-                    </div>
-                    <ExpandableComment content={item.noiDung} />
-                  </article>
-                ))
-              ) : (
-                <div className="rounded-3xl border border-dashed border-line bg-slate-50 p-6 text-sm leading-7 text-slate-600">
-                  Chưa có bình luận nào cho phòng này. Đây là lựa chọn phù hợp nếu
-                  bạn muốn trải nghiệm một nơi ở mới trên Stayora.
-                </div>
-              )}
+            <div className="mt-6 space-y-5">
+              <CommentForm
+                roomId={room.id}
+                isAuthenticated={isAuthenticated}
+                canComment={canComment}
+              />
+              <RoomComments comments={visibleComments} />
             </div>
           </article>
         </div>

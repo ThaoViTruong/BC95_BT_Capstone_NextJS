@@ -18,7 +18,6 @@ export type RoleInfo = {
 
 export const mainNav: NavItem[] = [
   { label: "Trang chủ", href: "/", note: "Trang giới thiệu" },
-  { label: "Phòng", href: "/phong", note: "Danh sách phòng" },
   { label: "Tài khoản", href: "/tai-khoan", note: "Khu khách đặt phòng" },
   { label: "Chủ cho thuê", href: "/chu-cho-thue", note: "Khu vận hành phòng" },
   { label: "Quản trị", href: "/quan-tri", note: "Khu quản trị hệ thống" },
@@ -32,7 +31,7 @@ export const roleList: RoleInfo[] = [
     href: "/",
     items: [
       { label: "Trang chủ", href: "/", note: "Màn hình giới thiệu" },
-      { label: "Danh sách phòng", href: "/phong", note: "Khám phá phòng" },
+      { label: "Phòng nổi bật", href: "/", note: "Khám phá ngay tại trang chủ" },
     ],
   },
   {
