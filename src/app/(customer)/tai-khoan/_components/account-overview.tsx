@@ -421,10 +421,10 @@ export function AccountOverview({ initialUser, rentedRooms }: AccountOverviewPro
           </Link>
 
           <Link
-            href="/phong"
+            href="/"
             className="inline-flex h-11 items-center justify-center rounded-2xl border border-[#0f2f8e] px-4 text-sm font-bold text-[#0f2f8e] transition hover:bg-[#0f2f8e] hover:text-white"
           >
-            Xem phòng
+            Về trang chủ
           </Link>
         </div>
       </header>
@@ -840,10 +840,10 @@ export function AccountOverview({ initialUser, rentedRooms }: AccountOverviewPro
                     : "Khi phát sinh booking, danh sách này sẽ tự động hiển thị để bạn xem lại và đặt lại nhanh chóng."}
                 </p>
                 <Link
-                  href="/phong"
+                  href="/"
                   className="mt-5 inline-flex h-11 items-center justify-center rounded-2xl bg-[#0f2f8e] px-5 text-sm font-bold text-white transition hover:bg-[#0b246d]"
                 >
-                  Khám phá phòng ngay
+                  Khám phá ngay tại trang chủ
                 </Link>
               </div>
             )}
