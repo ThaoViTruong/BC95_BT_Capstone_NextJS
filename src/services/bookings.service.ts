@@ -2,16 +2,22 @@ import { apiRequest } from "@/lib/api-client";
 import type { Booking, BookingPayload } from "@/types/booking";
 
 export const bookingsService = {
-  getAll() {
-    return apiRequest<Booking[]>("/api/dat-phong");
+  getAll(token?: string) {
+    return apiRequest<Booking[]>("/api/dat-phong", {
+      token,
+    });
   },
 
-  getById(id: number) {
-    return apiRequest<Booking>(`/api/dat-phong/${id}`);
+  getById(id: number, token?: string) {
+    return apiRequest<Booking>(`/api/dat-phong/${id}`, {
+      token,
+    });
   },
 
-  getByUser(userId: number) {
-    return apiRequest<Booking[]>(`/api/dat-phong/lay-theo-nguoi-dung/${userId}`);
+  getByUser(userId: number, token?: string) {
+    return apiRequest<Booking[]>(`/api/dat-phong/lay-theo-nguoi-dung/${userId}`, {
+      token,
+    });
   },
 
   create(payload: BookingPayload, token?: string) {

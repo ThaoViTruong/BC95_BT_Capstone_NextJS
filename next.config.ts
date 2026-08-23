@@ -8,6 +8,22 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "airbnbnew.cybersoft.edu.vn",
       },
+      {
+        protocol: "https",
+        hostname: "coresg-normal.trae.ai",
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
+      {
+        protocol: "https",
+        hostname: "dogolegia.vn",
+      },
+      {
+        protocol: "https",
+        hostname: "acihome.vn",
+      },
     ],
   },
 };

@@ -1,9 +1,18 @@
-import type { AuthUser, StoredAuth } from "@/types/auth";
+import type { AuthUser, RememberedSignIn, StoredAuth } from "@/types/auth";
+import { AUTH_STORAGE_KEY, REMEMBERED_SIGNIN_KEY } from "@/lib/auth-constants";
 
-const AUTH_KEY = "bc95-booking-auth";
+export const AUTH_STORAGE_EVENT = "stayora-auth-storage-change";
 
 function isBrowser() {
   return typeof window !== "undefined";
+}
+
+function dispatchAuthChange() {
+  if (!isBrowser()) {
+    return;
+  }
+
+  window.dispatchEvent(new Event(AUTH_STORAGE_EVENT));
 }
 
 export function getStoredAuth(): StoredAuth | null {
@@ -11,7 +20,7 @@ export function getStoredAuth(): StoredAuth | null {
     return null;
   }
 
-  const raw = window.localStorage.getItem(AUTH_KEY);
+  const raw = window.localStorage.getItem(AUTH_STORAGE_KEY);
 
   if (!raw) {
     return null;
@@ -20,7 +29,7 @@ export function getStoredAuth(): StoredAuth | null {
   try {
     return JSON.parse(raw) as StoredAuth;
   } catch {
-    window.localStorage.removeItem(AUTH_KEY);
+    window.localStorage.removeItem(AUTH_STORAGE_KEY);
     return null;
   }
 }
@@ -38,7 +47,8 @@ export function setStoredAuth(data: StoredAuth) {
     return;
   }
 
-  window.localStorage.setItem(AUTH_KEY, JSON.stringify(data));
+  window.localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(data));
+  dispatchAuthChange();
 }
 
 export function clearStoredAuth() {
@@ -46,5 +56,45 @@ export function clearStoredAuth() {
     return;
   }
 
-  window.localStorage.removeItem(AUTH_KEY);
+  window.localStorage.removeItem(AUTH_STORAGE_KEY);
+  dispatchAuthChange();
+}
+
+export function getRememberedSignIn(): RememberedSignIn | null {
+  if (!isBrowser()) {
+    return null;
+  }
+
+  const raw = window.localStorage.getItem(REMEMBERED_SIGNIN_KEY);
+
+  if (!raw) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(raw) as RememberedSignIn;
+  } catch {
+    window.localStorage.removeItem(REMEMBERED_SIGNIN_KEY);
+    return null;
+  }
+}
+
+export function setRememberedSignIn(data: RememberedSignIn) {
+  if (!isBrowser()) {
+    return;
+  }
+
+  const normalizedData: RememberedSignIn = {
+    email: data.email.trim(),
+  };
+
+  window.localStorage.setItem(REMEMBERED_SIGNIN_KEY, JSON.stringify(normalizedData));
+}
+
+export function clearRememberedSignIn() {
+  if (!isBrowser()) {
+    return;
+  }
+
+  window.localStorage.removeItem(REMEMBERED_SIGNIN_KEY);
 }

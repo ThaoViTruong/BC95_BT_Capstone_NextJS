@@ -1,6 +1,6 @@
 export const siteConfig = {
-  name: "BC95 Booking",
-  shortName: "Booking",
+  name: "Stayora",
+  shortName: "Stayora",
   description:
-    "Nền tảng đặt phòng với luồng rõ ràng cho khách ghé qua, khách đặt phòng, chủ cho thuê và quản trị viên.",
+    "Stayora là nền tảng đặt phòng giúp người dùng tìm kiếm, xem thông tin và chọn nơi lưu trú phù hợp một cách rõ ràng, đơn giản.",
 };
