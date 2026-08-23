@@ -44,7 +44,7 @@ function isAllowedPath(pathname: string, role: RoleKey) {
     return role === "host" || role === "admin";
   }
 
-  if (pathname.startsWith("/dat-phong") || pathname.startsWith("/chuyen-di")) {
+  if (pathname.startsWith("/chuyen-di")) {
     return role !== "guest";
   }
 
@@ -86,5 +86,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/quan-tri/:path*", "/chu-cho-thue/:path*", "/dat-phong/:path*", "/chuyen-di/:path*"],
+  matcher: ["/quan-tri/:path*", "/chu-cho-thue/:path*", "/chuyen-di/:path*"],
 };

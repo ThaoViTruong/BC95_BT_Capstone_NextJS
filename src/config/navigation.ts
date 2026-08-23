@@ -42,7 +42,6 @@ export const roleList: RoleInfo[] = [
     href: "/tai-khoan",
     items: [
       { label: "Tổng quan", href: "/tai-khoan", note: "Thông tin tài khoản" },
-      { label: "Đặt phòng", href: "/dat-phong", note: "Tạo đơn đặt phòng" },
       { label: "Chuyến đi", href: "/chuyen-di", note: "Lịch sử lưu trú" },
     ],
   },
