@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useRef, useState, type ChangeEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,8 +25,12 @@ import { toast } from "sonner";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { getRoomImageSrc } from "@/lib/room-image";
 import { getStoredAuth, setStoredAuth } from "@/lib/auth-storage";
+import { migrateGuestFavoritesToUser } from "@/lib/favorite-rooms-storage";
 import { profileService } from "@/services/profile.service";
 import type { User } from "@/types/user";
+
+import { FavoriteRoomsSection } from "./favorite-rooms-section";
+import { PaginationButtons } from "@/components/shared/pagination-buttons";
 
 type StayStatus = "upcoming" | "active" | "completed";
 
@@ -236,7 +240,9 @@ export function AccountOverview({ initialUser, rentedRooms }: AccountOverviewPro
   const [isPasswordOpen, setIsPasswordOpen] = useState(false);
   const [isLoadingLatestUser, setIsLoadingLatestUser] = useState(false);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [activeRoomTab, setActiveRoomTab] = useState<"rented" | "favorite">("rented");
   const [activeStayTab, setActiveStayTab] = useState<StayStatus | "all">("all");
+  const [rentedPage, setRentedPage] = useState(1);
   const avatarInputRef = useRef<HTMLInputElement | null>(null);
   const profileForm = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
@@ -290,6 +296,12 @@ export function AccountOverview({ initialUser, rentedRooms }: AccountOverviewPro
       (room) => getStayStatusInfo(room.checkIn, room.checkOut).key === activeStayTab,
     );
   }, [activeStayTab, rentedRooms]);
+
+  useEffect(() => {
+    if (typeof user.id === "number" && user.id > 0) {
+      migrateGuestFavoritesToUser(user.id);
+    }
+  }, [user.id]);
 
   const syncStoredAuthUser = (nextUser: User) => {
     const storedAuth = getStoredAuth();
@@ -531,6 +543,34 @@ export function AccountOverview({ initialUser, rentedRooms }: AccountOverviewPro
         </aside>
 
         <section className="space-y-6">
+          <div className="relative grid grid-cols-2 rounded-2xl border border-line bg-slate-50/80 p-1">
+            <span
+              className={`absolute bottom-1 top-1 w-[calc(50%-4px)] rounded-2xl bg-[#0f2f8e] shadow-sm transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                activeRoomTab === "rented" ? "translate-x-0" : "translate-x-full"
+              }`}
+            />
+            <button
+              type="button"
+              onClick={() => setActiveRoomTab("rented")}
+              className={`relative z-10 rounded-2xl px-4 py-3 text-sm font-semibold transition-colors duration-300 ${
+                activeRoomTab === "rented" ? "text-white" : "text-slate-600 hover:text-[#0f2f8e]"
+              }`}
+            >
+              Phòng đã thuê
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveRoomTab("favorite")}
+              className={`relative z-10 rounded-2xl px-4 py-3 text-sm font-semibold transition-colors duration-300 ${
+                activeRoomTab === "favorite"
+                  ? "text-white"
+                  : "text-slate-600 hover:text-[#0f2f8e]"
+              }`}
+            >
+              Phòng yêu thích
+            </button>
+          </div>
+
           {isEditOpen ? (
             <section className="rounded-[28px] border border-white/80 bg-white p-6 shadow-sm sm:p-7">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -739,115 +779,144 @@ export function AccountOverview({ initialUser, rentedRooms }: AccountOverviewPro
             </section>
           ) : null}
 
-          <section>
-            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              <h2 className="text-2xl font-extrabold text-slate-950">Phòng đã thuê</h2>
-              <div className="flex flex-wrap gap-2">
-                {stayTabs.map((tab) => (
-                  <button
-                    key={tab.key}
-                    type="button"
-                    onClick={() => setActiveStayTab(tab.key)}
-                    className={`inline-flex h-10 items-center justify-center rounded-full px-4 text-sm font-semibold transition ${
-                      activeStayTab === tab.key
-                        ? "bg-[#0f2f8e] text-white"
-                        : "bg-white text-slate-700 hover:bg-slate-100"
-                    }`}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
-            </div>
+          {activeRoomTab === "favorite" ? (
+            <FavoriteRoomsSection userId={user.id} />
+          ) : (
+            (() => {
+              const pageSize = 4;
+              const totalPages = Math.max(1, Math.ceil(visibleRentedRooms.length / pageSize));
+              const safeCurrentPage = Math.min(Math.max(rentedPage, 1), totalPages);
+              const startIndex =
+                visibleRentedRooms.length === 0 ? 0 : (safeCurrentPage - 1) * pageSize;
+              const roomsToShow = visibleRentedRooms.slice(startIndex, startIndex + pageSize);
 
-            {visibleRentedRooms.length > 0 ? (
-              <div className="mt-4 grid gap-4 md:grid-cols-2">
-                {visibleRentedRooms.map((room) => {
-                  const stayStatus = getStayStatusInfo(room.checkIn, room.checkOut);
-
-                  return (
-                    <article
-                      key={room.bookingId}
-                      className="overflow-hidden rounded-[24px] border border-white/80 bg-white shadow-sm"
-                    >
-                      <div className="relative h-48 bg-slate-100">
-                        <Image
-                          src={getRoomImageSrc(room.roomImage)}
-                          alt={room.roomName}
-                          fill
-                          sizes="(max-width: 768px) 100vw, 50vw"
-                          className="object-cover"
-                        />
-                        <span className="absolute right-3 top-3 rounded-full bg-white/95 px-3 py-1 text-xs font-bold text-[#12315f] shadow-sm">
-                          {stayStatus.label}
-                        </span>
-                      </div>
-
-                      <div className="space-y-3 p-4">
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <h3 className="text-lg font-bold text-slate-950">{room.roomName}</h3>
-                            <p className="mt-1 inline-flex items-center gap-1 text-sm text-slate-500">
-                              <MapPin className="h-4 w-4 text-[#0f2f8e]" />
-                              {room.locationText}
-                            </p>
-                            <p className="mt-1 text-sm text-slate-500">
-                              {formatDate(room.checkIn)} - {formatDate(room.checkOut)}
-                            </p>
-                          </div>
-
-                          <span className="inline-flex items-center gap-1 text-sm font-semibold text-slate-900">
-                            <Star className="h-4 w-4 fill-[#facc15] text-[#facc15]" />
-                            {room.ratingValue.toFixed(1)}
-                          </span>
-                        </div>
-
-                        <div className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
-                          <p>Tối đa {room.guestCount} khách</p>
-                          <p className="mt-1">
-                            {room.ratingCount > 0
-                              ? `${room.ratingCount} đánh giá`
-                              : "Chưa có đánh giá"}
-                          </p>
-                          <p className="mt-1 font-semibold text-slate-900">
-                            {room.roomPrice > 0
-                              ? `${formatCurrency(room.roomPrice)} / đêm`
-                              : "Giá đang cập nhật"}
-                          </p>
-                        </div>
-
-                        <Link
-                          href={`/phong/${room.roomId}`}
-                          className="inline-flex h-11 w-full items-center justify-center rounded-2xl bg-slate-100 text-sm font-semibold text-slate-900 transition hover:bg-[#0f2f8e] hover:text-white"
+              return (
+                <section className="rounded-[28px] border border-white/80 bg-white p-6 shadow-sm sm:p-7">
+                  <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                    <h2 className="text-2xl font-extrabold text-slate-950">Phòng đã thuê</h2>
+                    <div className="flex flex-wrap gap-2">
+                      {stayTabs.map((tab) => (
+                        <button
+                          key={tab.key}
+                          type="button"
+                          onClick={() => {
+                            setActiveStayTab(tab.key);
+                            setRentedPage(1);
+                          }}
+                          className={`inline-flex h-10 items-center justify-center rounded-full px-4 text-sm font-semibold transition ${
+                            activeStayTab === tab.key
+                              ? "bg-[#0f2f8e] text-white"
+                              : "bg-slate-50 text-slate-700 hover:bg-slate-100"
+                          }`}
                         >
-                          Đặt lại
-                        </Link>
+                          {tab.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {roomsToShow.length > 0 ? (
+                    <>
+                      <div className="mt-5 grid gap-4 md:grid-cols-2">
+                        {roomsToShow.map((room) => {
+                          const stayStatus = getStayStatusInfo(room.checkIn, room.checkOut);
+
+                          return (
+                            <article
+                              key={room.bookingId}
+                              className="overflow-hidden rounded-[24px] border border-white/80 bg-white shadow-sm"
+                            >
+                              <div className="relative h-48 bg-slate-100">
+                                <Image
+                                  src={getRoomImageSrc(room.roomImage)}
+                                  alt={room.roomName}
+                                  fill
+                                  sizes="(max-width: 768px) 100vw, 50vw"
+                                  className="object-cover"
+                                />
+                                <span className="absolute right-3 top-3 rounded-full bg-white/95 px-3 py-1 text-xs font-bold text-[#12315f] shadow-sm">
+                                  {stayStatus.label}
+                                </span>
+                              </div>
+
+                              <div className="space-y-3 p-4">
+                                <div className="flex items-start justify-between gap-3">
+                                  <div>
+                                    <h3 className="text-lg font-bold text-slate-950">
+                                      {room.roomName}
+                                    </h3>
+                                    <p className="mt-1 inline-flex items-center gap-1 text-sm text-slate-500">
+                                      <MapPin className="h-4 w-4 text-[#0f2f8e]" />
+                                      {room.locationText}
+                                    </p>
+                                    <p className="mt-1 text-sm text-slate-500">
+                                      {formatDate(room.checkIn)} - {formatDate(room.checkOut)}
+                                    </p>
+                                  </div>
+
+                                  <span className="inline-flex items-center gap-1 text-sm font-semibold text-slate-900">
+                                    <Star className="h-4 w-4 fill-[#facc15] text-[#facc15]" />
+                                    {room.ratingValue.toFixed(1)}
+                                  </span>
+                                </div>
+
+                                <div className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                                  <p>Tối đa {room.guestCount} khách</p>
+                                  <p className="mt-1">
+                                    {room.ratingCount > 0
+                                      ? `${room.ratingCount} đánh giá`
+                                      : "Chưa có đánh giá"}
+                                  </p>
+                                  <p className="mt-1 font-semibold text-slate-900">
+                                    {room.roomPrice > 0
+                                      ? `${formatCurrency(room.roomPrice)} / đêm`
+                                      : "Giá đang cập nhật"}
+                                  </p>
+                                </div>
+
+                                <Link
+                                  href={`/phong/${room.roomId}`}
+                                  className="inline-flex h-11 w-full items-center justify-center rounded-2xl bg-slate-100 text-sm font-semibold text-slate-900 transition hover:bg-[#0f2f8e] hover:text-white"
+                                >
+                                  Đặt lại
+                                </Link>
+                              </div>
+                            </article>
+                          );
+                        })}
                       </div>
-                    </article>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="mt-4 rounded-[24px] border border-dashed border-line bg-white p-8 text-center shadow-sm">
-                <p className="text-lg font-bold text-slate-950">
-                  {rentedRooms.length > 0
-                    ? "Không có phòng phù hợp với bộ lọc hiện tại"
-                    : "Bạn chưa có phòng đã thuê"}
-                </p>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  {rentedRooms.length > 0
-                    ? "Hãy chuyển sang nhóm trạng thái khác để xem các booking còn lại của bạn."
-                    : "Khi phát sinh booking, danh sách này sẽ tự động hiển thị để bạn xem lại và đặt lại nhanh chóng."}
-                </p>
-                <Link
-                  href="/"
-                  className="mt-5 inline-flex h-11 items-center justify-center rounded-2xl bg-[#0f2f8e] px-5 text-sm font-bold text-white transition hover:bg-[#0b246d]"
-                >
-                  Khám phá ngay tại trang chủ
-                </Link>
-              </div>
-            )}
-          </section>
+
+                      <PaginationButtons
+                        className="mt-6"
+                        currentPage={safeCurrentPage}
+                        totalPages={totalPages}
+                        onPageChange={setRentedPage}
+                      />
+                    </>
+                  ) : (
+                    <div className="mt-5 rounded-[24px] border border-dashed border-line bg-white p-8 text-center shadow-sm">
+                      <p className="text-lg font-bold text-slate-950">
+                        {rentedRooms.length > 0
+                          ? "Không có phòng phù hợp với bộ lọc hiện tại"
+                          : "Bạn chưa có phòng đã thuê"}
+                      </p>
+                      <p className="mt-2 text-sm leading-6 text-slate-600">
+                        {rentedRooms.length > 0
+                          ? "Hãy chuyển sang nhóm trạng thái khác để xem các booking còn lại của bạn."
+                          : "Khi phát sinh booking, danh sách này sẽ tự động hiển thị để bạn xem lại và đặt lại nhanh chóng."}
+                      </p>
+                      <Link
+                        href="/"
+                        className="mt-5 inline-flex h-11 items-center justify-center rounded-2xl bg-[#0f2f8e] px-5 text-sm font-bold text-white transition hover:bg-[#0b246d]"
+                      >
+                        Khám phá ngay tại trang chủ
+                      </Link>
+                    </div>
+                  )}
+                </section>
+              );
+            })()
+          )}
         </section>
       </div>
     </main>

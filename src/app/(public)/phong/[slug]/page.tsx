@@ -9,12 +9,10 @@ import {
   CarFront,
   Clock3,
   CookingPot,
-  Heart,
   House,
   MapPin,
   Monitor,
   Sparkles,
-  Share2,
   Shirt,
   Star,
   Users,
@@ -42,6 +40,7 @@ import type { Room } from "@/types/room";
 import { BookingCard } from "./_components/booking-card";
 import { CommentForm } from "./_components/comment-form";
 import { RoomComments } from "./_components/room-comments";
+import { RoomActions } from "./_components/room-actions";
 
 type RoomDetailPageProps = {
   params: Promise<{ slug: string }>;
@@ -225,16 +224,7 @@ export default async function RoomDetailPage({ params }: RoomDetailPageProps) {
           </div>
         </div>
 
-        <div className="flex items-center gap-3 text-sm font-medium text-slate-600">
-          <span className="inline-flex items-center gap-2 rounded-full border border-line bg-white px-4 py-2">
-            <Share2 className="h-4 w-4" />
-            Chia sẻ
-          </span>
-          <span className="inline-flex items-center gap-2 rounded-full border border-line bg-white px-4 py-2">
-            <Heart className="h-4 w-4" />
-            Lưu
-          </span>
-        </div>
+        <RoomActions roomId={room.id} />
       </section>
 
       <section className="overflow-hidden rounded-[28px] border border-line bg-card shadow-sm">
