@@ -58,7 +58,6 @@ export default async function CustomerPage() {
           locationMap.set(roomId, location);
           commentMap.set(roomId, comments);
         } catch {
-          // Bỏ qua phòng không tải được để không chặn toàn bộ trang profile.
           locationMap.set(roomId, null);
           commentMap.set(roomId, []);
         }

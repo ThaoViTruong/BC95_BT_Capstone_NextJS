@@ -20,6 +20,7 @@ export type CreateUserPayload = {
   birthday: string;
   gender: boolean;
   role: UserRole;
+  
 };
 
 export type UpdateUserPayload = {

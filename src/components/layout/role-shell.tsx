@@ -28,9 +28,11 @@ export function RoleShell({ title, desc, items, children }: RoleShellProps) {
         </div>
 
         <nav className="mt-4 space-y-2">
-          {items.map((item) => {
+          {items.map((item, index) => {
             const active =
-              path === item.href || (item.href !== "/" && path.startsWith(`${item.href}/`));
+              index === 0
+                ? path === item.href
+                : path === item.href || path.startsWith(`${item.href}/`);
 
             return (
               <Link
@@ -39,8 +41,8 @@ export function RoleShell({ title, desc, items, children }: RoleShellProps) {
                 className={cn(
                   "block rounded-2xl border px-4 py-3 transition",
                   active
-                    ? "border-slate-950 bg-slate-950 text-white"
-                    : "border-line bg-white text-slate-800 hover:border-slate-950",
+                    ? "border-[#0B246D] bg-[#0B246D] text-white"
+                    : "border-line bg-white text-slate-800 hover:bg-slate-400",
                 )}
               >
                 <p className="text-sm font-semibold">{item.label}</p>

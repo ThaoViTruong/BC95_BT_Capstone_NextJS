@@ -66,20 +66,42 @@ export const roleList: RoleInfo[] = [
   {
     key: "admin",
     title: "Quản trị viên",
-    desc: "Giám sát người dùng, nội dung, vận hành và báo cáo toàn hệ thống.",
+    desc: "",
     href: "/quan-tri",
     items: [
-      { label: "Tổng quan", href: "/quan-tri", note: "Chỉ số toàn hệ thống" },
+      { label: "Tổng quan", href: "/quan-tri", note: "" },
+      {
+        label: "Báo cáo",
+        href: "/quan-tri/bao-cao",
+        note: "Doanh thu và Số liệu",
+      },
       {
         label: "Người dùng",
         href: "/quan-tri/nguoi-dung",
         note: "Quản lý tài khoản",
       },
       {
-        label: "Báo cáo",
-        href: "/quan-tri/bao-cao",
-        note: "Doanh thu và kiểm soát",
+        label: "Danh sách phòng",
+        href: "/quan-tri/phong",
+        note: "Quản lý danh sách phòng",
       },
+      {
+        label: "Địa điểm",
+        href: "/quan-tri/dia-diem",
+        note: "Quản lý địa điểm",
+      },
+      {
+        label: "Booking",
+        href: "/quan-tri/dat-phong",
+        note: "Quản lý đặt phòng",
+      },
+      {
+        label: "Đánh giá",
+        href: "/quan-tri/danh-gia",
+        note: "Quản lý đánh giá",
+      },
+      
+      
     ],
   },
 ];
