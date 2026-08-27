@@ -11,8 +11,13 @@ function getTrimmedEnv(...keys: string[]) {
 }
 
 export function getApiEnv() {
-  const apiUrl = getTrimmedEnv("NEXT_PUBLIC_API_URL", "API_URL");
-  const cybersoftToken = getTrimmedEnv("NEXT_PUBLIC_CYBERSOFT_TOKEN", "TOKEN");
+  const apiUrl =
+    process.env.NEXT_PUBLIC_API_URL?.trim() ||
+    getTrimmedEnv("API_URL");
+
+  const cybersoftToken =
+    process.env.NEXT_PUBLIC_CYBERSOFT_TOKEN?.trim() ||
+    getTrimmedEnv("TOKEN");
 
   return {
     apiUrl,
@@ -26,11 +31,11 @@ export function getMissingApiEnv() {
   const missing: string[] = [];
 
   if (!apiUrl) {
-    missing.push("NEXT_PUBLIC_API_URL hoặc API_URL");
+    missing.push("NEXT_PUBLIC_API_URL");
   }
 
   if (!cybersoftToken) {
-    missing.push("NEXT_PUBLIC_CYBERSOFT_TOKEN hoặc TOKEN");
+    missing.push("NEXT_PUBLIC_CYBERSOFT_TOKEN");
   }
 
   return missing;
