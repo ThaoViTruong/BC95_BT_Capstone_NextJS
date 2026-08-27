@@ -41,11 +41,7 @@ const signInSchema = z.object({
 function getLatestAllowedBirthday() {
   const today = new Date();
 
-  return new Date(
-    today.getFullYear() - 18,
-    today.getMonth(),
-    today.getDate(),
-  );
+  return new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
 }
 
 function formatDateInputValue(date: Date) {
@@ -115,20 +111,6 @@ function formatBirthday(value: string) {
   return `${day}/${month}/${year}`;
 }
 
-function redirectAfterSignIn(role?: string) {
-  const normalizedRole = role?.trim().toUpperCase();
-
-  if (normalizedRole === "ADMIN") {
-    return "/quan-tri";
-  }
-
-  if (normalizedRole === "HOST") {
-    return "/chu-cho-thue";
-  }
-
-  return "/tai-khoan";
-}
-
 function SocialButton({
   label,
   onClick,
@@ -184,7 +166,11 @@ function PasswordField({
           className="shrink-0 text-slate-500 transition hover:text-[#0f2f8e]"
           aria-label={visible ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
         >
-          {visible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          {visible ? (
+            <EyeOff className="h-4 w-4" />
+          ) : (
+            <Eye className="h-4 w-4" />
+          )}
         </button>
       </div>
       <FieldError message={error} />
@@ -195,9 +181,13 @@ function PasswordField({
 export function AuthFormPanel() {
   const router = useRouter();
   const rememberedSignIn = getRememberedSignIn();
-  const latestAllowedBirthday = formatDateInputValue(getLatestAllowedBirthday());
+  const latestAllowedBirthday = formatDateInputValue(
+    getLatestAllowedBirthday(),
+  );
   const [activeTab, setActiveTab] = useState<AuthTab>("signin");
-  const [rememberPassword, setRememberPassword] = useState(Boolean(rememberedSignIn));
+  const [rememberPassword, setRememberPassword] = useState(
+    Boolean(rememberedSignIn),
+  );
   const [showSignInPassword, setShowSignInPassword] = useState(false);
   const [showSignUpPassword, setShowSignUpPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -224,69 +214,71 @@ export function AuthFormPanel() {
   });
 
   const handleSignIn = signInForm.handleSubmit(async (values) => {
-    try {
-      const user = await authService.signIn(values);
+  try {
+    const user = await authService.signIn(values);
 
-      if (!user.token) {
-        toast.error("Đăng nhập thành công nhưng chưa nhận được token.");
-        return;
-      }
+    if (!user.token) {
+      toast.error("Đăng nhập thành công nhưng chưa nhận được token.");
+      return;
+    }
 
+    setStoredAuth({
+      token: user.token,
+      user,
+    });
+
+    if (rememberPassword) {
+      setRememberedSignIn({
+        email: values.email,
+      });
+    } else {
+      clearRememberedSignIn();
+    }
+
+    toast.success("Đăng nhập thành công.");
+    router.push("/");
+    router.refresh();
+  } catch (error) {
+    toast.error(getErrorMessage(error));
+  }
+});
+
+  const handleSignUp = signUpForm.handleSubmit(async (values) => {
+  try {
+    const payload = {
+      name: values.name,
+      email: values.email,
+      phone: values.phone,
+      birthday: formatBirthday(values.birthday),
+      gender: values.gender === "male",
+      password: values.password,
+      role: "USER",
+    } as const;
+
+    const apiUser = await authService.signUp(payload);
+    const user = hydrateSignedUpUser(apiUser, payload);
+
+    if (user.token) {
       setStoredAuth({
         token: user.token,
         user,
       });
 
-      if (rememberPassword) {
-        setRememberedSignIn({
-          email: values.email,
-        });
-      } else {
-        clearRememberedSignIn();
-      }
-
-      toast.success("Đăng nhập thành công.");
-      router.push(redirectAfterSignIn(user.role));
+      toast.success("Đăng ký thành công.");
+      router.push("/");
       router.refresh();
-    } catch (error) {
-      toast.error(getErrorMessage(error));
+      return;
     }
-  });
 
-  const handleSignUp = signUpForm.handleSubmit(async (values) => {
-    try {
-      const payload = {
-        name: values.name,
-        email: values.email,
-        phone: values.phone,
-        birthday: formatBirthday(values.birthday),
-        gender: values.gender === "male",
-        password: values.password,
-        role: "USER",
-      } as const;
-      const apiUser = await authService.signUp(payload);
-      const user = hydrateSignedUpUser(apiUser, payload);
+    signInForm.setValue("email", values.email);
+    signInForm.setValue("password", values.password);
+    setActiveTab("signin");
 
-      if (user.token) {
-        setStoredAuth({
-          token: user.token,
-          user,
-        });
-
-        toast.success("Đăng ký thành công.");
-        router.push(redirectAfterSignIn(user.role));
-        router.refresh();
-        return;
-      }
-
-      signInForm.setValue("email", values.email);
-      signInForm.setValue("password", values.password);
-      setActiveTab("signin");
-      toast.success("Đăng ký thành công. Bạn có thể đăng nhập ngay.");
-    } catch (error) {
-      toast.error(getErrorMessage(error));
-    }
-  });
+    toast.success("Đăng ký thành công. Bạn có thể đăng nhập ngay.");
+  } catch (error) {
+    toast.error(getErrorMessage(error));
+  }
+});
 
   const formSlideClass =
     activeTab === "signin" ? "auth-slide-in-left" : "auth-slide-in-right";
@@ -313,8 +305,8 @@ export function AuthFormPanel() {
               Chào mừng đến với Stayora
             </h1>
             <p className="mt-3 max-w-sm text-sm leading-6 text-slate-500">
-              Đăng nhập hoặc tạo tài khoản mới để đặt phòng, theo dõi chuyến đi và
-              lưu nơi ở yêu thích.
+              Đăng nhập hoặc tạo tài khoản mới để đặt phòng, theo dõi chuyến đi
+              và lưu nơi ở yêu thích.
             </p>
           </div>
 
@@ -365,7 +357,9 @@ export function AuthFormPanel() {
                         className="h-12 w-full border-none bg-transparent text-sm text-slate-900 outline-none"
                       />
                     </div>
-                    <FieldError message={signInForm.formState.errors.email?.message} />
+                    <FieldError
+                      message={signInForm.formState.errors.email?.message}
+                    />
                   </div>
 
                   <div>
@@ -375,7 +369,11 @@ export function AuthFormPanel() {
                       </label>
                       <button
                         type="button"
-                        onClick={() => toast.info("Chức năng quên mật khẩu sẽ được bổ sung sau.")}
+                        onClick={() =>
+                          toast.info(
+                            "Chức năng quên mật khẩu sẽ được bổ sung sau.",
+                          )
+                        }
                         className="text-xs font-semibold text-[#0f2f8e]"
                       >
                         Quên mật khẩu?
@@ -395,7 +393,9 @@ export function AuthFormPanel() {
                       <input
                         type="checkbox"
                         checked={rememberPassword}
-                        onChange={(event) => setRememberPassword(event.target.checked)}
+                        onChange={(event) =>
+                          setRememberPassword(event.target.checked)
+                        }
                         className="h-4 w-4 rounded border-line accent-[#0f2f8e]"
                       />
                       Ghi nhớ email cho lần đăng nhập sau
@@ -407,7 +407,9 @@ export function AuthFormPanel() {
                     disabled={signInForm.formState.isSubmitting}
                     className="inline-flex h-12 w-full items-center justify-center rounded-2xl bg-[#0f2f8e] px-4 text-sm font-bold text-white transition hover:bg-[#0b246d] disabled:cursor-not-allowed disabled:opacity-70"
                   >
-                    {signInForm.formState.isSubmitting ? "Đang đăng nhập..." : "Đăng nhập"}
+                    {signInForm.formState.isSubmitting
+                      ? "Đang đăng nhập..."
+                      : "Đăng nhập"}
                   </button>
                 </form>
               ) : (
@@ -425,7 +427,9 @@ export function AuthFormPanel() {
                         className="h-12 w-full border-none bg-transparent text-sm text-slate-900 outline-none"
                       />
                     </div>
-                    <FieldError message={signUpForm.formState.errors.name?.message} />
+                    <FieldError
+                      message={signUpForm.formState.errors.name?.message}
+                    />
                   </div>
 
                   <div className="grid gap-4 sm:grid-cols-2">
@@ -442,7 +446,9 @@ export function AuthFormPanel() {
                           className="h-12 w-full border-none bg-transparent text-sm text-slate-900 outline-none"
                         />
                       </div>
-                      <FieldError message={signUpForm.formState.errors.email?.message} />
+                      <FieldError
+                        message={signUpForm.formState.errors.email?.message}
+                      />
                     </div>
 
                     <div>
@@ -460,7 +466,9 @@ export function AuthFormPanel() {
                           className="h-12 w-full border-none bg-transparent text-sm text-slate-900 outline-none"
                         />
                       </div>
-                      <FieldError message={signUpForm.formState.errors.phone?.message} />
+                      <FieldError
+                        message={signUpForm.formState.errors.phone?.message}
+                      />
                     </div>
                   </div>
 
@@ -478,7 +486,9 @@ export function AuthFormPanel() {
                           className="h-12 w-full border-none bg-transparent text-sm text-slate-900 outline-none"
                         />
                       </div>
-                      <FieldError message={signUpForm.formState.errors.birthday?.message} />
+                      <FieldError
+                        message={signUpForm.formState.errors.birthday?.message}
+                      />
                     </div>
 
                     <div>
@@ -492,7 +502,9 @@ export function AuthFormPanel() {
                         <option value="male">Nam</option>
                         <option value="female">Nữ</option>
                       </select>
-                      <FieldError message={signUpForm.formState.errors.gender?.message} />
+                      <FieldError
+                        message={signUpForm.formState.errors.gender?.message}
+                      />
                     </div>
                   </div>
 
@@ -503,7 +515,9 @@ export function AuthFormPanel() {
                       </label>
                       <PasswordField
                         visible={showSignUpPassword}
-                        onToggle={() => setShowSignUpPassword((value) => !value)}
+                        onToggle={() =>
+                          setShowSignUpPassword((value) => !value)
+                        }
                         placeholder="Tạo mật khẩu"
                         error={signUpForm.formState.errors.password?.message}
                         register={signUpForm.register("password")}
@@ -516,9 +530,13 @@ export function AuthFormPanel() {
                       </label>
                       <PasswordField
                         visible={showConfirmPassword}
-                        onToggle={() => setShowConfirmPassword((value) => !value)}
+                        onToggle={() =>
+                          setShowConfirmPassword((value) => !value)
+                        }
                         placeholder="Nhập lại mật khẩu"
-                        error={signUpForm.formState.errors.confirmPassword?.message}
+                        error={
+                          signUpForm.formState.errors.confirmPassword?.message
+                        }
                         register={signUpForm.register("confirmPassword")}
                       />
                     </div>
@@ -529,7 +547,9 @@ export function AuthFormPanel() {
                     disabled={signUpForm.formState.isSubmitting}
                     className="inline-flex h-12 w-full items-center justify-center rounded-2xl bg-[#0f2f8e] px-4 text-sm font-bold text-white transition hover:bg-[#0b246d] disabled:cursor-not-allowed disabled:opacity-70"
                   >
-                    {signUpForm.formState.isSubmitting ? "Đang tạo tài khoản..." : "Đăng ký"}
+                    {signUpForm.formState.isSubmitting
+                      ? "Đang tạo tài khoản..."
+                      : "Đăng ký"}
                   </button>
                 </form>
               )}
@@ -538,18 +558,24 @@ export function AuthFormPanel() {
             <div className="mt-6">
               <div className="flex items-center gap-3">
                 <div className="h-px flex-1 bg-line" />
-                <p className="text-xs font-medium text-slate-400">Hoặc tiếp tục với</p>
+                <p className="text-xs font-medium text-slate-400">
+                  Hoặc tiếp tục với
+                </p>
                 <div className="h-px flex-1 bg-line" />
               </div>
 
               <div className="mt-4 grid grid-cols-2 gap-3">
                 <SocialButton
                   label="Google"
-                  onClick={() => toast.info("Đăng nhập với Google sẽ được bổ sung sau.")}
+                  onClick={() =>
+                    toast.info("Đăng nhập với Google sẽ được bổ sung sau.")
+                  }
                 />
                 <SocialButton
                   label="Facebook"
-                  onClick={() => toast.info("Đăng nhập với Facebook sẽ được bổ sung sau.")}
+                  onClick={() =>
+                    toast.info("Đăng nhập với Facebook sẽ được bổ sung sau.")
+                  }
                 />
               </div>
 

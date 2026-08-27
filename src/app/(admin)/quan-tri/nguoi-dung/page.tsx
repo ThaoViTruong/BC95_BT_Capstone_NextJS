@@ -223,6 +223,7 @@ export default function AdminUserPage() {
     name: false,
     email: false,
     birthday: false,
+    phone: false,
   });
 
   useEffect(() => {
@@ -490,6 +491,7 @@ export default function AdminUserPage() {
       name: false,
       email: false,
       birthday: false,
+      phone: false,
     });
 
     setEditingUser({ ...user });
@@ -530,6 +532,7 @@ export default function AdminUserPage() {
   const editErrors = {
     name: getNameError(editingUser?.name),
     email: getEmailError(editingUser?.email),
+    phone: getPhoneError(editingUser?.phone),
     birthday: getBirthdayError(editingUser?.birthday),
   };
 
@@ -537,6 +540,7 @@ export default function AdminUserPage() {
     editingUser !== null &&
     !editErrors.name &&
     !editErrors.email &&
+    !editErrors.phone &&
     !editErrors.birthday &&
     typeof editingUser.gender === "boolean" &&
     isValidRole(editingUser.role);
@@ -1358,18 +1362,41 @@ export default function AdminUserPage() {
 
               <div>
                 <label className="mb-2 block text-sm font-semibold">
-                  Số điện thoại
+                  Số điện thoại <span className="text-red-500">*</span>
                 </label>
 
                 <input
+                  type="tel"
+                  inputMode="numeric"
+                  maxLength={10}
                   value={editingUser.phone ?? ""}
-                  readOnly
-                  className="w-full cursor-not-allowed rounded-xl border border-slate-200 bg-slate-100 px-4 py-2.5 text-slate-500"
+                  onChange={(event) => {
+                    const phone = event.target.value.replace(/\D/g, "");
+
+                    setEditingUser({
+                      ...editingUser,
+                      phone,
+                    });
+                  }}
+                  onBlur={() =>
+                    setEditTouched((current) => ({
+                      ...current,
+                      phone: true,
+                    }))
+                  }
+                  placeholder="0901234567"
+                  className={`w-full rounded-xl border px-4 py-2.5 outline-none ${
+                    editTouched.phone && editErrors.phone
+                      ? "border-red-500 focus:ring-2 focus:ring-red-100"
+                      : "border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  }`}
                 />
 
-                <p className="mt-1 text-xs text-slate-400">
-                  Số điện thoại không thể thay đổi.
-                </p>
+                {editTouched.phone && editErrors.phone && (
+                  <p className="mt-1 text-sm text-red-500">
+                    {editErrors.phone}
+                  </p>
+                )}
               </div>
 
               <div>

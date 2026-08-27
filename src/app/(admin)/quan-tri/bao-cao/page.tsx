@@ -185,8 +185,6 @@ export default function AdminReportPage() {
     1,
   );
 
-  
-
   if (loading) {
     return (
       <div className="space-y-6">
@@ -227,16 +225,12 @@ export default function AdminReportPage() {
     <div className="space-y-6">
       <section className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">
-            Báo cáo & thống kê
-          </h1>
+          <h1 className="text-2xl font-bold text-white">Báo cáo & thống kê</h1>
 
           <p className="mt-1 text-sm text-white/80">
             Theo dõi hiệu suất đặt phòng và doanh thu
           </p>
         </div>
-
-        
       </section>
 
       <section className="rounded-2xl border border-line bg-card p-3 shadow-sm">

@@ -92,7 +92,7 @@ export const roleList: RoleInfo[] = [
       },
       {
         label: "Booking",
-        href: "/quan-tri/dat-phong",
+        href: "/quan-tri/booking",
         note: "Quản lý đặt phòng",
       },
       {

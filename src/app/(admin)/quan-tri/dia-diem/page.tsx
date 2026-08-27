@@ -273,38 +273,31 @@ export default function AdminLocationPage() {
   }
 
   async function confirmDeleteLocation() {
-    if (deleteLocationId === null) {
-      return;
-    }
+  if (deleteLocationId === null) return;
 
-    try {
-      await locationsService.remove(deleteLocationId);
+  try {
+    await locationsService.remove(deleteLocationId);
 
-      if (searchResults !== null) {
-        setSearchResults((current) =>
-          current
-            ? current.filter((location) => location.id !== deleteLocationId)
-            : null,
-        );
-      } else {
-        setRefreshKey((current) => current + 1);
-      }
-
-      setDeleteLocationId(null);
-
-      showNotification(
-        "success",
-        "Xóa thành công",
-        "Địa điểm đã được xóa khỏi hệ thống.",
+    if (searchResults !== null) {
+      setSearchResults((current) =>
+        current ? current.filter((loc) => loc.id !== deleteLocationId) : null,
       );
-    } catch (error) {
-      console.error("Lỗi xóa địa điểm:", error);
-
-      setDeleteLocationId(null);
-
-      showNotification("error", "Xóa thất bại", "Không thể xóa địa điểm.");
+    } else {
+      setRefreshKey((current) => current + 1);
     }
+
+    setDeleteLocationId(null);
+    showNotification("success", "Xóa thành công", "Địa điểm đã được xóa.");
+  } catch (error: any) {
+    console.error("Lỗi xóa địa điểm:", error);
+    setDeleteLocationId(null);
+
+    const serverMessage =
+      error?.response?.data?.content || "Không thể xóa địa điểm này.";
+
+    showNotification("error", "Xóa thất bại", serverMessage);
   }
+}
 
   return (
     <>

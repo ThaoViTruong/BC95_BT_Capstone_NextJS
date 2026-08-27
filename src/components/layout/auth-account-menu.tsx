@@ -12,36 +12,21 @@ import {
   getCurrentUser,
 } from "@/lib/auth-storage";
 import { authService } from "@/services/auth.service";
-import type { UserRole } from "@/types/user";
-
-function resolveAccountLink(role?: UserRole) {
-  const normalizedRole = role?.trim().toUpperCase();
-
-  if (normalizedRole === "ADMIN") {
-    return "/quan-tri";
-  }
-
-  if (normalizedRole === "HOST") {
-    return "/chu-cho-thue";
-  }
-
-  return "/tai-khoan";
-}
 
 export function AuthAccountMenu() {
   const router = useRouter();
-  const [currentUser, setCurrentUser] = useState<ReturnType<typeof getCurrentUser>>(null);
+
+  const [currentUser, setCurrentUser] =
+    useState<ReturnType<typeof getCurrentUser>>(null);
+
   const [isSigningOut, setIsSigningOut] = useState(false);
+
   const displayName = useMemo(() => {
     const name = currentUser?.name?.trim();
     const email = currentUser?.email?.trim();
 
     return name || email || "Tài khoản";
   }, [currentUser?.email, currentUser?.name]);
-  const accountLink = useMemo(
-    () => resolveAccountLink(currentUser?.role),
-    [currentUser?.role],
-  );
 
   useEffect(() => {
     const syncUser = () => {
@@ -49,6 +34,7 @@ export function AuthAccountMenu() {
     };
 
     syncUser();
+
     window.addEventListener("storage", syncUser);
     window.addEventListener(AUTH_STORAGE_EVENT, syncUser);
 
@@ -75,7 +61,6 @@ export function AuthAccountMenu() {
       setIsSigningOut(true);
       await authService.signOut();
     } catch {
-      // Vẫn cho phép đăng xuất cục bộ nếu API signout bị lỗi.
     } finally {
       clearStoredAuth();
       setIsSigningOut(false);
@@ -87,13 +72,35 @@ export function AuthAccountMenu() {
 
   return (
     <div className="flex items-center gap-2 rounded-full border border-line bg-white px-2 py-1 shadow-sm">
+      {/* Trang tài khoản cá nhân */}
       <Link
-        href={accountLink}
+        href="/tai-khoan"
         className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-semibold text-[#0f2f8e] transition hover:bg-slate-100"
       >
         <CircleUserRound className="h-4 w-4" />
         <span>{displayName}</span>
       </Link>
+
+      {/* Chỉ ADMIN mới thấy nút quản trị */}
+      {currentUser.role?.trim().toUpperCase() === "ADMIN" && (
+        <Link
+          href="/quan-tri"
+          className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-[#0f2f8e] transition hover:bg-slate-200"
+        >
+          Quản trị
+        </Link>
+      )}
+
+      {/* Chỉ HOST mới thấy nút quản lý cho thuê */}
+      {currentUser.role?.trim().toUpperCase() === "HOST" && (
+        <Link
+          href="/chu-cho-thue"
+          className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-[#0f2f8e] transition hover:bg-slate-200"
+        >
+          Cho thuê
+        </Link>
+      )}
+
       <button
         type="button"
         onClick={handleSignOut}
