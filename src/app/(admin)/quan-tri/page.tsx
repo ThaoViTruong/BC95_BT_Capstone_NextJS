@@ -1,24 +1,14 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
-  ArrowRight,
   BedDouble,
   CalendarCheck,
-  LayoutDashboard,
   MapPin,
   MessageSquare,
-  Plus,
   RefreshCw,
   Users,
 } from "lucide-react";
-
-import { usersService } from "@/services/users.service";
-import { roomsService } from "@/services/rooms.service";
-import { locationsService } from "@/services/locations.service";
-import { bookingsService } from "@/services/bookings.service";
-import { commentsService } from "@/services/comments.service";
 
 type DashboardStats = {
   users: number;
@@ -39,34 +29,35 @@ const initialStats: DashboardStats = {
 export default function AdminPage() {
   const [stats, setStats] = useState<DashboardStats>(initialStats);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
 
   async function fetchDashboard(isRefresh = false) {
     try {
-      if (isRefresh) {
-        setRefreshing(true);
-      } else {
+      if (!isRefresh) {
         setLoading(true);
       }
 
       setError("");
 
-      const [users, rooms, locations, bookings, comments] =
-        await Promise.all([
-          usersService.getAll(),
-          roomsService.getAll(),
-          locationsService.getAll(),
-          bookingsService.getAll(),
-          commentsService.getAll(),
-        ]);
+      const response = await fetch("/api/admin/dashboard", {
+        method: "GET",
+        credentials: "include",
+        cache: "no-store",
+      });
+      const data = (await response.json()) as DashboardStats & {
+        message?: string;
+      };
+
+      if (!response.ok) {
+        throw new Error(data.message || "Không thể tải dữ liệu dashboard.");
+      }
 
       setStats({
-        users: users.length,
-        rooms: rooms.length,
-        locations: locations.length,
-        bookings: bookings.length,
-        comments: comments.length,
+        users: data.users,
+        rooms: data.rooms,
+        locations: data.locations,
+        bookings: data.bookings,
+        comments: data.comments,
       });
     } catch (error) {
       console.error("Lỗi tải dashboard:", error);
@@ -74,12 +65,15 @@ export default function AdminPage() {
       setError("Không thể tải dữ liệu thống kê. Vui lòng thử lại.");
     } finally {
       setLoading(false);
-      setRefreshing(false);
     }
   }
 
   useEffect(() => {
-    fetchDashboard();
+    const timer = window.setTimeout(() => {
+      void fetchDashboard();
+    }, 0);
+
+    return () => window.clearTimeout(timer);
   }, []);
 
   const adminStats = [
@@ -90,7 +84,7 @@ export default function AdminPage() {
       icon: Users,
       iconClass: "text-blue-600",
       iconBg: "bg-blue-50",
-      href: "/admin/users",
+      href: "/quan-tri/nguoi-dung",
     },
     {
       label: "Phòng",
@@ -99,7 +93,7 @@ export default function AdminPage() {
       icon: BedDouble,
       iconClass: "text-violet-600",
       iconBg: "bg-violet-50",
-      href: "/admin/rooms",
+      href: "/quan-tri/phong",
     },
     {
       label: "Địa điểm",
@@ -108,7 +102,7 @@ export default function AdminPage() {
       icon: MapPin,
       iconClass: "text-emerald-600",
       iconBg: "bg-emerald-50",
-      href: "/admin/locations",
+      href: "/quan-tri/dia-diem",
     },
     {
       label: "Đơn đặt phòng",
@@ -117,7 +111,7 @@ export default function AdminPage() {
       icon: CalendarCheck,
       iconClass: "text-orange-600",
       iconBg: "bg-orange-50",
-      href: "/admin/bookings",
+      href: "/quan-tri/booking",
     },
     {
       label: "Bình luận",
@@ -126,44 +120,7 @@ export default function AdminPage() {
       icon: MessageSquare,
       iconClass: "text-pink-600",
       iconBg: "bg-pink-50",
-      href: "/admin/comments",
-    },
-  ];
-
-  const maxValue = Math.max(
-    stats.users,
-    stats.rooms,
-    stats.locations,
-    stats.bookings,
-    stats.comments,
-    1,
-  );
-
-  const overviewItems = [
-    {
-      label: "Người dùng",
-      value: stats.users,
-      color: "bg-blue-500",
-    },
-    {
-      label: "Phòng",
-      value: stats.rooms,
-      color: "bg-violet-500",
-    },
-    {
-      label: "Địa điểm",
-      value: stats.locations,
-      color: "bg-emerald-500",
-    },
-    {
-      label: "Đặt phòng",
-      value: stats.bookings,
-      color: "bg-orange-500",
-    },
-    {
-      label: "Bình luận",
-      value: stats.comments,
-      color: "bg-pink-500",
+      href: "/quan-tri/danh-gia",
     },
   ];
 

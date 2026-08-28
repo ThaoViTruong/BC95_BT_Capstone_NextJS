@@ -26,4 +26,5 @@ export type StoredAuth = {
 
 export type RememberedSignIn = {
   email: string;
+  password: string;
 };

@@ -1,11 +1,11 @@
-"use client";
+﻿"use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Heart, Share2 } from "lucide-react";
 import { toast } from "sonner";
 import { usePathname } from "next/navigation";
 
-import { getCurrentUser } from "@/lib/auth-storage";
+import { AUTH_STORAGE_EVENT, getCurrentUser } from "@/lib/auth-storage";
 import {
   FAVORITE_ROOMS_EVENT,
   isFavoriteRoom,
@@ -17,11 +17,26 @@ type RoomActionsProps = {
 };
 
 function useUserId() {
-  return useMemo(() => {
-    const rawId = getCurrentUser()?.id;
-    const value = typeof rawId === "number" ? rawId : Number(rawId);
-    return Number.isInteger(value) && value > 0 ? value : undefined;
+  const [userId, setUserId] = useState<number | undefined>(undefined);
+
+  useEffect(() => {
+    const sync = () => {
+      const rawId = getCurrentUser()?.id;
+      const value = typeof rawId === "number" ? rawId : Number(rawId);
+      setUserId(Number.isInteger(value) && value > 0 ? value : undefined);
+    };
+
+    sync();
+    window.addEventListener("storage", sync);
+    window.addEventListener(AUTH_STORAGE_EVENT, sync);
+
+    return () => {
+      window.removeEventListener("storage", sync);
+      window.removeEventListener(AUTH_STORAGE_EVENT, sync);
+    };
   }, []);
+
+  return userId;
 }
 
 async function copyToClipboard(text: string) {
@@ -49,19 +64,22 @@ async function copyToClipboard(text: string) {
 export function RoomActions({ roomId }: RoomActionsProps) {
   const pathname = usePathname();
   const userId = useUserId();
-  const [isFavorite, setIsFavorite] = useState(() => isFavoriteRoom(roomId, userId));
+  const [isFavorite, setIsFavorite] = useState(false);
 
   useEffect(() => {
     const sync = () => {
       setIsFavorite(isFavoriteRoom(roomId, userId));
     };
 
+    sync();
     window.addEventListener("storage", sync);
     window.addEventListener(FAVORITE_ROOMS_EVENT, sync);
+    window.addEventListener(AUTH_STORAGE_EVENT, sync);
 
     return () => {
       window.removeEventListener("storage", sync);
       window.removeEventListener(FAVORITE_ROOMS_EVENT, sync);
+      window.removeEventListener(AUTH_STORAGE_EVENT, sync);
     };
   }, [roomId, userId]);
 

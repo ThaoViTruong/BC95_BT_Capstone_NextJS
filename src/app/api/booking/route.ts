@@ -1,4 +1,9 @@
 import { ApiError } from "@/lib/api-error";
+import {
+  hasMinimumOneNightStay,
+  normalizeBookingDate,
+  toBookingDateTime,
+} from "@/lib/booking-date";
 import { getAuthSession } from "@/lib/auth-session";
 import { resolveSessionUser } from "@/lib/auth-session-user";
 import { bookingsService } from "@/services/bookings.service";
@@ -19,11 +24,32 @@ function createUnauthorizedResponse() {
 }
 
 function isValidDateString(value?: string) {
-  if (!value) {
+  return normalizeBookingDate(value) !== null;
+}
+
+function isOverlappingRange(
+  checkIn: string,
+  checkOut: string,
+  existingCheckIn?: string,
+  existingCheckOut?: string,
+) {
+  if (!existingCheckIn || !existingCheckOut) {
     return false;
   }
 
-  return !Number.isNaN(new Date(`${value}T00:00:00`).getTime());
+  const startA = toBookingDateTime(checkIn);
+  const endA = toBookingDateTime(checkOut);
+  const startB = toBookingDateTime(existingCheckIn);
+  const endB = toBookingDateTime(existingCheckOut);
+
+  if (startA === null || endA === null || startB === null || endB === null) {
+    return false;
+  }
+
+  // Rule mới: ngày trả phòng cũng bị chặn cho booking khác (inclusive).
+  // Hai khoảng bị trùng khi:
+  // startA <= endB && endA >= startB
+  return startA <= endB && endA >= startB;
 }
 
 export async function POST(request: Request) {
@@ -58,12 +84,19 @@ export async function POST(request: Request) {
       );
     }
 
-    const normalizedCheckIn = checkIn;
-    const normalizedCheckOut = checkOut;
+    const normalizedCheckIn = normalizeBookingDate(checkIn);
+    const normalizedCheckOut = normalizeBookingDate(checkOut);
 
-    if (normalizedCheckOut <= normalizedCheckIn) {
+    if (!normalizedCheckIn || !normalizedCheckOut) {
       return Response.json(
-        { message: "Ngày trả phòng phải sau ngày nhận phòng." },
+        { message: "Ngày nhận phòng hoặc trả phòng chưa hợp lệ." },
+        { status: 400 },
+      );
+    }
+
+    if (!hasMinimumOneNightStay(normalizedCheckIn, normalizedCheckOut)) {
+      return Response.json(
+        { message: "Thời gian lưu trú phải tối thiểu 1 đêm." },
         { status: 400 },
       );
     }
@@ -82,6 +115,30 @@ export async function POST(request: Request) {
       soLuongKhach: payload.soLuongKhach,
       maNguoiDung: resolvedUser.id,
     };
+
+    // Validate không cho đặt trùng lịch cùng một phòng (kể cả khác tài khoản).
+    // Rule mới chặn cả ngày check-out, nên khoảng ngày được xét là inclusive [checkIn, checkOut].
+    const allBookings = await bookingsService.getAll(authSession.token);
+    const hasOverlappingBooking = allBookings
+      .filter((booking) => booking.maPhong === payload.maPhong)
+      .some((booking) =>
+        isOverlappingRange(
+          normalizedCheckIn,
+          normalizedCheckOut,
+          normalizeBookingDate(booking.ngayDen) ?? undefined,
+          normalizeBookingDate(booking.ngayDi) ?? undefined,
+        ),
+      );
+
+    if (hasOverlappingBooking) {
+      return Response.json(
+        {
+          message:
+            "Phòng đã được đặt trong khoảng thời gian này. Vui lòng chọn ngày khác để đặt phòng.",
+        },
+        { status: 409 },
+      );
+    }
 
     const booking = await bookingsService.create(bookingPayload, authSession.token);
 

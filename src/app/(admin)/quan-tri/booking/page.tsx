@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { hasMinimumOneNightStay } from "@/lib/booking-date";
 import { bookingsService } from "@/services/bookings.service";
 import { roomsService } from "@/services/rooms.service";
 import { usersService } from "@/services/users.service";
@@ -249,14 +250,11 @@ export default function AdminBookingPage() {
       return;
     }
 
-    if (
-      new Date(editingBooking.ngayDi) <=
-      new Date(editingBooking.ngayDen)
-    ) {
+    if (!hasMinimumOneNightStay(editingBooking.ngayDen, editingBooking.ngayDi)) {
       setMessageModal({
         type: "warning",
         title: "Ngày không hợp lệ",
-        message: "Ngày đi phải sau ngày đến.",
+        message: "Thời gian lưu trú phải tối thiểu 1 đêm.",
       });
 
       return;

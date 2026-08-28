@@ -6,7 +6,7 @@ export type NavItem = {
   note: string;
 };
 
-export type RoleKey = "guest" | "customer" | "host" | "admin";
+export type RoleKey = "guest" | "customer" | "admin";
 
 export type RoleInfo = {
   key: RoleKey;
@@ -19,7 +19,6 @@ export type RoleInfo = {
 export const mainNav: NavItem[] = [
   { label: "Trang chủ", href: "/", note: "Trang giới thiệu" },
   { label: "Tài khoản", href: "/tai-khoan", note: "Khu khách đặt phòng" },
-  { label: "Chủ cho thuê", href: "/chu-cho-thue", note: "Khu vận hành phòng" },
   { label: "Quản trị", href: "/quan-tri", note: "Khu quản trị hệ thống" },
 ];
 
@@ -42,25 +41,6 @@ export const roleList: RoleInfo[] = [
     items: [
       { label: "Tổng quan", href: "/tai-khoan", note: "Thông tin tài khoản" },
       { label: "Chuyến đi", href: "/chuyen-di", note: "Lịch sử lưu trú" },
-    ],
-  },
-  {
-    key: "host",
-    title: "Chủ cho thuê",
-    desc: "Quản lý danh sách phòng, lịch đặt và hiệu suất kinh doanh.",
-    href: "/chu-cho-thue",
-    items: [
-      { label: "Tổng quan", href: "/chu-cho-thue", note: "Bảng điều khiển" },
-      {
-        label: "Quản lý phòng",
-        href: "/chu-cho-thue/phong",
-        note: "Thông tin tài sản",
-      },
-      {
-        label: "Lịch đặt",
-        href: "/chu-cho-thue/dat-cho",
-        note: "Theo dõi trạng thái đơn",
-      },
     ],
   },
   {
@@ -100,8 +80,6 @@ export const roleList: RoleInfo[] = [
         href: "/quan-tri/danh-gia",
         note: "Quản lý đánh giá",
       },
-      
-      
     ],
   },
 ];
