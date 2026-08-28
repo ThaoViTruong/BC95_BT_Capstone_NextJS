@@ -10,13 +10,7 @@ import type { User } from "@/types/user";
 
 const PAGE_SIZE = 5;
 
-type SortKey =
-  | "id"
-  | "room"
-  | "user"
-  | "ngayDen"
-  | "ngayDi"
-  | "soLuongKhach";
+type SortKey = "id" | "room" | "user" | "ngayDen" | "ngayDi" | "soLuongKhach";
 
 type SortDirection = "asc" | "desc";
 
@@ -46,21 +40,17 @@ export default function AdminBookingPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
   const [users, setUsers] = useState<User[]>([]);
-
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchInput, setSearchInput] = useState("");
-
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("id");
-  const [sortDirection, setSortDirection] =
-    useState<SortDirection>("desc");
-  const [editingBooking, setEditingBooking] =
-    useState<Booking | null>(null);
-  const [deleteBookingId, setDeleteBookingId] =
-    useState<number | null>(null);
-  const [messageModal, setMessageModal] =
-    useState<MessageModal | null>(null);
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+  const [editingBooking, setEditingBooking] = useState<Booking | null>(null);
+  const [deleteBookingId, setDeleteBookingId] = useState<number | null>(null);
+  const [messageModal, setMessageModal] = useState<MessageModal | null>(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -123,9 +113,7 @@ export default function AdminBookingPage() {
     setPage(1);
 
     if (sortKey === key) {
-      setSortDirection((current) =>
-        current === "asc" ? "desc" : "asc",
-      );
+      setSortDirection((current) => (current === "asc" ? "desc" : "asc"));
       return;
     }
 
@@ -135,41 +123,43 @@ export default function AdminBookingPage() {
 
   function renderSortIcon(key: SortKey) {
     if (sortKey !== key) {
-      return (
-        <span className="text-slate-300">
-          ↕
-        </span>
-      );
+      return <span className="text-slate-300">↕</span>;
     }
 
-    return sortDirection === "asc" ? (
-      <span>↑</span>
-    ) : (
-      <span>↓</span>
-    );
+    return sortDirection === "asc" ? <span>↑</span> : <span>↓</span>;
   }
 
   const search = searchInput.trim().toLowerCase();
 
-  const filteredBookings = search
-    ? bookings.filter((booking) => {
-        const roomName = getRoomName(booking.maPhong).toLowerCase();
+  const filteredBookings = bookings.filter((booking) => {
+    const roomName = getRoomName(booking.maPhong).toLowerCase();
 
-        const user = users.find(
-          (item) => item.id === booking.maNguoiDung,
-        );
+    const user = users.find((item) => item.id === booking.maNguoiDung);
 
-        const userName = user?.name?.toLowerCase() ?? "";
-        const userEmail = user?.email?.toLowerCase() ?? "";
+    const userName = user?.name?.toLowerCase() ?? "";
+    const userEmail = user?.email?.toLowerCase() ?? "";
 
-        return (
-          String(booking.id).includes(search) ||
-          roomName.includes(search) ||
-          userName.includes(search) ||
-          userEmail.includes(search)
-        );
-      })
-    : bookings;
+    const matchesSearch =
+      !search ||
+      String(booking.id).includes(search) ||
+      roomName.includes(search) ||
+      userName.includes(search) ||
+      userEmail.includes(search);
+    const bookingStart = booking.ngayDen.slice(0, 10);
+    const bookingEnd = booking.ngayDi.slice(0, 10);
+
+    let matchesDate = true;
+
+    if (dateFrom && dateTo) {
+      matchesDate = bookingStart <= dateTo && bookingEnd >= dateFrom;
+    } else if (dateFrom) {
+      matchesDate = bookingEnd >= dateFrom;
+    } else if (dateTo) {
+      matchesDate = bookingStart <= dateTo;
+    }
+
+    return matchesSearch && matchesDate;
+  });
 
   const sortedBookings = [...filteredBookings].sort((a, b) => {
     let valueA: string | number;
@@ -217,18 +207,12 @@ export default function AdminBookingPage() {
       : Number(valueB) - Number(valueA);
   });
 
-  const totalPages = Math.ceil(
-    sortedBookings.length / PAGE_SIZE,
-  );
+  const totalPages = Math.ceil(sortedBookings.length / PAGE_SIZE);
 
   const displayedBookings = sortedBookings.slice(
     (page - 1) * PAGE_SIZE,
     page * PAGE_SIZE,
   );
-
-  
-
-  
 
   async function handleUpdateBooking() {
     if (!editingBooking) {
@@ -249,10 +233,7 @@ export default function AdminBookingPage() {
       return;
     }
 
-    if (
-      new Date(editingBooking.ngayDi) <=
-      new Date(editingBooking.ngayDen)
-    ) {
+    if (new Date(editingBooking.ngayDi) <= new Date(editingBooking.ngayDen)) {
       setMessageModal({
         type: "warning",
         title: "Ngày không hợp lệ",
@@ -274,9 +255,7 @@ export default function AdminBookingPage() {
 
       setBookings((current) =>
         current.map((booking) =>
-          booking.id === editingBooking.id
-            ? editingBooking
-            : booking,
+          booking.id === editingBooking.id ? editingBooking : booking,
         ),
       );
 
@@ -307,9 +286,7 @@ export default function AdminBookingPage() {
       await bookingsService.remove(deleteBookingId);
 
       setBookings((current) =>
-        current.filter(
-          (booking) => booking.id !== deleteBookingId,
-        ),
+        current.filter((booking) => booking.id !== deleteBookingId),
       );
 
       setDeleteBookingId(null);
@@ -343,8 +320,6 @@ export default function AdminBookingPage() {
               Tổng cộng: {filteredBookings.length} đơn
             </p>
           </div>
-
-          
         </div>
 
         <div className="mt-5">
@@ -359,6 +334,54 @@ export default function AdminBookingPage() {
               placeholder="Tìm theo ID, phòng, tên hoặc email người đặt..."
               className="h-11 w-full rounded-xl border border-line px-4 pr-11 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
             />
+            <div className="mt-4 flex flex-wrap items-end gap-4">
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-slate-700">
+                  Từ ngày
+                </label>
+
+                <input
+                  type="date"
+                  value={dateFrom}
+                  onChange={(event) => {
+                    setDateFrom(event.target.value);
+                    setPage(1);
+                  }}
+                  className="h-11 rounded-xl border border-line bg-white px-4 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-slate-700">
+                  Đến ngày
+                </label>
+
+                <input
+                  type="date"
+                  value={dateTo}
+                  min={dateFrom || undefined}
+                  onChange={(event) => {
+                    setDateTo(event.target.value);
+                    setPage(1);
+                  }}
+                  className="h-11 rounded-xl border border-line bg-white px-4 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                />
+              </div>
+
+              {(dateFrom || dateTo) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDateFrom("");
+                    setDateTo("");
+                    setPage(1);
+                  }}
+                  className="h-11 rounded-xl border border-line px-4 text-sm font-semibold text-slate-600 hover:bg-slate-50"
+                >
+                  Xóa bộ lọc ngày
+                </button>
+              )}
+            </div>
 
             {searchInput && (
               <button
@@ -377,16 +400,10 @@ export default function AdminBookingPage() {
         </div>
 
         {loading && (
-          <p className="mt-6 text-slate-500">
-            Đang tải danh sách...
-          </p>
+          <p className="mt-6 text-slate-500">Đang tải danh sách...</p>
         )}
 
-        {error && (
-          <p className="mt-6 text-red-500">
-            {error}
-          </p>
-        )}
+        {error && <p className="mt-6 text-red-500">{error}</p>}
 
         {!loading && !error && (
           <>
@@ -433,9 +450,7 @@ export default function AdminBookingPage() {
                       label="Số khách"
                       active={sortKey === "soLuongKhach"}
                       icon={renderSortIcon("soLuongKhach")}
-                      onClick={() =>
-                        handleSort("soLuongKhach")
-                      }
+                      onClick={() => handleSort("soLuongKhach")}
                       center
                     />
 
@@ -461,9 +476,7 @@ export default function AdminBookingPage() {
                         key={booking.id}
                         className="border-b border-line text-sm"
                       >
-                        <td className="p-3">
-                          {booking.id}
-                        </td>
+                        <td className="p-3">{booking.id}</td>
 
                         <td className="max-w-64 p-3 font-medium">
                           <p className="line-clamp-2">
@@ -472,9 +485,7 @@ export default function AdminBookingPage() {
                         </td>
 
                         <td className="p-3">
-                          {getUserName(
-                            booking.maNguoiDung,
-                          )}
+                          {getUserName(booking.maNguoiDung)}
                         </td>
 
                         <td className="whitespace-nowrap p-3">
@@ -513,21 +524,14 @@ export default function AdminBookingPage() {
                                   strokeLinecap="round"
                                   strokeLinejoin="round"
                                 />
-                                <path
-                                  d="M13 7l4 4"
-                                  strokeLinecap="round"
-                                />
+                                <path d="M13 7l4 4" strokeLinecap="round" />
                               </svg>
                             </button>
 
                             <button
                               type="button"
                               title="Xóa"
-                              onClick={() =>
-                                setDeleteBookingId(
-                                  booking.id,
-                                )
-                              }
+                              onClick={() => setDeleteBookingId(booking.id)}
                               className="rounded-lg bg-red-50 px-3 py-1.5 font-semibold text-red-600 transition hover:bg-red-100"
                             >
                               <svg
@@ -558,9 +562,7 @@ export default function AdminBookingPage() {
                 <button
                   type="button"
                   disabled={page <= 1}
-                  onClick={() =>
-                    setPage((current) => current - 1)
-                  }
+                  onClick={() => setPage((current) => current - 1)}
                   className="rounded-xl border border-line px-4 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   ← Trang trước
@@ -573,9 +575,7 @@ export default function AdminBookingPage() {
                 <button
                   type="button"
                   disabled={page >= totalPages}
-                  onClick={() =>
-                    setPage((current) => current + 1)
-                  }
+                  onClick={() => setPage((current) => current + 1)}
                   className="rounded-xl border border-line px-4 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   Trang sau →
@@ -593,9 +593,7 @@ export default function AdminBookingPage() {
         >
           <div
             className="w-full max-w-xl rounded-2xl bg-white p-6 shadow-2xl"
-            onClick={(event) =>
-              event.stopPropagation()
-            }
+            onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-center justify-between">
               <div>
@@ -610,9 +608,7 @@ export default function AdminBookingPage() {
 
               <button
                 type="button"
-                onClick={() =>
-                  setEditingBooking(null)
-                }
+                onClick={() => setEditingBooking(null)}
                 className="text-xl text-slate-500"
               >
                 ✕
@@ -630,18 +626,13 @@ export default function AdminBookingPage() {
                   onChange={(event) =>
                     setEditingBooking({
                       ...editingBooking,
-                      maPhong: Number(
-                        event.target.value,
-                      ),
+                      maPhong: Number(event.target.value),
                     })
                   }
                   className="w-full rounded-xl border border-line bg-white px-4 py-2.5"
                 >
                   {rooms.map((room) => (
-                    <option
-                      key={room.id}
-                      value={room.id}
-                    >
+                    <option key={room.id} value={room.id}>
                       {room.tenPhong}
                     </option>
                   ))}
@@ -655,15 +646,11 @@ export default function AdminBookingPage() {
 
                 <input
                   type="date"
-                  value={editingBooking.ngayDen.slice(
-                    0,
-                    10,
-                  )}
+                  value={editingBooking.ngayDen.slice(0, 10)}
                   onChange={(event) =>
                     setEditingBooking({
                       ...editingBooking,
-                      ngayDen:
-                        event.target.value,
+                      ngayDen: event.target.value,
                     })
                   }
                   className="w-full rounded-xl border border-line px-4 py-2.5"
@@ -677,19 +664,12 @@ export default function AdminBookingPage() {
 
                 <input
                   type="date"
-                  min={editingBooking.ngayDen.slice(
-                    0,
-                    10,
-                  )}
-                  value={editingBooking.ngayDi.slice(
-                    0,
-                    10,
-                  )}
+                  min={editingBooking.ngayDen.slice(0, 10)}
+                  value={editingBooking.ngayDi.slice(0, 10)}
                   onChange={(event) =>
                     setEditingBooking({
                       ...editingBooking,
-                      ngayDi:
-                        event.target.value,
+                      ngayDi: event.target.value,
                     })
                   }
                   className="w-full rounded-xl border border-line px-4 py-2.5"
@@ -704,15 +684,11 @@ export default function AdminBookingPage() {
                 <input
                   type="number"
                   min={1}
-                  value={
-                    editingBooking.soLuongKhach
-                  }
+                  value={editingBooking.soLuongKhach}
                   onChange={(event) =>
                     setEditingBooking({
                       ...editingBooking,
-                      soLuongKhach: Number(
-                        event.target.value,
-                      ),
+                      soLuongKhach: Number(event.target.value),
                     })
                   }
                   className="w-full rounded-xl border border-line px-4 py-2.5"
@@ -726,9 +702,7 @@ export default function AdminBookingPage() {
 
                 <input
                   type="text"
-                  value={getUserName(
-                    editingBooking.maNguoiDung,
-                  )}
+                  value={getUserName(editingBooking.maNguoiDung)}
                   disabled
                   className="w-full rounded-xl border border-line bg-slate-100 px-4 py-2.5 text-slate-500"
                 />
@@ -738,9 +712,7 @@ export default function AdminBookingPage() {
             <div className="mt-6 flex justify-end gap-3">
               <button
                 type="button"
-                onClick={() =>
-                  setEditingBooking(null)
-                }
+                onClick={() => setEditingBooking(null)}
                 className="rounded-xl border border-line px-5 py-2.5 font-semibold"
               >
                 Hủy
@@ -761,15 +733,11 @@ export default function AdminBookingPage() {
       {deleteBookingId !== null && (
         <div
           className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4"
-          onClick={() =>
-            setDeleteBookingId(null)
-          }
+          onClick={() => setDeleteBookingId(null)}
         >
           <div
             className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
-            onClick={(event) =>
-              event.stopPropagation()
-            }
+            onClick={(event) => event.stopPropagation()}
           >
             <div className="text-center">
               <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-100 text-2xl font-bold text-red-600">
@@ -781,8 +749,7 @@ export default function AdminBookingPage() {
               </h3>
 
               <p className="mt-2 text-sm text-slate-500">
-                Bạn có chắc chắn muốn xóa booking #
-                {deleteBookingId}?
+                Bạn có chắc chắn muốn xóa booking #{deleteBookingId}?
               </p>
 
               <p className="mt-2 text-sm font-medium text-red-500">
@@ -793,9 +760,7 @@ export default function AdminBookingPage() {
             <div className="mt-6 flex gap-3">
               <button
                 type="button"
-                onClick={() =>
-                  setDeleteBookingId(null)
-                }
+                onClick={() => setDeleteBookingId(null)}
                 className="flex-1 rounded-xl border border-line px-4 py-2.5 font-semibold"
               >
                 Hủy
@@ -816,15 +781,11 @@ export default function AdminBookingPage() {
       {messageModal && (
         <div
           className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 p-4"
-          onClick={() =>
-            setMessageModal(null)
-          }
+          onClick={() => setMessageModal(null)}
         >
           <div
             className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
-            onClick={(event) =>
-              event.stopPropagation()
-            }
+            onClick={(event) => event.stopPropagation()}
           >
             <div className="text-center">
               <div
@@ -836,10 +797,7 @@ export default function AdminBookingPage() {
                       : "bg-yellow-100 text-yellow-600"
                 }`}
               >
-                {messageModal.type ===
-                "success"
-                  ? "✓"
-                  : "!"}
+                {messageModal.type === "success" ? "✓" : "!"}
               </div>
 
               <h3 className="mt-4 text-xl font-bold text-slate-950">
@@ -853,9 +811,7 @@ export default function AdminBookingPage() {
 
             <button
               type="button"
-              onClick={() =>
-                setMessageModal(null)
-              }
+              onClick={() => setMessageModal(null)}
               className={`mt-6 w-full rounded-xl px-4 py-2.5 font-semibold text-white transition ${
                 messageModal.type === "success"
                   ? "bg-green-600 hover:bg-green-700"
@@ -887,18 +843,12 @@ function SortHeader({
   center?: boolean;
 }) {
   return (
-    <th
-      className={`whitespace-nowrap p-3 ${
-        center ? "text-center" : ""
-      }`}
-    >
+    <th className={`whitespace-nowrap p-3 ${center ? "text-center" : ""}`}>
       <button
         type="button"
         onClick={onClick}
         className={`inline-flex items-center gap-1.5 transition hover:text-blue-600 ${
-          active
-            ? "font-bold text-blue-600"
-            : "font-semibold"
+          active ? "font-bold text-blue-600" : "font-semibold"
         }`}
       >
         {label}
