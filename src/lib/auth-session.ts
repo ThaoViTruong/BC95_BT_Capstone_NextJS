@@ -11,22 +11,24 @@ type AuthSessionPayload = {
 };
 
 type AuthSession = AuthSessionPayload & {
-  roleKey: "guest" | "customer" | "host" | "admin";
+  roleKey: "guest" | "customer" | "admin";
 };
 
-function resolveRoleKey(role?: string): AuthSession["roleKey"] {
+function resolveRoleKey(
+  role: string | undefined,
+  isAuthenticated: boolean,
+): AuthSession["roleKey"] {
+  if (!isAuthenticated) {
+    return "guest";
+  }
+
   const normalizedRole = role?.trim().toUpperCase();
 
-  switch (normalizedRole) {
-    case "ADMIN":
-      return "admin";
-    case "HOST":
-      return "host";
-    case "USER":
-      return "customer";
-    default:
-      return "guest";
+  if (normalizedRole === "ADMIN") {
+    return "admin";
   }
+
+  return "customer";
 }
 
 function encodeSession(data: AuthSessionPayload) {
@@ -73,7 +75,7 @@ export async function getAuthSession(): Promise<AuthSession | null> {
 
   return {
     ...session,
-    roleKey: resolveRoleKey(session.user?.role),
+    roleKey: resolveRoleKey(session.user?.role, true),
   };
 }
 

@@ -1,13 +1,20 @@
+import { hasMinimumOneNightStay, normalizeBookingDate, toBookingDateTime } from "@/lib/booking-date";
+import type { Booking } from "@/types/booking";
 import type { Location } from "@/types/location";
 import type { Room } from "@/types/room";
 
 export type RoomSearchParams = {
   diemDen?: string;
+  tenPhong?: string;
+  tienIch?: string;
+  ngayNhan?: string;
+  ngayTra?: string;
   tuKhoa?: string;
   khach?: string;
 };
 
 type FilterRoomsInput = {
+  bookings: Booking[];
   roomList: Room[];
   locationList: Location[];
   query: RoomSearchParams;
@@ -17,7 +24,10 @@ export type FilterRoomsResult = {
   filteredRooms: Room[];
   hasFilter: boolean;
   destination: string;
-  keyword: string;
+  roomName: string;
+  amenity: string;
+  checkIn: string;
+  checkOut: string;
   guestCount: number;
   locationById: Map<number, Location>;
 };
@@ -85,17 +95,51 @@ function getRoomFeatureText(room: Room) {
   return features.join(" ");
 }
 
-function getRoomSearchText(room: Room, location?: Location) {
-  return normalizeSearchText(
-    `${room.tenPhong} ${room.moTa} ${getRoomFeatureText(room)} ${getLocationSearchText(location)}`,
-  );
+function splitSearchKeywords(value: string) {
+  return value
+    .split(/[,\n;]+/g)
+    .map((keyword) => normalizeSearchText(keyword))
+    .filter(Boolean);
 }
 
-function getRoomMatchScore(room: Room, location: Location | undefined, destination: string, keyword: string) {
+function getRoomNameSearchText(room: Room) {
+  return normalizeSearchText(room.tenPhong);
+}
+
+function hasAllKeywords(text: string, keywords: string[]) {
+  return keywords.every((keyword) => text.includes(keyword));
+}
+
+function isOverlappingBookingRange(
+  checkIn: string,
+  checkOut: string,
+  bookingCheckIn?: string,
+  bookingCheckOut?: string,
+) {
+  const startA = toBookingDateTime(checkIn);
+  const endA = toBookingDateTime(checkOut);
+  const startB = toBookingDateTime(bookingCheckIn);
+  const endB = toBookingDateTime(bookingCheckOut);
+
+  if (startA === null || endA === null || startB === null || endB === null) {
+    return false;
+  }
+
+  return startA <= endB && endA >= startB;
+}
+
+function getRoomMatchScore(
+  room: Room,
+  location: Location | undefined,
+  destination: string,
+  roomNameKeywords: string[],
+  amenityKeywords: string[],
+) {
   let score = 0;
 
   const locationText = getLocationSearchText(location);
-  const roomText = getRoomSearchText(room, location);
+  const roomNameText = getRoomNameSearchText(room);
+  const amenityText = normalizeSearchText(getRoomFeatureText(room));
 
   if (destination) {
     if (locationText.startsWith(destination)) {
@@ -105,12 +149,28 @@ function getRoomMatchScore(room: Room, location: Location | undefined, destinati
     }
   }
 
-  if (keyword) {
-    if (roomText.startsWith(keyword)) {
-      score += 3;
-    } else if (roomText.includes(keyword)) {
-      score += 1;
-    }
+  if (roomNameKeywords.length > 0) {
+    score += roomNameKeywords.reduce((total, keyword) => {
+      if (roomNameText.startsWith(keyword)) {
+        return total + 3;
+      }
+
+      if (roomNameText.includes(keyword)) {
+        return total + 1;
+      }
+
+      return total;
+    }, 0);
+  }
+
+  if (amenityKeywords.length > 0) {
+    score += amenityKeywords.reduce((total, keyword) => {
+      if (amenityText.includes(keyword)) {
+        return total + 1;
+      }
+
+      return total;
+    }, 0);
   }
 
   score += Math.min(room.khach, 10) * 0.01;
@@ -118,30 +178,71 @@ function getRoomMatchScore(room: Room, location: Location | undefined, destinati
   return score;
 }
 
-export function filterRooms({ roomList, locationList, query }: FilterRoomsInput): FilterRoomsResult {
+export function filterRooms({ bookings, roomList, locationList, query }: FilterRoomsInput): FilterRoomsResult {
   const destination = normalizeSearchText(query.diemDen ?? "");
-  const keyword = normalizeSearchText(query.tuKhoa ?? "");
+  const roomName = normalizeSearchText(query.tenPhong ?? query.tuKhoa ?? "");
+  const amenity = normalizeSearchText(query.tienIch ?? "");
+  const checkIn = normalizeBookingDate(query.ngayNhan ?? "") ?? "";
+  const checkOut = normalizeBookingDate(query.ngayTra ?? "") ?? "";
   const guestCount = parseGuestCount(query.khach);
+  const roomNameKeywords = splitSearchKeywords(query.tenPhong ?? query.tuKhoa ?? "");
+  const amenityKeywords = splitSearchKeywords(query.tienIch ?? "");
+  const hasAvailabilityFilter = hasMinimumOneNightStay(checkIn, checkOut);
 
   const locationById = new Map<number, Location>(
     locationList.map((location) => [location.id, location]),
   );
+  const bookingsByRoom = new Map<number, Booking[]>();
+
+  for (const booking of bookings) {
+    const roomBookings = bookingsByRoom.get(booking.maPhong) ?? [];
+    roomBookings.push(booking);
+    bookingsByRoom.set(booking.maPhong, roomBookings);
+  }
 
   const filteredRooms = roomList
     .filter((room) => {
       const location = locationById.get(room.maViTri);
       const locationText = getLocationSearchText(location);
-      const roomText = getRoomSearchText(room, location);
+      const roomNameText = getRoomNameSearchText(room);
+      const amenityText = normalizeSearchText(getRoomFeatureText(room));
 
       const matchDestination = destination ? locationText.includes(destination) : true;
-      const matchKeyword = keyword ? roomText.includes(keyword) : true;
+      const matchRoomName =
+        roomNameKeywords.length > 0 ? hasAllKeywords(roomNameText, roomNameKeywords) : true;
+      const matchAmenity =
+        amenityKeywords.length > 0 ? hasAllKeywords(amenityText, amenityKeywords) : true;
       const matchGuest = guestCount > 0 ? room.khach >= guestCount : true;
+      const roomBookings = bookingsByRoom.get(room.id) ?? [];
+      const matchAvailability = hasAvailabilityFilter
+        ? roomBookings.every(
+            (booking) =>
+              !isOverlappingBookingRange(
+                checkIn,
+                checkOut,
+                normalizeBookingDate(booking.ngayDen) ?? undefined,
+                normalizeBookingDate(booking.ngayDi) ?? undefined,
+              ),
+          )
+        : true;
 
-      return matchDestination && matchKeyword && matchGuest;
+      return matchDestination && matchRoomName && matchAmenity && matchGuest && matchAvailability;
     })
     .sort((roomA, roomB) => {
-      const scoreA = getRoomMatchScore(roomA, locationById.get(roomA.maViTri), destination, keyword);
-      const scoreB = getRoomMatchScore(roomB, locationById.get(roomB.maViTri), destination, keyword);
+      const scoreA = getRoomMatchScore(
+        roomA,
+        locationById.get(roomA.maViTri),
+        destination,
+        roomNameKeywords,
+        amenityKeywords,
+      );
+      const scoreB = getRoomMatchScore(
+        roomB,
+        locationById.get(roomB.maViTri),
+        destination,
+        roomNameKeywords,
+        amenityKeywords,
+      );
 
       if (scoreA !== scoreB) {
         return scoreB - scoreA;
@@ -151,7 +252,12 @@ export function filterRooms({ roomList, locationList, query }: FilterRoomsInput)
         return roomA.khach - roomB.khach;
       }
 
-      if (destination || keyword) {
+      if (
+        destination ||
+        roomNameKeywords.length > 0 ||
+        amenityKeywords.length > 0 ||
+        hasAvailabilityFilter
+      ) {
         return roomB.id - roomA.id;
       }
 
@@ -160,9 +266,12 @@ export function filterRooms({ roomList, locationList, query }: FilterRoomsInput)
 
   return {
     filteredRooms,
-    hasFilter: Boolean(destination || keyword || guestCount > 0),
+    hasFilter: Boolean(destination || roomName || amenity || checkIn || checkOut || guestCount > 0),
     destination,
-    keyword,
+    roomName,
+    amenity,
+    checkIn,
+    checkOut,
     guestCount,
     locationById,
   };
@@ -216,8 +325,25 @@ export function buildSearchHref(pathname: string, query: RoomSearchParams) {
     searchParams.set("diemDen", query.diemDen.trim());
   }
 
-  if (query.tuKhoa?.trim()) {
-    searchParams.set("tuKhoa", query.tuKhoa.trim());
+  const roomName = query.tenPhong?.trim() || query.tuKhoa?.trim();
+
+  if (roomName) {
+    searchParams.set("tenPhong", roomName);
+  }
+
+  if (query.tienIch?.trim()) {
+    searchParams.set("tienIch", query.tienIch.trim());
+  }
+
+  const checkIn = normalizeBookingDate(query.ngayNhan ?? "");
+  const checkOut = normalizeBookingDate(query.ngayTra ?? "");
+
+  if (checkIn) {
+    searchParams.set("ngayNhan", checkIn);
+  }
+
+  if (checkOut) {
+    searchParams.set("ngayTra", checkOut);
   }
 
   if (parseGuestCount(query.khach) > 0) {

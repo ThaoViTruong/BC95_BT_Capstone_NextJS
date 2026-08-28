@@ -196,7 +196,7 @@ export function AuthFormPanel() {
     resolver: zodResolver(signInSchema),
     defaultValues: {
       email: rememberedSignIn?.email ?? "",
-      password: "",
+      password: rememberedSignIn?.password ?? "",
     },
   });
 
@@ -230,6 +230,7 @@ export function AuthFormPanel() {
     if (rememberPassword) {
       setRememberedSignIn({
         email: values.email,
+        password: values.password,
       });
     } else {
       clearRememberedSignIn();
@@ -398,7 +399,7 @@ export function AuthFormPanel() {
                         }
                         className="h-4 w-4 rounded border-line accent-[#0f2f8e]"
                       />
-                      Ghi nhớ email cho lần đăng nhập sau
+                      Lưu mật khẩu
                     </label>
                   </div>
 

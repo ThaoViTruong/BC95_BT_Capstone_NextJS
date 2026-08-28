@@ -23,6 +23,10 @@ export const dynamic = "force-dynamic";
 type HomePageProps = {
   searchParams: Promise<{
     diemDen?: string;
+    tenPhong?: string;
+    tienIch?: string;
+    ngayNhan?: string;
+    ngayTra?: string;
     tuKhoa?: string;
     khach?: string;
     page?: string;
@@ -105,6 +109,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   }
 
   const { filteredRooms, hasFilter } = filterRooms({
+    bookings: data.bookings,
     roomList: data.roomList,
     locationList: data.locationList,
     query,
@@ -119,8 +124,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     : 1;
   const startIndex = rankedRooms.length === 0 ? 0 : (currentPage - 1) * pageSize;
   const roomsToShow = rankedRooms.slice(startIndex, startIndex + pageSize);
-  const visibleFrom = rankedRooms.length === 0 ? 0 : startIndex + 1;
-  const visibleTo = Math.min(startIndex + pageSize, rankedRooms.length);
   const locationOptions = buildLocationOptions(data.roomList, data.locationList);
   const searchableLocations = getSearchableLocations(data.roomList, data.locationList);
   const activeDestination = normalizeSearchText(query.diemDen ?? "");
@@ -145,17 +148,28 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                 Tìm nhanh phòng phù hợp
               </p>
               <p className="mt-2 text-sm leading-6 text-slate-600 sm:text-base">
-                Chọn điểm đến, từ khóa và số khách để lọc nhanh phòng ngay trong cùng khu vực
-                gợi ý.
+                Chọn điểm đến, tên phòng, tiện ích, ngày ở và số khách để lọc nhanh
+                các phòng còn trống phù hợp.
               </p>
             </div>
 
             <div className="rounded-[26px] border border-white bg-white p-3 shadow-sm">
               
               <RoomSearchForm
+                key={[
+                  query.diemDen ?? "",
+                  query.tenPhong ?? query.tuKhoa ?? "",
+                  query.tienIch ?? "",
+                  query.ngayNhan ?? "",
+                  query.ngayTra ?? "",
+                  query.khach ?? "",
+                ].join("|")}
                 action="/"
                 destination={query.diemDen ?? ""}
-                keyword={query.tuKhoa ?? ""}
+                roomName={query.tenPhong ?? query.tuKhoa ?? ""}
+                amenity={query.tienIch ?? ""}
+                checkIn={query.ngayNhan ?? ""}
+                checkOut={query.ngayTra ?? ""}
                 guest={query.khach ?? ""}
                 locationOptions={locationOptions}
                 submitClassName="h-full"
@@ -226,6 +240,10 @@ export default async function HomePage({ searchParams }: HomePageProps) {
               pathname="/"
               query={{
                 diemDen: query.diemDen,
+                tenPhong: query.tenPhong ?? query.tuKhoa,
+                tienIch: query.tienIch,
+                ngayNhan: query.ngayNhan,
+                ngayTra: query.ngayTra,
                 tuKhoa: query.tuKhoa,
                 khach: query.khach,
               }}
@@ -237,7 +255,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           <div className="mt-5 rounded-3xl border border-dashed border-line bg-white p-8 text-center">
             <h3 className="text-xl font-semibold text-slate-900">Chưa có phòng phù hợp</h3>
             <p className="mt-2 text-sm leading-6 text-slate-600">
-              Hãy thử lại với điểm đến hoặc từ khóa khác để xem thêm lựa chọn.
+              Hãy thử lại với điểm đến, ngày ở hoặc tiêu chí khác để xem thêm lựa chọn.
             </p>
           </div>
         )}

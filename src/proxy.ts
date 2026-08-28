@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 
 import { getAuthCookieName } from "@/lib/auth-session";
 
-type RoleKey = "guest" | "customer" | "host" | "admin";
+type RoleKey = "guest" | "customer" | "admin";
 const AUTH_COOKIE_NAME = getAuthCookieName();
 
 function decodeRoleFromCookie(rawValue: string | undefined): RoleKey {
@@ -13,35 +13,29 @@ function decodeRoleFromCookie(rawValue: string | undefined): RoleKey {
 
   try {
     const parsed = JSON.parse(decodeURIComponent(rawValue)) as {
+      token?: string;
       user?: { role?: string };
     };
+
+    if (!parsed.token) {
+      return "guest";
+    }
+
     const normalizedRole = parsed.user?.role?.trim().toUpperCase();
 
     if (normalizedRole === "ADMIN") {
       return "admin";
     }
 
-    if (normalizedRole === "HOST") {
-      return "host";
-    }
-
-    if (normalizedRole === "USER") {
-      return "customer";
-    }
+    return "customer";
   } catch {
     return "guest";
   }
-
-  return "guest";
 }
 
 function isAllowedPath(pathname: string, role: RoleKey) {
   if (pathname.startsWith("/quan-tri")) {
     return role === "admin";
-  }
-
-  if (pathname.startsWith("/chu-cho-thue")) {
-    return role === "host" || role === "admin";
   }
 
   if (pathname.startsWith("/chuyen-di")) {
@@ -54,10 +48,6 @@ function isAllowedPath(pathname: string, role: RoleKey) {
 function getRedirectPathByRole(role: RoleKey) {
   if (role === "admin") {
     return "/quan-tri";
-  }
-
-  if (role === "host") {
-    return "/chu-cho-thue";
   }
 
   if (role === "customer") {
@@ -86,5 +76,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/quan-tri/:path*", "/chu-cho-thue/:path*", "/chuyen-di/:path*"],
+  matcher: ["/quan-tri/:path*", "/chuyen-di/:path*"],
 };

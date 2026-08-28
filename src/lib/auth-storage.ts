@@ -72,7 +72,17 @@ export function getRememberedSignIn(): RememberedSignIn | null {
   }
 
   try {
-    return JSON.parse(raw) as RememberedSignIn;
+    const parsed = JSON.parse(raw) as Partial<RememberedSignIn>;
+
+    if (typeof parsed.email !== "string") {
+      window.localStorage.removeItem(REMEMBERED_SIGNIN_KEY);
+      return null;
+    }
+
+    return {
+      email: parsed.email,
+      password: typeof parsed.password === "string" ? parsed.password : "",
+    };
   } catch {
     window.localStorage.removeItem(REMEMBERED_SIGNIN_KEY);
     return null;
@@ -86,6 +96,7 @@ export function setRememberedSignIn(data: RememberedSignIn) {
 
   const normalizedData: RememberedSignIn = {
     email: data.email.trim(),
+    password: data.password,
   };
 
   window.localStorage.setItem(REMEMBERED_SIGNIN_KEY, JSON.stringify(normalizedData));

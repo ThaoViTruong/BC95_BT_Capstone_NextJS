@@ -91,16 +91,6 @@ export function AuthAccountMenu() {
         </Link>
       )}
 
-      {/* Chỉ HOST mới thấy nút quản lý cho thuê */}
-      {currentUser.role?.trim().toUpperCase() === "HOST" && (
-        <Link
-          href="/chu-cho-thue"
-          className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-[#0f2f8e] transition hover:bg-slate-200"
-        >
-          Cho thuê
-        </Link>
-      )}
-
       <button
         type="button"
         onClick={handleSignOut}

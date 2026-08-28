@@ -1,12 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { bookingsService } from "@/services/bookings.service";
-import { roomsService } from "@/services/rooms.service";
-import { locationsService } from "@/services/locations.service";
 import type { Booking } from "@/types/booking";
-import type { Room } from "@/types/room";
 import type { Location } from "@/types/location";
+import type { Room } from "@/types/room";
 
 type Range = "7d" | "30d" | "month" | "all";
 
@@ -24,15 +21,25 @@ export default function AdminReportPage() {
         setLoading(true);
         setError("");
 
-        const [bookingData, roomData, locationData] = await Promise.all([
-          bookingsService.getAll(),
-          roomsService.getAll(),
-          locationsService.getAll(),
-        ]);
+        const response = await fetch("/api/admin/report", {
+          method: "GET",
+          credentials: "include",
+          cache: "no-store",
+        });
+        const data = (await response.json()) as {
+          bookings?: Booking[];
+          rooms?: Room[];
+          locations?: Location[];
+          message?: string;
+        };
 
-        setBookings(bookingData);
-        setRooms(roomData);
-        setLocations(locationData);
+        if (!response.ok) {
+          throw new Error(data.message || "Không thể tải dữ liệu báo cáo.");
+        }
+
+        setBookings(data.bookings ?? []);
+        setRooms(data.rooms ?? []);
+        setLocations(data.locations ?? []);
       } catch (error) {
         console.error("Lỗi tải báo cáo:", error);
         setError("Không thể tải dữ liệu báo cáo.");
@@ -273,7 +280,6 @@ export default function AdminReportPage() {
         <KpiCard
           title="Doanh thu ước tính"
           value={`${totalRevenue.toLocaleString("vi-VN")} ₫`}
-          description="Số đêm × giá phòng"
           icon="₫"
           color="green"
         />
@@ -281,7 +287,6 @@ export default function AdminReportPage() {
         <KpiCard
           title="Tổng đơn đặt"
           value={`${filteredBookings.length.toLocaleString("vi-VN")} đơn`}
-          description="số lượng booking"
           icon="✓"
           color="blue"
         />
@@ -289,7 +294,6 @@ export default function AdminReportPage() {
         <KpiCard
           title="Thời gian lưu trú"
           value={`${totalNights.toLocaleString("vi-VN")} đêm`}
-          description="Tổng thời gian lưu trú"
           icon="☾"
           color="purple"
         />
@@ -297,7 +301,6 @@ export default function AdminReportPage() {
         <KpiCard
           title="Trung bình / đơn"
           value={`${Math.round(averageBookingValue).toLocaleString("vi-VN")} ₫`}
-          description="Doanh thu trung bình mỗi booking"
           icon="↗"
           color="orange"
         />
@@ -459,12 +462,11 @@ function RankingNumber({ index }: { index: number }) {
 type KpiCardProps = {
   title: string;
   value: string;
-  description: string;
   icon: string;
   color: "green" | "blue" | "purple" | "orange";
 };
 
-function KpiCard({ title, value, description, icon, color }: KpiCardProps) {
+function KpiCard({ title, value, icon, color }: KpiCardProps) {
   const colorClasses = {
     green: "bg-emerald-50 text-emerald-600",
     blue: "bg-blue-50 text-blue-600",
@@ -473,24 +475,23 @@ function KpiCard({ title, value, description, icon, color }: KpiCardProps) {
   };
 
   return (
-    <article className="group rounded-3xl border border-line bg-card p-5 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-md">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-sm font-semibold text-slate-500">{title}</p>
-
-          <p className="mt-3 break-words text-2xl font-bold text-slate-950">
-            {value}
-          </p>
-        </div>
-
+    <article className="group flex min-h-[160px] flex-col rounded-3xl border border-line bg-card px-4 py-4 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-md">
+      <div className="flex items-start justify-between gap-3">
+        <p className="max-w-[72%] text-sm font-semibold leading-5 text-slate-500">
+          {title}
+        </p>
         <div
-          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-lg font-bold ${colorClasses[color]}`}
+          className={`flex h-9 w-9 shrink-0 items-center justify-center self-start rounded-xl text-sm font-bold ${colorClasses[color]}`}
         >
           {icon}
         </div>
       </div>
 
-      <p className="mt-3 text-xs text-slate-400">{description}</p>
+      <div className="mt-4 overflow-hidden rounded-2xl bg-slate-50/70 px-2.5 py-3">
+        <p className="min-w-0 whitespace-nowrap text-[clamp(1.08rem,1.42vw,1.34rem)] leading-none font-extrabold tracking-[-0.01em] text-slate-950">
+          {value}
+        </p>
+      </div>
     </article>
   );
 }
