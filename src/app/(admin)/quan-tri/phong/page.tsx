@@ -1235,6 +1235,7 @@ export default function AdminRoomPage() {
 
       {successMessage && (
         <div
+<<<<<<< HEAD
           className="fixed inset-0 z-[70] flex items-start justify-center overflow-y-auto bg-black/50 p-4 sm:items-center"
           onClick={() => setSuccessMessage("")}
         >
