@@ -49,7 +49,37 @@ export default function AdminRoomPage() {
   const [totalRow, setTotalRow] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
+  const [notification, setNotification] = useState<{
+    show: boolean;
+    type: "success" | "error";
+    title: string;
+    message: string;
+  }>({
+    show: false,
+    type: "success",
+    title: "",
+    message: "",
+  });
+
+  function showNotification(
+    type: "success" | "error",
+    title: string,
+    message: string,
+  ) {
+    setNotification({
+      show: true,
+      type,
+      title,
+      message,
+    });
+  }
+
+  function closeNotification() {
+    setNotification((current) => ({
+      ...current,
+      show: false,
+    }));
+  }
 
   useEffect(() => {
     async function fetchLocations() {
@@ -167,7 +197,12 @@ export default function AdminRoomPage() {
       createForm.giaTien <= 0 ||
       createForm.maViTri <= 0
     ) {
-      alert("Vui lòng nhập đầy đủ thông tin phòng.");
+      showNotification(
+        "error",
+        "Thiếu thông tin",
+        "Vui lòng nhập đầy đủ thông tin phòng.",
+      );
+
       return;
     }
 
@@ -181,7 +216,6 @@ export default function AdminRoomPage() {
         await roomsService.uploadImage(newRoom.id, selectedImage);
       }
 
-      alert("Thêm phòng thành công!");
       setShowCreateForm(false);
       setCreateForm(initialRoomForm);
       setSelectedImage(null);
@@ -197,9 +231,12 @@ export default function AdminRoomPage() {
       setPage(1);
 
       setRefreshKey((current) => current + 1);
+
+      showNotification("success", "Thêm thành công", "Phòng mới đã được thêm.");
     } catch (error) {
       console.error("Lỗi thêm phòng:", error);
-      alert("Không thể thêm phòng.");
+
+      showNotification("error", "Thêm thất bại", "Không thể thêm phòng.");
     }
   }
 
@@ -225,7 +262,12 @@ export default function AdminRoomPage() {
       editingRoom.giaTien <= 0 ||
       editingRoom.maViTri <= 0
     ) {
-      alert("Vui lòng nhập đầy đủ thông tin phòng.");
+      showNotification(
+        "error",
+        "Thiếu thông tin",
+        "Vui lòng nhập đầy đủ thông tin phòng.",
+      );
+
       return;
     }
 
@@ -255,8 +297,6 @@ export default function AdminRoomPage() {
         await roomsService.uploadImage(editingRoom.id, editImage);
       }
 
-      alert("Cập nhật phòng thành công!");
-
       setEditingRoom(null);
       setEditImage(null);
       setEditImagePreview("");
@@ -266,9 +306,20 @@ export default function AdminRoomPage() {
       } else {
         setRefreshKey((current) => current + 1);
       }
+
+      showNotification(
+        "success",
+        "Cập nhật thành công",
+        "Thông tin phòng đã được cập nhật.",
+      );
     } catch (error) {
       console.error("Lỗi cập nhật phòng:", error);
-      alert("Không thể cập nhật phòng.");
+
+      showNotification(
+        "error",
+        "Cập nhật thất bại",
+        "Không thể cập nhật phòng.",
+      );
     }
   }
 
@@ -289,10 +340,19 @@ export default function AdminRoomPage() {
       }
 
       setDeleteRoomId(null);
-      setSuccessMessage("Xóa phòng thành công!");
-    } catch (error) {
+
+      showNotification("success", "Xóa thành công", "Phòng đã được xóa.");
+    } catch (error: any) {
       console.error("Lỗi xóa phòng:", error);
-      alert("Không thể xóa phòng.");
+
+      setDeleteRoomId(null);
+
+      const serverMessage =
+        error?.response?.data?.content ||
+        error?.response?.data?.message ||
+        "Không thể xóa phòng này.";
+
+      showNotification("error", "Xóa thất bại", serverMessage);
     }
   }
 
@@ -1158,31 +1218,43 @@ export default function AdminRoomPage() {
         </div>
       )}
 
-      {successMessage && (
+      {notification.show && (
         <div
-          className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 p-4"
-          onClick={() => setSuccessMessage("")}
+          className="fixed inset-0 z-[11000] flex items-center justify-center bg-black/50 p-4"
+          onClick={closeNotification}
         >
           <div
             className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="text-center">
-              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-3xl font-bold text-green-600">
-                ✓
+              <div
+                className={`mx-auto flex h-16 w-16 items-center justify-center rounded-full text-3xl ${
+                  notification.type === "success"
+                    ? "bg-green-100 text-green-600"
+                    : "bg-red-100 text-red-600"
+                }`}
+              >
+                {notification.type === "success" ? "✓" : "✕"}
               </div>
 
-              <h3 className="mt-4 text-xl font-bold text-slate-950">
-                Thành công
+              <h3 className="mt-4 text-xl font-bold text-slate-900">
+                {notification.title}
               </h3>
 
-              <p className="mt-2 text-sm text-slate-500">{successMessage}</p>
+              <p className="mt-2 text-sm text-slate-500">
+                {notification.message}
+              </p>
             </div>
 
             <button
               type="button"
-              onClick={() => setSuccessMessage("")}
-              className="mt-6 w-full rounded-xl bg-[#0B246D] px-4 py-2.5 font-semibold text-white"
+              onClick={closeNotification}
+              className={`mt-6 w-full rounded-xl px-4 py-2.5 font-semibold text-white ${
+                notification.type === "success"
+                  ? "bg-green-600 hover:bg-green-700"
+                  : "bg-red-600 hover:bg-red-700"
+              }`}
             >
               Đóng
             </button>
