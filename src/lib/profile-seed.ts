@@ -74,6 +74,10 @@ export function setProfileSeed(response: NextResponse, user: AuthUser) {
   });
 }
 
+export function getProfileSeedCookieName() {
+  return PROFILE_SEED_COOKIE_NAME;
+}
+
 export function mergeUserWithProfileSeed(
   user: AuthUser,
   seed: ProfileSeed | null,

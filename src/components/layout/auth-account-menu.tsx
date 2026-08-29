@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { LogOut, CircleUserRound } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -14,8 +13,6 @@ import {
 import { authService } from "@/services/auth.service";
 
 export function AuthAccountMenu() {
-  const router = useRouter();
-
   const [currentUser, setCurrentUser] =
     useState<ReturnType<typeof getCurrentUser>>(null);
 
@@ -65,8 +62,10 @@ export function AuthAccountMenu() {
       clearStoredAuth();
       setIsSigningOut(false);
       toast.success("Đã đăng xuất.");
-      router.push("/");
-      router.refresh();
+
+      if (typeof window !== "undefined") {
+        window.location.replace("/");
+      }
     }
   };
 

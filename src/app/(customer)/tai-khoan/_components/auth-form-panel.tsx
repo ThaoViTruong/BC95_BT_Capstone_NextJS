@@ -61,7 +61,7 @@ const signUpSchema = z
     phone: z
       .string()
       .trim()
-      .regex(/^\d{10,11}$/, "số điện thoại phải từ 10-11 chữ số"),
+      .regex(/^0\d{9}$/, "Số điện thoại phải gồm 10 chữ số và bắt đầu bằng số 0."),
     birthday: z
       .string()
       .min(1, "Vui lòng chọn ngày sinh.")
@@ -103,16 +103,6 @@ function getErrorMessage(error: unknown) {
   }
 
   return "Có lỗi xảy ra. Vui lòng thử lại.";
-}
-
-function formatBirthday(value: string) {
-  const [year, month, day] = value.split("-");
-
-  if (!year || !month || !day) {
-    return value;
-  }
-
-  return `${day}/${month}/${year}`;
 }
 
 function SocialButton({
@@ -253,8 +243,8 @@ export function AuthFormPanel() {
     const payload = {
       name: values.name,
       email: values.email,
-      phone: values.phone,
-      birthday: formatBirthday(values.birthday),
+      phone: values.phone.trim(),
+      birthday: values.birthday,
       gender: values.gender === "male",
       password: values.password,
       role: "USER",
@@ -467,7 +457,15 @@ export function AuthFormPanel() {
                           type="tel"
                           placeholder="Nhập số điện thoại"
                           inputMode="numeric"
-                          maxLength={11}
+                          maxLength={10}
+                          onInput={(event) => {
+                            const input = event.currentTarget;
+                            const nextValue = input.value.replace(/\D/g, "").slice(0, 10);
+
+                            if (input.value !== nextValue) {
+                              input.value = nextValue;
+                            }
+                          }}
                           className="h-12 w-full border-none bg-transparent text-sm text-slate-900 outline-none"
                         />
                       </div>

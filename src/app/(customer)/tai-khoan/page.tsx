@@ -30,6 +30,7 @@ export default async function CustomerPage() {
   if (authSession?.user) {
     const fallbackUser = authSession.user;
     const resolvedUser = authSession ? await resolveSessionUser(authSession) : null;
+    const currentUser = resolvedUser ?? fallbackUser;
     const bookingUserId =
       typeof resolvedUser?.id === "number" && resolvedUser.id > 0
         ? resolvedUser.id
@@ -96,7 +97,7 @@ export default async function CustomerPage() {
         };
       });
 
-    return <AccountOverview initialUser={fallbackUser} rentedRooms={rentedRooms} />;
+    return <AccountOverview initialUser={currentUser} rentedRooms={rentedRooms} />;
   }
 
   return <AuthFormPanel />;

@@ -135,11 +135,11 @@ export default function AdminBookingPage() {
     let matchesDate = true;
 
     if (dateFrom && dateTo) {
-      matchesDate = bookingStart <= dateTo && bookingEnd >= dateFrom;
+      matchesDate = bookingStart >= dateFrom && bookingEnd <= dateTo;
     } else if (dateFrom) {
-      matchesDate = bookingEnd >= dateFrom;
+      matchesDate = bookingStart >= dateFrom;
     } else if (dateTo) {
-      matchesDate = bookingStart <= dateTo;
+      matchesDate = bookingEnd <= dateTo;
     }
 
     return matchesSearch && matchesDate;
