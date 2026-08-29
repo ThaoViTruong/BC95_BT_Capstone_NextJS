@@ -52,6 +52,7 @@ export function FavoriteRoomsSection({ userId }: FavoriteRoomsSectionProps) {
   const [rooms, setRooms] = useState<FavoriteRoomView[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [pendingRemoveRoomId, setPendingRemoveRoomId] = useState<number | null>(null);
 
   const normalizedUserId = useMemo(
     () => {
@@ -129,6 +130,8 @@ export function FavoriteRoomsSection({ userId }: FavoriteRoomsSectionProps) {
     }
   };
 
+  const pendingRemoveRoom = rooms.find((room) => room.id === pendingRemoveRoomId) ?? null;
+
   return (
     <section className="rounded-[28px] border border-white/80 bg-white p-6 shadow-sm sm:p-7">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -163,7 +166,7 @@ export function FavoriteRoomsSection({ userId }: FavoriteRoomsSectionProps) {
                   />
                   <button
                     type="button"
-                    onClick={() => handleRemoveFavorite(room.id)}
+                    onClick={() => setPendingRemoveRoomId(room.id)}
                     className="absolute right-3 top-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/95 text-rose-600 shadow-sm transition hover:bg-white"
                     aria-label="Bỏ khỏi yêu thích"
                   >
@@ -221,6 +224,57 @@ export function FavoriteRoomsSection({ userId }: FavoriteRoomsSectionProps) {
           </Link>
         </div>
       )}
+
+      {pendingRemoveRoom ? (
+        <div
+          className="fixed inset-0 z-[80] flex items-start justify-center overflow-y-auto bg-black/50 p-4 sm:items-center"
+          onClick={() => setPendingRemoveRoomId(null)}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="favorite-remove-title"
+            className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="text-center">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-100 text-2xl font-bold text-red-600">
+                !
+              </div>
+
+              <h3 id="favorite-remove-title" className="mt-4 text-xl font-bold text-slate-950">
+                Xác nhận xóa khỏi yêu thích
+              </h3>
+
+              <p className="mt-2 text-sm text-slate-500">
+                Bạn có chắc chắn muốn bỏ phòng &quot;{pendingRemoveRoom.tenPhong}&quot; khỏi danh
+                sách yêu thích không?
+              </p>
+            </div>
+
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <button
+                type="button"
+                onClick={() => setPendingRemoveRoomId(null)}
+                className="flex-1 rounded-xl border border-line px-4 py-2.5 font-semibold transition hover:bg-slate-50"
+              >
+                Hủy
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  handleRemoveFavorite(pendingRemoveRoom.id);
+                  setPendingRemoveRoomId(null);
+                }}
+                className="flex-1 rounded-xl bg-red-600 px-4 py-2.5 font-semibold text-white transition hover:bg-red-700"
+              >
+                Xóa
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }

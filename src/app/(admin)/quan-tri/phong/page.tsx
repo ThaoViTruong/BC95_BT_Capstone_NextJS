@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import Image from "next/image";
+import { useCallback, useEffect, useState } from "react";
 import { roomsService } from "@/services/rooms.service";
 import { locationsService } from "@/services/locations.service";
+import { getRoomImageSrc } from "@/lib/room-image";
 import type { Room, RoomPayload } from "@/types/room";
 import type { Location } from "@/types/location";
 import Link from "next/link";
@@ -81,6 +83,27 @@ export default function AdminRoomPage() {
     }));
   }
 
+  function getApiErrorMessage(error: unknown, fallback: string) {
+    if (typeof error !== "object" || error === null) {
+      return fallback;
+    }
+
+    const response = (error as { response?: { data?: Record<string, unknown> } })
+      .response;
+    const content = response?.data?.content;
+    const message = response?.data?.message;
+
+    if (typeof content === "string" && content.trim()) {
+      return content;
+    }
+
+    if (typeof message === "string" && message.trim()) {
+      return message;
+    }
+
+    return fallback;
+  }
+
   useEffect(() => {
     async function fetchLocations() {
       try {
@@ -149,7 +172,7 @@ export default function AdminRoomPage() {
   const displayedTotal =
     searchResults !== null ? searchResults.length : totalRow;
 
-  async function handleFilter() {
+  const handleFilter = useCallback(async () => {
     const search = searchInput.trim().toLowerCase();
 
     if (!search && !selectedLocation) {
@@ -180,7 +203,7 @@ export default function AdminRoomPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [searchInput, selectedLocation]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -188,7 +211,7 @@ export default function AdminRoomPage() {
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [searchInput, selectedLocation]);
+  }, [handleFilter]);
 
   async function handleCreateRoom() {
     if (
@@ -248,7 +271,7 @@ export default function AdminRoomPage() {
     });
 
     setEditImage(null);
-    setEditImagePreview(room.hinhAnh ?? "");
+    setEditImagePreview(getRoomImageSrc(room.hinhAnh));
   }
 
   async function handleUpdateRoom() {
@@ -342,15 +365,15 @@ export default function AdminRoomPage() {
       setDeleteRoomId(null);
 
       showNotification("success", "Xóa thành công", "Phòng đã được xóa.");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Lỗi xóa phòng:", error);
 
       setDeleteRoomId(null);
 
-      const serverMessage =
-        error?.response?.data?.content ||
-        error?.response?.data?.message ||
-        "Không thể xóa phòng này.";
+      const serverMessage = getApiErrorMessage(
+        error,
+        "Không thể xóa phòng này.",
+      );
 
       showNotification("error", "Xóa thất bại", serverMessage);
     }
@@ -441,10 +464,12 @@ export default function AdminRoomPage() {
                   >
                     <div className="relative aspect-[16/10] bg-slate-100">
                       {room.hinhAnh ? (
-                        <img
-                          src={room.hinhAnh}
+                        <Image
+                          src={getRoomImageSrc(room.hinhAnh)}
                           alt={room.tenPhong}
-                          className="h-full w-full object-cover"
+                          fill
+                          sizes="(max-width: 767px) 100vw, 0px"
+                          className="object-cover"
                         />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center text-sm text-slate-400">
@@ -541,9 +566,12 @@ export default function AdminRoomPage() {
                             aria-label={`Xem phòng ${room.tenPhong}`}
                           >
                             {room.hinhAnh ? (
-                              <img
-                                src={room.hinhAnh}
+                              <Image
+                                src={getRoomImageSrc(room.hinhAnh)}
                                 alt={room.tenPhong}
+                                width={80}
+                                height={56}
+                                sizes="80px"
                                 className="h-14 w-20 cursor-pointer rounded-lg object-cover transition hover:opacity-80"
                               />
                             ) : (
@@ -917,12 +945,15 @@ export default function AdminRoomPage() {
               <h4 className="font-bold text-slate-900">Hình ảnh</h4>
 
               <div className="mt-4">
-                <label className="flex h-32 w-full max-w-48 cursor-pointer items-center justify-center overflow-hidden rounded-xl border border-dashed border-slate-300 bg-slate-50">
+                <label className="relative flex h-32 w-full max-w-48 cursor-pointer items-center justify-center overflow-hidden rounded-xl border border-dashed border-slate-300 bg-slate-50">
                   {imagePreview ? (
-                    <img
+                    <Image
                       src={imagePreview}
                       alt="Preview"
-                      className="h-full w-full object-cover"
+                      fill
+                      unoptimized
+                      sizes="192px"
+                      className="object-cover"
                     />
                   ) : (
                     <span className="text-sm text-slate-500">+ Chọn ảnh</span>
@@ -992,12 +1023,15 @@ export default function AdminRoomPage() {
               <div className="border-t border-line pt-4">
                 <h4 className="mb-4 font-bold text-slate-900">Hình ảnh</h4>
 
-                <label className="flex h-32 w-full max-w-48 cursor-pointer items-center justify-center overflow-hidden rounded-xl border border-dashed border-slate-300 bg-slate-50">
+                <label className="relative flex h-32 w-full max-w-48 cursor-pointer items-center justify-center overflow-hidden rounded-xl border border-dashed border-slate-300 bg-slate-50">
                   {editImagePreview ? (
-                    <img
+                    <Image
                       src={editImagePreview}
                       alt="Ảnh phòng"
-                      className="h-full w-full object-cover"
+                      fill
+                      unoptimized
+                      sizes="192px"
+                      className="object-cover"
                     />
                   ) : (
                     <span className="text-sm text-slate-500">+ Chọn ảnh</span>
@@ -1295,13 +1329,8 @@ export default function AdminRoomPage() {
 
       {notification.show && (
         <div
-<<<<<<< HEAD
-          className="fixed inset-0 z-[70] flex items-start justify-center overflow-y-auto bg-black/50 p-4 sm:items-center"
-          onClick={() => setSuccessMessage("")}
-=======
-          className="fixed inset-0 z-[11000] flex items-center justify-center bg-black/50 p-4"
+          className="fixed inset-0 z-[11000] flex items-start justify-center overflow-y-auto bg-black/50 p-4 sm:items-center"
           onClick={closeNotification}
->>>>>>> 970b205905eaff4f3291c34907ffa15711e77e49
         >
           <div
             className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
