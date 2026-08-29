@@ -118,8 +118,8 @@ export default async function RoomDetailPage({ params }: RoomDetailPageProps) {
           title="Chưa tải được chi tiết phòng"
           desc="Lớp kết nối API đã sẵn, nhưng hiện tại thiếu cấu hình môi trường hoặc token chưa hợp lệ."
           lines={[
-            "Kiểm tra NEXT_PUBLIC_API_URL trong .env.local",
-            "Kiểm tra NEXT_PUBLIC_CYBERSOFT_TOKEN còn hạn và đúng giá trị",
+            "Kiểm tra NEXT_PUBLIC_API_URL trong Environment Variables trên Vercel hoặc file .env.local",
+            "Kiểm tra NEXT_PUBLIC_CYBERSOFT_TOKEN trên Vercel hoặc local còn hạn và đúng giá trị",
             `Chi tiết lỗi hiện tại: ${message}`,
           ]}
         />
@@ -144,14 +144,13 @@ export default async function RoomDetailPage({ params }: RoomDetailPageProps) {
   const roomImageSrc = getRoomImageSrc(room.hinhAnh);
   const amenityList: AmenityItem[] = [
     room.mayGiat ? { key: "mayGiat", label: "Máy giặt", icon: Shirt } : null,
-    room.banLa ? { key: "banLa", label: "Bàn là", icon: Shirt } : null,
+    room.banLa || room.banUi ? { key: "banUi", label: "Bàn ủi", icon: Shirt } : null,
     room.tivi ? { key: "tivi", label: "Tivi", icon: Monitor } : null,
     room.dieuHoa ? { key: "dieuHoa", label: "Điều hòa", icon: Wind } : null,
     room.wifi ? { key: "wifi", label: "Wifi", icon: Wifi } : null,
     room.bep ? { key: "bep", label: "Bếp", icon: CookingPot } : null,
     room.doXe ? { key: "doXe", label: "Đỗ xe", icon: CarFront } : null,
     room.hoBoi ? { key: "hoBoi", label: "Hồ bơi", icon: Waves } : null,
-    room.banUi ? { key: "banUi", label: "Bàn ủi", icon: Shirt } : null,
   ].filter((item): item is AmenityItem => Boolean(item));
   const averageRating =
     visibleComments.length > 0

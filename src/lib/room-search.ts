@@ -32,6 +32,11 @@ export type FilterRoomsResult = {
   locationById: Map<number, Location>;
 };
 
+export type SearchOption = {
+  value: string;
+  label: string;
+};
+
 function buildLocationRoomCountMap(roomList: Room[]) {
   const locationRoomCount = new Map<number, number>();
 
@@ -89,7 +94,7 @@ function getRoomFeatureText(room: Room) {
     room.doXe ? "do xe bãi đỗ xe parking" : "",
     room.mayGiat ? "may giat giặt sấy" : "",
     room.tivi ? "tivi tv smart tv" : "",
-    room.banLa ? "ban la ban ui ủi" : "",
+    room.banLa || room.banUi ? "ban ui ban la ủi" : "",
   ];
 
   return features.join(" ");
@@ -305,17 +310,72 @@ export function getSearchableLocations(roomList: Room[], locationList: Location[
     });
 }
 
-export function buildLocationOptions(roomList: Room[], locationList: Location[]) {
-  const optionSet = new Set<string>();
+export function buildLocationOptions(roomList: Room[], locationList: Location[]): SearchOption[] {
+  const locationRoomCount = buildLocationRoomCountMap(roomList);
+  const seenLabels = new Set<string>();
+  const normalizedLocations = [...locationList]
+    .sort((locationA, locationB) => {
+      const countA = locationRoomCount.get(locationA.id) ?? 0;
+      const countB = locationRoomCount.get(locationB.id) ?? 0;
 
-  for (const location of getSearchableLocations(roomList, locationList)) {
-    optionSet.add(location.tenViTri);
-    optionSet.add(location.tinhThanh);
-    optionSet.add(location.quocGia);
-    optionSet.add(getLocationLabel(location));
+      if (countA !== countB) {
+        return countB - countA;
+      }
+
+      return locationA.id - locationB.id;
+    })
+    .filter((location) => {
+      const normalizedLabel = normalizeSearchText(getLocationLabel(location));
+
+      if (seenLabels.has(normalizedLabel)) {
+        return false;
+      }
+
+      seenLabels.add(normalizedLabel);
+      return true;
+    });
+  const locationNameCount = new Map<string, number>();
+
+  for (const location of normalizedLocations) {
+    const normalizedName = normalizeSearchText(location.tenViTri);
+    locationNameCount.set(normalizedName, (locationNameCount.get(normalizedName) ?? 0) + 1);
   }
 
-  return Array.from(optionSet);
+  return normalizedLocations.map((location) => {
+    const normalizedName = normalizeSearchText(location.tenViTri);
+    const isDuplicateName = (locationNameCount.get(normalizedName) ?? 0) > 1;
+
+    return {
+      value: getLocationLabel(location),
+      label: isDuplicateName ? `${location.tenViTri} - ${location.tinhThanh}` : location.tenViTri,
+    };
+  });
+}
+
+export function buildAmenityOptions(roomList: Room[]): SearchOption[] {
+  const hasIron = roomList.some((room) => room.banLa || room.banUi);
+  const availabilityMap = [
+    { value: "wifi", label: "Wifi", enabled: roomList.some((room) => room.wifi) },
+    { value: "ho boi", label: "Hồ bơi", enabled: roomList.some((room) => room.hoBoi) },
+    {
+      value: "dieu hoa",
+      label: "Điều hòa",
+      enabled: roomList.some((room) => room.dieuHoa),
+    },
+    { value: "bep", label: "Bếp", enabled: roomList.some((room) => room.bep) },
+    { value: "do xe", label: "Đỗ xe", enabled: roomList.some((room) => room.doXe) },
+    {
+      value: "may giat",
+      label: "Máy giặt",
+      enabled: roomList.some((room) => room.mayGiat),
+    },
+    { value: "tivi", label: "Tivi", enabled: roomList.some((room) => room.tivi) },
+    { value: "ban ui", label: "Bàn ủi", enabled: hasIron },
+  ];
+
+  return availabilityMap
+    .filter((item) => item.enabled)
+    .map(({ value, label }) => ({ value, label }));
 }
 
 export function buildSearchHref(pathname: string, query: RoomSearchParams) {

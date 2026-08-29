@@ -7,7 +7,15 @@ import { RoomCard } from "@/app/(public)/phong/_components/room-card";
 import { PaginationNav } from "@/components/shared/pagination-nav";
 import { RoomSearchForm } from "@/components/shared/room-search-form";
 import { SetupPanel } from "@/components/shared/setup-panel";
-import { buildLocationOptions, buildSearchHref, filterRooms, getLocationLabel, getSearchableLocations, normalizeSearchText } from "@/lib/room-search";
+import {
+  buildAmenityOptions,
+  buildLocationOptions,
+  buildSearchHref,
+  filterRooms,
+  getLocationLabel,
+  getSearchableLocations,
+  normalizeSearchText,
+} from "@/lib/room-search";
 import { cn } from "@/lib/utils";
 import { bookingsService } from "@/services/bookings.service";
 import { commentsService } from "@/services/comments.service";
@@ -99,8 +107,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           title="Chưa gọi được dữ liệu trang chủ"
           desc="Hệ thống đã có luồng gọi API thật, nhưng hiện tại chưa thể lấy danh sách phòng để hiển thị."
           lines={[
-            "Kiểm tra NEXT_PUBLIC_API_URL trong file .env.local",
-            "Kiểm tra NEXT_PUBLIC_CYBERSOFT_TOKEN còn hạn sử dụng",
+            "Kiểm tra NEXT_PUBLIC_API_URL trong Environment Variables trên Vercel hoặc file .env.local",
+            "Kiểm tra NEXT_PUBLIC_CYBERSOFT_TOKEN trên Vercel hoặc local còn hạn sử dụng",
             `Chi tiết lỗi hiện tại: ${data.message}`,
           ]}
         />
@@ -125,6 +133,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const startIndex = rankedRooms.length === 0 ? 0 : (currentPage - 1) * pageSize;
   const roomsToShow = rankedRooms.slice(startIndex, startIndex + pageSize);
   const locationOptions = buildLocationOptions(data.roomList, data.locationList);
+  const amenityOptions = buildAmenityOptions(data.roomList);
   const searchableLocations = getSearchableLocations(data.roomList, data.locationList);
   const activeDestination = normalizeSearchText(query.diemDen ?? "");
 
@@ -166,11 +175,12 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                 action="/"
                 destination={query.diemDen ?? ""}
                 roomName={query.tenPhong ?? query.tuKhoa ?? ""}
-                amenity={query.tienIch ?? ""}
+                amenity={normalizeSearchText(query.tienIch ?? "")}
                 checkIn={query.ngayNhan ?? ""}
                 checkOut={query.ngayTra ?? ""}
                 guest={query.khach ?? ""}
                 locationOptions={locationOptions}
+                amenityOptions={amenityOptions}
                 submitClassName="h-full"
                 panelClassName="border-slate-200/90 bg-white"
               />
