@@ -794,7 +794,7 @@ export function AccountOverview({ initialUser, rentedRooms }: AccountOverviewPro
                 <section className="rounded-[28px] border border-white/80 bg-white p-6 shadow-sm sm:p-7">
                   <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                     <h2 className="text-2xl font-extrabold text-slate-950">Phòng đã thuê</h2>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="grid w-full grid-cols-2 gap-2 md:w-auto">
                       {stayTabs.map((tab) => (
                         <button
                           key={tab.key}
@@ -803,7 +803,7 @@ export function AccountOverview({ initialUser, rentedRooms }: AccountOverviewPro
                             setActiveStayTab(tab.key);
                             setRentedPage(1);
                           }}
-                          className={`inline-flex min-h-10 items-center justify-center rounded-full px-4 text-sm font-semibold transition ${
+                          className={`inline-flex min-h-9 w-full items-center justify-center whitespace-nowrap rounded-full px-2 text-[11px] font-semibold transition sm:min-h-10 sm:px-3 sm:text-sm ${
                             activeStayTab === tab.key
                               ? "bg-[#0f2f8e] text-white"
                               : "bg-slate-50 text-slate-700 hover:bg-slate-100"
@@ -817,7 +817,7 @@ export function AccountOverview({ initialUser, rentedRooms }: AccountOverviewPro
 
                   {roomsToShow.length > 0 ? (
                     <>
-                      <div className="mt-5 grid gap-4 md:grid-cols-2">
+                      <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-2 md:gap-4">
                         {roomsToShow.map((room) => {
                           const stayStatus = getStayStatusInfo(room.checkIn, room.checkOut);
 
@@ -826,41 +826,41 @@ export function AccountOverview({ initialUser, rentedRooms }: AccountOverviewPro
                               key={room.bookingId}
                               className="overflow-hidden rounded-[24px] border border-white/80 bg-white shadow-sm"
                             >
-                              <div className="relative h-48 bg-slate-100">
+                              <div className="relative h-28 bg-slate-100 sm:h-40 lg:h-48">
                                 <Image
                                   src={getRoomImageSrc(room.roomImage)}
                                   alt={room.roomName}
                                   fill
-                                  sizes="(max-width: 768px) 100vw, 50vw"
+                                  sizes="(max-width: 768px) 50vw, 50vw"
                                   className="object-cover"
                                 />
-                                <span className="absolute right-3 top-3 rounded-full bg-white/95 px-3 py-1 text-xs font-bold text-[#12315f] shadow-sm">
+                                <span className="absolute right-2 top-2 rounded-full bg-white/95 px-2 py-1 text-[10px] font-bold text-[#12315f] shadow-sm sm:right-3 sm:top-3 sm:px-3 sm:text-xs">
                                   {stayStatus.label}
                                 </span>
                               </div>
 
-                              <div className="space-y-3 p-4">
-                                <div className="flex items-start justify-between gap-3">
-                                  <div>
-                                    <h3 className="text-lg font-bold text-slate-950">
+                              <div className="space-y-2 p-3 sm:space-y-3 sm:p-4">
+                                <div className="flex items-start justify-between gap-2 sm:gap-3">
+                                  <div className="min-w-0">
+                                    <h3 className="truncate text-sm font-bold text-slate-950 sm:text-lg">
                                       {room.roomName}
                                     </h3>
-                                    <p className="mt-1 inline-flex items-center gap-1 text-sm text-slate-500">
-                                      <MapPin className="h-4 w-4 text-[#0f2f8e]" />
-                                      {room.locationText}
+                                    <p className="mt-1 inline-flex max-w-full items-center gap-1 truncate text-[11px] text-slate-500 sm:text-sm">
+                                      <MapPin className="h-3.5 w-3.5 shrink-0 text-[#0f2f8e] sm:h-4 sm:w-4" />
+                                      <span className="truncate">{room.locationText}</span>
                                     </p>
-                                    <p className="mt-1 text-sm text-slate-500">
+                                    <p className="mt-1 truncate text-[11px] text-slate-500 sm:text-sm">
                                       {formatDate(room.checkIn)} - {formatDate(room.checkOut)}
                                     </p>
                                   </div>
 
-                                  <span className="inline-flex items-center gap-1 text-sm font-semibold text-slate-900">
-                                    <Star className="h-4 w-4 fill-[#facc15] text-[#facc15]" />
+                                  <span className="inline-flex shrink-0 items-center gap-1 text-[11px] font-semibold text-slate-900 sm:text-sm">
+                                    <Star className="h-3.5 w-3.5 fill-[#facc15] text-[#facc15] sm:h-4 sm:w-4" />
                                     {room.ratingValue.toFixed(1)}
                                   </span>
                                 </div>
 
-                                <div className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                                <div className="rounded-2xl bg-slate-50 px-3 py-2 text-[11px] text-slate-600 sm:px-4 sm:py-3 sm:text-sm">
                                   <p>Tối đa {room.guestCount} khách</p>
                                   <p className="mt-1">
                                     {room.ratingCount > 0
@@ -876,7 +876,7 @@ export function AccountOverview({ initialUser, rentedRooms }: AccountOverviewPro
 
                                 <Link
                                   href={`/phong/${room.roomId}`}
-                                  className="inline-flex h-11 w-full items-center justify-center rounded-2xl bg-slate-100 text-sm font-semibold text-slate-900 transition hover:bg-[#0f2f8e] hover:text-white"
+                                  className="inline-flex h-9 w-full items-center justify-center rounded-2xl bg-slate-100 text-xs font-semibold text-slate-900 transition hover:bg-[#0f2f8e] hover:text-white sm:h-11 sm:text-sm"
                                 >
                                   Đặt lại
                                 </Link>

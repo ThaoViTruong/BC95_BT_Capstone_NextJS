@@ -80,7 +80,6 @@ export default function AdminPage() {
     {
       label: "Người dùng",
       value: stats.users,
-      description: "Tài khoản hệ thống",
       icon: Users,
       iconClass: "text-blue-600",
       iconBg: "bg-blue-50",
@@ -89,7 +88,6 @@ export default function AdminPage() {
     {
       label: "Phòng",
       value: stats.rooms,
-      description: "Phòng đang quản lý",
       icon: BedDouble,
       iconClass: "text-violet-600",
       iconBg: "bg-violet-50",
@@ -98,7 +96,6 @@ export default function AdminPage() {
     {
       label: "Địa điểm",
       value: stats.locations,
-      description: "Địa điểm hiện có",
       icon: MapPin,
       iconClass: "text-emerald-600",
       iconBg: "bg-emerald-50",
@@ -107,7 +104,6 @@ export default function AdminPage() {
     {
       label: "Đơn đặt phòng",
       value: stats.bookings,
-      description: "Tổng lượt đặt phòng",
       icon: CalendarCheck,
       iconClass: "text-orange-600",
       iconBg: "bg-orange-50",
@@ -116,7 +112,6 @@ export default function AdminPage() {
     {
       label: "Bình luận",
       value: stats.comments,
-      description: "Đánh giá từ khách hàng",
       icon: MessageSquare,
       iconClass: "text-pink-600",
       iconBg: "bg-pink-50",
@@ -133,29 +128,29 @@ export default function AdminPage() {
 
   return (
     <div className="space-y-6">
-      <section className="relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+      <section className="relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8">
         <div className="pointer-events-none absolute -right-20 -top-24 h-64 w-64 rounded-full bg-blue-100/70 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-32 right-40 h-56 w-56 rounded-full bg-violet-100/60 blur-3xl" />
 
-        <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+        <div className="relative flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
+            <h1 className="text-2xl font-bold tracking-tight text-slate-950 sm:text-4xl">
               Tổng quan hệ thống
             </h1>
 
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-500 sm:text-base">
+            <p className="mt-2 max-w-xl text-xs leading-6 text-slate-500 sm:mt-3 sm:max-w-2xl sm:text-base">
               Theo dõi số liệu và quản lý hoạt động của hệ thống đặt phòng
               tại một nơi.
             </p>
           </div>
 
           <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center">
-            <div className="rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 backdrop-blur">
+            <div className="rounded-2xl border border-slate-200 bg-white/80 px-3 py-2.5 backdrop-blur sm:px-4 sm:py-3">
               <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
                 Hôm nay
               </p>
 
-              <p className="mt-1 text-sm font-semibold capitalize text-slate-700">
+              <p className="mt-1 text-xs font-semibold capitalize text-slate-700 sm:text-sm">
                 {currentDate}
               </p>
             </div>
@@ -189,19 +184,19 @@ export default function AdminPage() {
       )}
 
       {loading && !error && (
-        <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        <section className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
           {Array.from({ length: 5 }).map((_, index) => (
             <div
               key={index}
-              className="h-[180px] animate-pulse rounded-3xl border border-slate-200 bg-white p-5 shadow-sm"
+              className={`h-[136px] animate-pulse rounded-3xl border border-slate-200 bg-white p-3.5 shadow-sm sm:h-[180px] sm:p-5 ${
+                index === 4 ? "col-span-2 xl:col-span-4" : ""
+              }`}
             >
-              <div className="h-11 w-11 rounded-2xl bg-slate-100" />
+              <div className="h-9 w-9 rounded-2xl bg-slate-100 sm:h-11 sm:w-11" />
 
-              <div className="mt-6 h-8 w-20 rounded-lg bg-slate-100" />
+              <div className="mt-4 h-7 w-16 rounded-lg bg-slate-100 sm:mt-6 sm:h-8 sm:w-20" />
 
-              <div className="mt-3 h-4 w-28 rounded bg-slate-100" />
-
-              <div className="mt-2 h-3 w-20 rounded bg-slate-50" />
+              <div className="mt-2 h-3.5 w-24 rounded bg-slate-100" />
             </div>
           ))}
         </section>
@@ -209,22 +204,25 @@ export default function AdminPage() {
 
       {!loading && !error && (
         <>
-          <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-            {adminStats.map((item) => {
+          <section className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
+            {adminStats.map((item, index) => {
               const Icon = item.icon;
+              const shouldFullWidth = index === adminStats.length - 1 && adminStats.length % 2 === 1;
 
               return (
                 <div
                   
                   key={item.label}
-                  className="group rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-1 hover:border-slate-300 hover:shadow-md"
+                  className={`group rounded-3xl border border-slate-200 bg-white p-3.5 shadow-sm transition duration-200 hover:-translate-y-1 hover:border-slate-300 hover:shadow-md sm:p-5 ${
+                    shouldFullWidth ? "col-span-2 xl:col-span-4" : ""
+                  }`}
                 >
                   <div className="flex items-start justify-between">
                     <div
-                      className={`flex h-11 w-11 items-center justify-center rounded-2xl ${item.iconBg}`}
+                      className={`flex h-9 w-9 items-center justify-center rounded-2xl ${item.iconBg} sm:h-11 sm:w-11`}
                     >
                       <Icon
-                        size={21}
+                        size={18}
                         className={item.iconClass}
                       />
                     </div>
@@ -232,16 +230,12 @@ export default function AdminPage() {
                     
                   </div>
 
-                  <p className="mt-5 text-3xl font-bold tracking-tight text-slate-950">
+                  <p className="mt-3 whitespace-nowrap text-[30px] font-bold tracking-tight text-slate-950 sm:mt-5 sm:text-3xl">
                     {item.value.toLocaleString("vi-VN")}
                   </p>
 
-                  <p className="mt-1 text-sm font-semibold text-slate-700">
+                  <p className="mt-1 text-xs font-semibold text-slate-700 sm:text-sm">
                     {item.label}
-                  </p>
-
-                  <p className="mt-1 text-xs text-slate-400">
-                    {item.description}
                   </p>
                 </div>
               );

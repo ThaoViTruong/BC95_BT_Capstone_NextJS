@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { hasMinimumOneNightStay } from "@/lib/booking-date";
 import { bookingsService } from "@/services/bookings.service";
 import { roomsService } from "@/services/rooms.service";
 import { usersService } from "@/services/users.service";
@@ -19,22 +18,6 @@ type MessageModal = {
   type: "success" | "error" | "warning";
   title: string;
   message: string;
-};
-
-type NewBooking = {
-  maPhong: number;
-  ngayDen: string;
-  ngayDi: string;
-  soLuongKhach: number;
-  maNguoiDung: number;
-};
-
-const initialNewBooking: NewBooking = {
-  maPhong: 0,
-  ngayDen: "",
-  ngayDi: "",
-  soLuongKhach: 1,
-  maNguoiDung: 0,
 };
 
 export default function AdminBookingPage() {
@@ -310,14 +293,14 @@ export default function AdminBookingPage() {
 
   return (
     <>
-      <section className="rounded-3xl border border-line bg-card p-6 shadow-sm">
+      <section className="rounded-3xl border border-line bg-card p-4 shadow-sm sm:p-5 lg:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <h3 className="text-xl font-bold text-slate-950">
+            <h3 className="text-2xl font-bold text-slate-950 sm:text-xl">
               Danh sách đặt phòng
             </h3>
 
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-xs text-slate-500 sm:text-sm">
               Tổng cộng: {filteredBookings.length} đơn
             </p>
           </div>
@@ -333,11 +316,11 @@ export default function AdminBookingPage() {
                 setPage(1);
               }}
               placeholder="Tìm theo ID, phòng, tên hoặc email người đặt..."
-              className="h-11 w-full rounded-xl border border-line px-4 pr-11 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              className="h-10 w-full rounded-xl border border-line px-3.5 pr-10 text-[11px] outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 sm:h-11 sm:px-4 sm:pr-11 sm:text-sm"
             />
             <div className="mt-4 flex flex-wrap items-end gap-4">
               <div>
-                <label className="mb-2 block text-sm font-semibold text-slate-700">
+                <label className="mb-2 block text-xs font-semibold text-slate-700 sm:text-sm">
                   Từ ngày
                 </label>
 
@@ -348,12 +331,12 @@ export default function AdminBookingPage() {
                     setDateFrom(event.target.value);
                     setPage(1);
                   }}
-                  className="h-11 rounded-xl border border-line bg-white px-4 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="h-10 rounded-xl border border-line bg-white px-3 text-[11px] outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 sm:h-11 sm:px-4 sm:text-sm"
                 />
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-semibold text-slate-700">
+                <label className="mb-2 block text-xs font-semibold text-slate-700 sm:text-sm">
                   Đến ngày
                 </label>
 
@@ -365,7 +348,7 @@ export default function AdminBookingPage() {
                     setDateTo(event.target.value);
                     setPage(1);
                   }}
-                  className="h-11 rounded-xl border border-line bg-white px-4 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="h-10 rounded-xl border border-line bg-white px-3 text-[11px] outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 sm:h-11 sm:px-4 sm:text-sm"
                 />
               </div>
 
@@ -377,7 +360,7 @@ export default function AdminBookingPage() {
                     setDateTo("");
                     setPage(1);
                   }}
-                  className="h-11 rounded-xl border border-line px-4 text-sm font-semibold text-slate-600 hover:bg-slate-50"
+                  className="h-10 rounded-xl border border-line px-3 text-[11px] font-semibold text-slate-600 hover:bg-slate-50 sm:h-11 sm:px-4 sm:text-sm"
                 >
                   Xóa bộ lọc ngày
                 </button>
@@ -392,7 +375,7 @@ export default function AdminBookingPage() {
                   setPage(1);
                 }}
                 aria-label="Xóa tìm kiếm"
-                className="absolute right-3 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                className="absolute right-3 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-700 sm:h-7 sm:w-7"
               >
                 ✕
               </button>
@@ -421,69 +404,105 @@ export default function AdminBookingPage() {
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-                          Đơn đặt #{booking.id}
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+                          Booking ID: #{booking.id}
                         </p>
-                        <p className="mt-2 font-semibold text-slate-950">
+                        <p className="mt-2 line-clamp-2 text-[18px] font-semibold leading-6 text-slate-950">
                           {getRoomName(booking.maPhong)}
                         </p>
-                        <p className="mt-1 text-sm text-slate-500">
+                      </div>
+                      <div className="flex shrink-0 gap-2">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setEditingBooking({
+                              ...booking,
+                            })
+                          }
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[#0B246D] transition hover:bg-blue-50"
+                          aria-label={`Sửa đơn đặt phòng ${booking.id}`}
+                        >
+                          <svg
+                            viewBox="0 0 24 24"
+                            className="h-4 w-4"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                          >
+                            <path
+                              d="M4 20h4l10-10-4-4L4 16v4z"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                            <path d="M13 7l4 4" strokeLinecap="round" />
+                          </svg>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setDeleteBookingId(booking.id)}
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-red-500 transition hover:bg-red-50"
+                          aria-label={`Xóa đơn đặt phòng ${booking.id}`}
+                        >
+                          <svg
+                            viewBox="0 0 24 24"
+                            className="h-4 w-4"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                          >
+                            <path d="M4 7h16" />
+                            <path d="M10 11v6" />
+                            <path d="M14 11v6" />
+                            <path d="M6 7l1 12h10l1-12" />
+                            <path d="M9 7V4h6v3" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-3">
+                      <div>
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-400">
+                          Khách hàng
+                        </p>
+                        <p className="mt-1 text-[13px] font-semibold text-slate-900">
                           {getUserName(booking.maNguoiDung)}
                         </p>
                       </div>
-                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-                        {booking.soLuongKhach} khách
-                      </span>
-                    </div>
-
-                    <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-                      <div className="rounded-2xl bg-slate-50 px-3 py-2.5">
-                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                          Ngày đến
+                      <div>
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-400">
+                          Số lượng khách
                         </p>
-                        <p className="mt-1 font-medium text-slate-900">
+                        <p className="mt-1 text-[13px] font-semibold text-slate-900">
+                          {booking.soLuongKhach}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-400">
+                          Ngày nhận phòng
+                        </p>
+                        <p className="mt-1 text-[12px] font-medium text-slate-900">
                           {formatDate(booking.ngayDen)}
                         </p>
                       </div>
-                      <div className="rounded-2xl bg-slate-50 px-3 py-2.5">
-                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                          Ngày đi
+                      <div>
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-400">
+                          Ngày trả phòng
                         </p>
-                        <p className="mt-1 font-medium text-slate-900">
+                        <p className="mt-1 text-[12px] font-medium text-slate-900">
                           {formatDate(booking.ngayDi)}
                         </p>
                       </div>
-                    </div>
-
-                    <div className="mt-4 flex gap-2">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setEditingBooking({
-                            ...booking,
-                          })
-                        }
-                        className="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl bg-blue-50 px-4 py-2.5 text-sm font-semibold text-blue-600 transition hover:bg-blue-100"
-                      >
-                        Sửa đơn
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setDeleteBookingId(booking.id)}
-                        className="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-100"
-                      >
-                        Xóa đơn
-                      </button>
                     </div>
                   </article>
                 ))
               )}
             </div>
 
-            <div className="mt-6 hidden overflow-x-auto md:block">
-              <table className="min-w-[680px] w-full table-fixed text-left sm:min-w-[760px]">
+            <div className="mt-6 hidden md:block">
+              <table className="w-full table-fixed text-left">
                 <thead>
-                  <tr className="border-b border-line text-sm text-slate-500">
+                  <tr className="border-b border-line text-[11px] text-slate-500 lg:text-sm">
                     <SortHeader
                       label="ID"
                       active={sortKey === "id"}
@@ -527,7 +546,7 @@ export default function AdminBookingPage() {
                       center
                     />
 
-                    <th className="whitespace-nowrap p-3 text-center">
+                    <th className="w-[12%] whitespace-nowrap px-2 py-3 text-center lg:px-3">
                       Thao tác
                     </th>
                   </tr>
@@ -549,31 +568,31 @@ export default function AdminBookingPage() {
                         key={booking.id}
                         className="border-b border-line text-sm"
                       >
-                        <td className="p-3">{booking.id}</td>
+                        <td className="px-2 py-3 text-xs lg:px-3 lg:text-sm">{booking.id}</td>
 
-                        <td className="max-w-64 p-3 font-medium">
+                        <td className="max-w-64 px-2 py-3 font-medium lg:px-3">
                           <p className="line-clamp-2">
                             {getRoomName(booking.maPhong)}
                           </p>
                         </td>
 
-                        <td className="p-3">
+                        <td className="px-2 py-3 text-xs lg:px-3 lg:text-sm">
                           {getUserName(booking.maNguoiDung)}
                         </td>
 
-                        <td className="whitespace-nowrap p-3">
+                        <td className="whitespace-nowrap px-2 py-3 text-xs lg:px-3 lg:text-sm">
                           {formatDate(booking.ngayDen)}
                         </td>
 
-                        <td className="whitespace-nowrap p-3">
+                        <td className="whitespace-nowrap px-2 py-3 text-xs lg:px-3 lg:text-sm">
                           {formatDate(booking.ngayDi)}
                         </td>
 
-                        <td className="whitespace-nowrap p-3 text-center">
+                        <td className="whitespace-nowrap px-2 py-3 text-center text-xs lg:px-3 lg:text-sm">
                           {booking.soLuongKhach}
                         </td>
 
-                        <td className="p-3">
+                        <td className="px-2 py-3 lg:px-3">
                           <div className="flex justify-center gap-2">
                             <button
                               type="button"
@@ -583,11 +602,11 @@ export default function AdminBookingPage() {
                                   ...booking,
                                 })
                               }
-                              className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg bg-blue-50 px-3 py-1.5 font-semibold text-blue-600 transition hover:bg-blue-100"
+                              className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 font-semibold text-blue-600 transition hover:bg-blue-100 lg:h-9 lg:w-9"
                             >
                               <svg
                                 viewBox="0 0 24 24"
-                                className="h-4 w-4"
+                                className="h-3.5 w-3.5 lg:h-4 lg:w-4"
                                 fill="none"
                                 stroke="currentColor"
                                 strokeWidth={2}
@@ -605,11 +624,11 @@ export default function AdminBookingPage() {
                               type="button"
                               aria-label={`Xóa đơn đặt phòng ${booking.id}`}
                               onClick={() => setDeleteBookingId(booking.id)}
-                              className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg bg-red-50 px-3 py-1.5 font-semibold text-red-600 transition hover:bg-red-100"
+                              className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-red-50 font-semibold text-red-600 transition hover:bg-red-100 lg:h-9 lg:w-9"
                             >
                               <svg
                                 viewBox="0 0 24 24"
-                                className="h-4 w-4"
+                                className="h-3.5 w-3.5 lg:h-4 lg:w-4"
                                 fill="none"
                                 stroke="currentColor"
                                 strokeWidth={2}

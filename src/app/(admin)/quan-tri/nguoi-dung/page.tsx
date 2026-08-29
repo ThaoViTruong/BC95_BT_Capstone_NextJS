@@ -64,21 +64,6 @@ function isValidPhone(phone: string) {
   return /^0\d{9}$/.test(phone.trim());
 }
 
-function isValidBirthday(birthday?: string | null) {
-  const value = birthdayToInputDate(birthday);
-
-  if (!value) return false;
-
-  const date = new Date(`${value}T00:00:00`);
-
-  if (Number.isNaN(date.getTime())) return false;
-
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  return date <= today;
-}
-
 function isValidRole(role?: string | null) {
   return role === "USER" || role === "ADMIN";
 }
@@ -610,10 +595,10 @@ export default function AdminUserPage() {
     <>
       <div className="space-y-6">
         <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <div className="border-b border-slate-200 p-5 sm:p-6">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="border-b border-slate-200 p-4 sm:p-5 lg:p-6">
+            <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
               <div>
-                <h2 className="text-xl font-bold text-slate-950">
+                <h2 className="text-xl font-bold text-slate-950 sm:text-2xl">
                   Danh sách người dùng
                 </h2>
 
@@ -626,8 +611,8 @@ export default function AdminUserPage() {
                 </p>
               </div>
 
-              <div className="flex flex-col gap-3 sm:flex-row">
-                <div className="relative sm:w-80">
+              <div className="flex items-center gap-2 sm:gap-3 xl:w-full xl:max-w-[560px]">
+                <div className="relative min-w-0 flex-1">
                   <svg
                     viewBox="0 0 24 24"
                     fill="none"
@@ -644,7 +629,7 @@ export default function AdminUserPage() {
                     type="text"
                     value={searchInput}
                     onChange={(event) => setSearchInput(event.target.value)}
-                    placeholder="Tìm tên, email hoặc SĐT..."
+                    placeholder="Tìm kiếm người dùng..."
                     className="w-full rounded-xl border border-slate-300 py-2.5 pl-10 pr-10 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   />
 
@@ -678,10 +663,11 @@ export default function AdminUserPage() {
 
                     setShowCreateForm(true);
                   }}
-                  className="flex items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-[#0B246D] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-black"
+                  className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#0B246D] text-white transition hover:bg-black sm:h-auto sm:w-auto sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm sm:font-semibold"
+                  aria-label="Thêm người dùng"
                 >
                   <span className="text-lg">+</span>
-                  Thêm người dùng
+                  <span className="hidden sm:inline">Thêm người dùng</span>
                 </button>
               </div>
             </div>
@@ -724,10 +710,10 @@ export default function AdminUserPage() {
                   displayedUsers.map((user) => (
                     <article
                       key={user.id}
-                      className="rounded-2xl border border-line bg-white p-4 shadow-sm"
+                      className="rounded-2xl border border-line bg-white px-3.5 py-3 shadow-sm"
                     >
                       <div className="flex items-start gap-3">
-                        <div className="h-12 w-12 shrink-0 overflow-hidden rounded-full border border-slate-200 bg-slate-100">
+                        <div className="h-11 w-11 shrink-0 overflow-hidden rounded-full border border-slate-200 bg-slate-100">
                           {user.avatar ? (
                             <img
                               src={user.avatar}
@@ -751,86 +737,104 @@ export default function AdminUserPage() {
                         </div>
 
                         <div className="min-w-0 flex-1">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <p className="font-semibold text-slate-900">
-                              {user.name || "—"}
-                            </p>
-                            {user.id === currentUserId && (
-                              <span className="shrink-0 rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-bold text-green-700">
-                                Bạn
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="min-w-0 flex-1">
+                              <div className="flex flex-wrap items-center gap-1.5">
+                                <p className="truncate text-[13px] font-semibold text-slate-900">
+                                  {user.name || "—"}
+                                </p>
+                                {user.id === currentUserId && (
+                                  <span className="shrink-0 rounded-full bg-green-100 px-2 py-0.5 text-[9px] font-bold text-green-700">
+                                    Bạn
+                                  </span>
+                                )}
+                              </div>
+                              <div className="mt-1 space-y-1">
+                                <p className="flex items-center gap-1.5 truncate text-[11px] text-slate-500">
+                                  <span className="shrink-0 text-slate-400">✉</span>
+                                  <span className="truncate">{user.email || "—"}</span>
+                                </p>
+                                <p className="flex items-center gap-1.5 text-[11px] text-slate-500">
+                                  <span className="shrink-0 text-slate-400">📱</span>
+                                  <span className="truncate">{user.phone || "—"}</span>
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="flex shrink-0 flex-col items-end gap-1.5">
+                              <span
+                                className={`inline-flex rounded-full px-2 py-1 text-[9px] font-semibold ${
+                                  user.role === "ADMIN"
+                                    ? "bg-purple-100 text-purple-700"
+                                    : "bg-blue-100 text-blue-700"
+                                }`}
+                              >
+                                {user.role}
                               </span>
-                            )}
-                            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-semibold text-slate-600">
-                              #{user.id}
-                            </span>
+                              <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[9px] font-semibold text-slate-500">
+                                #{user.id}
+                              </span>
+                            </div>
                           </div>
-                          <p className="mt-1 break-all text-sm text-slate-500">
-                            {user.email}
-                          </p>
                         </div>
                       </div>
 
-                      <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-                        <div className="rounded-2xl bg-slate-50 px-3 py-2.5">
-                          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                            Điện thoại
-                          </p>
-                          <p className="mt-1 font-medium text-slate-900">
-                            {user.phone || "—"}
-                          </p>
-                        </div>
-                        <div className="rounded-2xl bg-slate-50 px-3 py-2.5">
-                          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                            Ngày sinh
-                          </p>
-                          <p className="mt-1 font-medium text-slate-900">
-                            {formatBirthday(user.birthday)}
-                          </p>
-                        </div>
-                        <div className="rounded-2xl bg-slate-50 px-3 py-2.5">
-                          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                            Giới tính
-                          </p>
-                          <p className="mt-1 font-medium text-slate-900">
-                            {user.gender ? "Nam" : "Nữ"}
-                          </p>
-                        </div>
-                        <div className="rounded-2xl bg-slate-50 px-3 py-2.5">
-                          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                            Vai trò
-                          </p>
-                          <p className="mt-1 font-medium text-slate-900">
-                            {user.role}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="mt-4 flex gap-2">
+                      <div className="mt-3 border-t border-slate-100 pt-2.5">
+                        <div className="flex justify-end gap-2">
                         <button
                           type="button"
+                          aria-label={`Sửa người dùng ${user.name || user.email}`}
                           onClick={() => handleOpenEdit(user)}
-                          className="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl border border-blue-200 bg-blue-50 px-4 py-2.5 text-sm font-semibold text-blue-600 transition hover:bg-blue-100"
+                          className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-blue-200 bg-blue-50 text-blue-600 transition hover:bg-blue-100"
                         >
-                          Sửa người dùng
+                          <svg
+                            viewBox="0 0 24 24"
+                            className="h-4 w-4"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                          >
+                            <path
+                              d="M4 20h4l10-10-4-4L4 16v4z"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+
+                            <path d="M13 7l4 4" strokeLinecap="round" />
+                          </svg>
                         </button>
                         <button
                           type="button"
+                          aria-label={`Xóa người dùng ${user.name || user.email}`}
                           onClick={() => handleDeleteUser(user.id)}
-                          className="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-100"
+                          className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-red-200 bg-red-50 text-red-600 transition hover:bg-red-100"
                         >
-                          Xóa người dùng
+                          <svg
+                            viewBox="0 0 24 24"
+                            className="h-4 w-4"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                          >
+                            <path d="M4 7h16" />
+                            <path d="M10 11v6" />
+                            <path d="M14 11v6" />
+                            <path d="M6 7l1 12h10l1-12" />
+                            <path d="M9 7V4h6v3" />
+                          </svg>
                         </button>
+                        </div>
                       </div>
                     </article>
                   ))
                 )}
               </div>
 
-              <div className="hidden w-full overflow-x-auto md:block">
-                <table className="min-w-[880px] w-full table-fixed text-left lg:min-w-[980px]">
+              <div className="hidden w-full md:block">
+                <table className="w-full table-fixed text-left">
                   <thead className="bg-slate-50">
                     <tr className="border-b border-slate-200">
-                      <th className="w-[9%] px-3 py-3.5 text-xs font-semibold uppercase text-slate-500">
+                      <th className="w-[8%] px-2 py-3 text-[11px] font-semibold uppercase text-slate-500 lg:px-3 lg:text-xs">
                         <button
                           type="button"
                           onClick={() => handleSort("id")}
@@ -847,7 +851,7 @@ export default function AdminUserPage() {
                         </button>
                       </th>
 
-                      <th className="w-[33%] px-3 py-3.5 text-xs font-semibold uppercase text-slate-500">
+                      <th className="w-[30%] px-2 py-3 text-[11px] font-semibold uppercase text-slate-500 lg:px-3 lg:text-xs">
                         <button
                           type="button"
                           onClick={() => handleSort("name")}
@@ -864,11 +868,11 @@ export default function AdminUserPage() {
                         </button>
                       </th>
 
-                      <th className="w-[17%] px-3 py-3.5 text-xs font-semibold uppercase text-slate-500">
+                      <th className="w-[16%] px-2 py-3 text-[11px] font-semibold uppercase text-slate-500 lg:px-3 lg:text-xs">
                         Điện thoại
                       </th>
 
-                      <th className="w-[14%] px-3 py-3.5 text-xs font-semibold uppercase text-slate-500">
+                      <th className="w-[14%] px-2 py-3 text-[11px] font-semibold uppercase text-slate-500 lg:px-3 lg:text-xs">
                         <button
                           type="button"
                           onClick={() => handleSort("birthday")}
@@ -885,7 +889,7 @@ export default function AdminUserPage() {
                         </button>
                       </th>
 
-                      <th className="w-[9%] px-3 py-3.5 text-xs font-semibold uppercase text-slate-500">
+                      <th className="w-[10%] px-2 py-3 text-[11px] font-semibold uppercase text-slate-500 lg:px-3 lg:text-xs">
                         <button
                           type="button"
                           onClick={() => handleSort("gender")}
@@ -902,7 +906,7 @@ export default function AdminUserPage() {
                         </button>
                       </th>
 
-                      <th className="w-[9%] px-3 py-3.5 text-xs font-semibold uppercase text-slate-500">
+                      <th className="w-[11%] px-2 py-3 text-[11px] font-semibold uppercase text-slate-500 lg:px-3 lg:text-xs">
                         <button
                           type="button"
                           onClick={() => handleSort("role")}
@@ -919,7 +923,7 @@ export default function AdminUserPage() {
                         </button>
                       </th>
 
-                      <th className="w-[9%] px-3 py-3.5 text-center text-xs font-semibold uppercase text-slate-500">
+                      <th className="w-[11%] px-2 py-3 text-center text-[11px] font-semibold uppercase text-slate-500 lg:px-3 lg:text-xs">
                         Thao tác
                       </th>
                     </tr>
@@ -948,13 +952,13 @@ export default function AdminUserPage() {
                           key={user.id}
                           className="transition hover:bg-slate-50"
                         >
-                          <td className="whitespace-nowrap px-5 py-4 text-sm text-slate-500">
+                          <td className="whitespace-nowrap px-2 py-3 text-xs text-slate-500 lg:px-4 lg:text-sm">
                             #{user.id}
                           </td>
 
-                          <td className="px-5 py-4">
-                            <div className="flex items-center gap-3">
-                              <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full border border-slate-200 bg-slate-100">
+                          <td className="px-2 py-3 lg:px-4">
+                            <div className="flex items-center gap-2 lg:gap-3">
+                              <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full border border-slate-200 bg-slate-100 lg:h-10 lg:w-10">
                                 {user.avatar ? (
                                   <img
                                     src={user.avatar}
@@ -968,7 +972,7 @@ export default function AdminUserPage() {
                                       fill="none"
                                       stroke="currentColor"
                                       strokeWidth={2}
-                                      className="h-5 w-5"
+                                      className="h-4 w-4 lg:h-5 lg:w-5"
                                     >
                                       <circle cx="12" cy="8" r="4" />
                                       <path d="M4 21c0-4 3.6-7 8-7s8 3 8 7" />
@@ -978,40 +982,40 @@ export default function AdminUserPage() {
                               </div>
 
                               <div className="min-w-0">
-                                <div className="flex items-center gap-2">
-                                  <p className="max-w-40 truncate text-sm font-semibold text-slate-900">
+                                <div className="flex min-w-0 items-center gap-1.5 lg:gap-2">
+                                  <p className="max-w-full truncate text-xs font-semibold text-slate-900 lg:text-sm">
                                     {user.name || "—"}
                                   </p>
 
                                   {user.id === currentUserId && (
-                                    <span className="shrink-0 rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-bold text-green-700">
+                                    <span className="shrink-0 rounded-full bg-green-100 px-1.5 py-0.5 text-[9px] font-bold text-green-700 lg:px-2 lg:text-[10px]">
                                       Bạn
                                     </span>
                                   )}
                                 </div>
 
-                                <p className="mt-0.5 max-w-56 truncate text-xs text-slate-500">
+                                <p className="mt-0.5 truncate text-[11px] text-slate-500">
                                   {user.email}
                                 </p>
                               </div>
                             </div>
                           </td>
 
-                          <td className="whitespace-nowrap px-5 py-4 text-sm text-slate-600">
+                          <td className="whitespace-nowrap px-2 py-3 text-xs text-slate-600 lg:px-4 lg:text-sm">
                             {user.phone || "—"}
                           </td>
 
-                          <td className="whitespace-nowrap px-5 py-4 text-sm text-slate-600">
+                          <td className="whitespace-nowrap px-2 py-3 text-xs text-slate-600 lg:px-4 lg:text-sm">
                             {formatBirthday(user.birthday)}
                           </td>
 
-                          <td className="px-5 py-4 text-sm text-slate-600">
+                          <td className="px-2 py-3 text-xs text-slate-600 lg:px-4 lg:text-sm">
                             {user.gender ? "Nam" : "Nữ"}
                           </td>
 
-                          <td className="px-5 py-4">
+                          <td className="px-2 py-3 lg:px-4">
                             <span
-                              className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${
+                              className={`inline-flex rounded-full px-2 py-1 text-[10px] font-semibold lg:px-2.5 lg:text-xs ${
                                 user.role === "ADMIN"
                                   ? "bg-purple-100 text-purple-700"
                                   : "bg-blue-100 text-blue-700"
@@ -1021,17 +1025,17 @@ export default function AdminUserPage() {
                             </span>
                           </td>
 
-                          <td className="px-2 py-4">
+                          <td className="px-2 py-3">
                             <div className="flex items-center justify-center gap-1">
                               <button
                                 type="button"
                                 aria-label={`Sửa người dùng ${user.name || user.email}`}
                                 onClick={() => handleOpenEdit(user)}
-                                className="flex min-h-10 min-w-10 items-center justify-center rounded-lg border border-blue-200 bg-blue-50 text-blue-600 transition hover:bg-blue-100"
+                                className="flex h-8 w-8 items-center justify-center rounded-lg border border-blue-200 bg-blue-50 text-blue-600 transition hover:bg-blue-100 lg:h-9 lg:w-9"
                               >
                                 <svg
                                   viewBox="0 0 24 24"
-                                  className="h-4 w-4"
+                                  className="h-3.5 w-3.5 lg:h-4 lg:w-4"
                                   fill="none"
                                   stroke="currentColor"
                                   strokeWidth={2}
@@ -1050,11 +1054,11 @@ export default function AdminUserPage() {
                                 type="button"
                                 aria-label={`Xóa người dùng ${user.name || user.email}`}
                                 onClick={() => handleDeleteUser(user.id)}
-                                className="flex min-h-10 min-w-10 items-center justify-center rounded-lg border border-red-200 bg-red-50 text-red-600 transition hover:bg-red-100"
+                                className="flex h-8 w-8 items-center justify-center rounded-lg border border-red-200 bg-red-50 text-red-600 transition hover:bg-red-100 lg:h-9 lg:w-9"
                               >
                                 <svg
                                   viewBox="0 0 24 24"
-                                  className="h-4 w-4"
+                                  className="h-3.5 w-3.5 lg:h-4 lg:w-4"
                                   fill="none"
                                   stroke="currentColor"
                                   strokeWidth={2}

@@ -190,7 +190,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             Tìm nhanh theo khu vực nổi bật
           </p>
 
-          <div className="mt-5 flex flex-wrap gap-3">
+          <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-2.5 lg:flex lg:flex-wrap lg:gap-3">
             {searchableLocations.slice(0, 8).map((location) => (
               (() => {
                 const locationLabel = getLocationLabel(location);
@@ -201,7 +201,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                     key={location.id}
                     href={buildSearchHref("/", { diemDen: locationLabel }) as Route}
                     className={cn(
-                      "rounded-full border px-4 py-2 text-sm font-medium transition",
+                      "truncate rounded-full border px-3 py-1.5 text-center text-xs font-medium transition sm:px-3.5 sm:py-2 sm:text-sm",
                       isActive
                         ? "border-[#0f2f8e] bg-[#0f2f8e] text-white hover:bg-[#0b246d] hover:text-white"
                         : "border-line bg-slate-50 text-slate-700 hover:border-[#0f2f8e] hover:bg-[#0f2f8e] hover:text-white",

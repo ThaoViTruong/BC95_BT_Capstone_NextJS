@@ -25,7 +25,8 @@ export async function GET() {
       );
     }
 
-    const { token: _token, ...safeUser } = user;
+    const { token, ...safeUser } = user;
+    void token;
 
     return NextResponse.json({
       user: safeUser,

@@ -150,42 +150,42 @@ export function FavoriteRoomsSection({ userId }: FavoriteRoomsSectionProps) {
         </div>
       ) : roomsToShow.length > 0 ? (
         <>
-          <div className="mt-5 grid gap-4 md:grid-cols-2">
+          <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-2 md:gap-4">
             {roomsToShow.map((room) => (
               <article
                 key={room.id}
                 className="overflow-hidden rounded-[24px] border border-white/80 bg-white shadow-sm"
               >
-                <div className="relative h-48 bg-slate-100">
+                <div className="relative h-28 bg-slate-100 sm:h-40 lg:h-48">
                   <Image
                     src={getRoomImageSrc(room.hinhAnh)}
                     alt={room.tenPhong}
                     fill
-                    sizes="(max-width: 768px) 100vw, 50vw"
+                    sizes="(max-width: 768px) 50vw, 50vw"
                     className="object-cover"
                   />
                   <button
                     type="button"
                     onClick={() => setPendingRemoveRoomId(room.id)}
-                    className="absolute right-3 top-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/95 text-rose-600 shadow-sm transition hover:bg-white"
+                    className="absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/95 text-rose-600 shadow-sm transition hover:bg-white sm:right-3 sm:top-3 sm:h-10 sm:w-10"
                     aria-label="Bỏ khỏi yêu thích"
                   >
-                    <Heart className="h-5 w-5 fill-rose-600 text-rose-600" />
+                    <Heart className="h-4 w-4 fill-rose-600 text-rose-600 sm:h-5 sm:w-5" />
                   </button>
                 </div>
 
-                <div className="space-y-3 p-4">
-                  <div className="flex items-start justify-between gap-3">
+                <div className="space-y-2 p-3 sm:space-y-3 sm:p-4">
+                  <div className="flex items-start justify-between gap-2 sm:gap-3">
                     <div className="min-w-0">
-                      <h3 className="truncate text-lg font-bold text-slate-950">
+                      <h3 className="truncate text-sm font-bold text-slate-950 sm:text-lg">
                         {room.tenPhong}
                       </h3>
-                      <p className="mt-1 inline-flex items-center gap-1 text-sm text-slate-500">
-                        <MapPin className="h-4 w-4 text-[#0f2f8e]" />
+                      <p className="mt-1 inline-flex max-w-full items-center gap-1 truncate text-[11px] text-slate-500 sm:text-sm">
+                        <MapPin className="h-3.5 w-3.5 shrink-0 text-[#0f2f8e] sm:h-4 sm:w-4" />
                         <span className="truncate">{room.locationText}</span>
                       </p>
                     </div>
-                    <p className="text-right text-sm font-semibold text-slate-900">
+                    <p className="text-right text-[11px] font-semibold text-slate-900 sm:text-sm">
                       {room.giaTien > 0
                         ? `${formatCurrency(room.giaTien)} / đêm`
                         : "Giá đang cập nhật"}
@@ -194,7 +194,7 @@ export function FavoriteRoomsSection({ userId }: FavoriteRoomsSectionProps) {
 
                   <Link
                     href={`/phong/${room.id}`}
-                    className="inline-flex h-11 w-full items-center justify-center rounded-2xl bg-slate-100 text-sm font-semibold text-slate-900 transition hover:bg-[#0f2f8e] hover:text-white"
+                    className="inline-flex h-9 w-full items-center justify-center rounded-2xl bg-slate-100 text-xs font-semibold text-slate-900 transition hover:bg-[#0f2f8e] hover:text-white sm:h-11 sm:text-sm"
                   >
                     Xem chi tiết
                   </Link>

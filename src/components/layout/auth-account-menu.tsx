@@ -48,9 +48,9 @@ export function AuthAccountMenu() {
     return (
       <Link
         href="/tai-khoan"
-        className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[#0f2f8e] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0c2570]"
+        className="inline-flex min-h-9 items-center gap-1 rounded-full bg-[#0f2f8e] px-2.5 py-1.5 text-[11px] font-semibold text-white shadow-sm transition hover:bg-[#0c2570] sm:min-h-11 sm:gap-2 sm:px-4 sm:py-2 sm:text-sm"
       >
-        <CircleUserRound className="h-4 w-4 text-white" />
+        <CircleUserRound className="h-3 w-3 text-white sm:h-4 sm:w-4" />
         <span className="font-semibold text-white">Đăng nhập</span>
       </Link>
     );
@@ -71,19 +71,19 @@ export function AuthAccountMenu() {
   };
 
   return (
-    <div className="flex max-w-full flex-wrap items-center justify-end gap-2 rounded-[24px] border border-line bg-white px-2 py-1 shadow-sm sm:flex-nowrap sm:rounded-full">
+    <div className="flex max-w-full flex-nowrap items-center justify-end gap-1 rounded-full border border-line bg-white px-1 py-1 shadow-sm sm:gap-2 sm:px-2">
       <Link
         href="/tai-khoan"
-        className="inline-flex min-h-10 min-w-0 items-center gap-2 rounded-full px-3 py-1.5 text-sm font-semibold text-[#0f2f8e] transition hover:bg-slate-100 sm:max-w-[240px]"
+        className="inline-flex min-h-7 min-w-0 max-w-[100px] items-center gap-1 rounded-full px-1.5 py-1 text-[11px] font-semibold text-[#0f2f8e] transition hover:bg-slate-100 sm:min-h-10 sm:max-w-[240px] sm:gap-2 sm:px-3 sm:py-1.5 sm:text-sm"
       >
-        <CircleUserRound className="h-4 w-4 shrink-0" />
+        <CircleUserRound className="h-3 w-3 shrink-0 sm:h-4 sm:w-4" />
         <span className="truncate">{displayName}</span>
       </Link>
 
       {currentUser.role?.trim().toUpperCase() === "ADMIN" && (
         <Link
           href="/quan-tri"
-          className="inline-flex min-h-10 items-center rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-[#0f2f8e] transition hover:bg-slate-200"
+          className="inline-flex min-h-8 shrink-0 items-center rounded-full bg-slate-100 px-2 py-1.5 text-[10px] font-semibold text-[#0f2f8e] transition hover:bg-slate-200 sm:min-h-10 sm:px-3 sm:text-xs"
         >
           Quản trị
         </Link>
@@ -93,10 +93,11 @@ export function AuthAccountMenu() {
         type="button"
         onClick={handleSignOut}
         disabled={isSigningOut}
-        className="inline-flex min-h-10 items-center gap-1 rounded-full bg-[#0f2f8e] px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-[#0b246d] disabled:cursor-not-allowed disabled:opacity-70"
+        aria-label={isSigningOut ? "Đang thoát" : "Đăng xuất"}
+        className="inline-flex min-h-7 shrink-0 items-center justify-center rounded-full bg-[#0f2f8e] px-2 py-1 text-[10px] font-medium text-white transition hover:bg-[#0b246d] disabled:cursor-not-allowed disabled:opacity-70 sm:min-h-10 sm:gap-1 sm:px-3 sm:py-1.5 sm:text-xs sm:font-semibold"
       >
-        <LogOut className="h-3.5 w-3.5" />
-        {isSigningOut ? "Đang thoát" : "Đăng xuất"}
+        <LogOut className="h-2.5 w-2.5 shrink-0 sm:h-3.5 sm:w-3.5" />
+        <span className="hidden sm:inline">{isSigningOut ? "Đang thoát" : "Đăng xuất"}</span>
       </button>
     </div>
   );

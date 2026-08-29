@@ -121,6 +121,8 @@ export function RoomSearchForm({
     () => amenityOptions.find((option) => option.value === selectedAmenity) ?? null,
     [amenityOptions, selectedAmenity],
   );
+  const isDestinationPanelOpen = openPanel === "destination";
+  const isAmenityPanelOpen = openPanel === "amenity";
 
   useEffect(() => {
     function handlePointerDown(event: MouseEvent) {
@@ -168,7 +170,7 @@ export function RoomSearchForm({
       ref={formRef}
       action={action}
       className={cn(
-        "grid gap-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-12",
+        "grid gap-1 md:grid-cols-2 md:gap-1.5 lg:grid-cols-4 xl:grid-cols-12",
         className,
       )}
     >
@@ -178,7 +180,7 @@ export function RoomSearchForm({
 
       <div
         className={cn(
-          "rounded-2xl border border-line bg-white px-3 py-2.5 xl:col-span-3",
+          "min-w-0 rounded-xl border border-line bg-white px-2 py-1.5 xl:col-span-3",
           panelClassName,
         )}
       >
@@ -192,18 +194,18 @@ export function RoomSearchForm({
           }
           aria-expanded={openPanel === "destination"}
           className={cn(
-            "mt-1.5 flex w-full items-center gap-2.5 rounded-2xl border border-slate-200 bg-white px-2.5 py-2.5 text-left transition hover:border-[#0f2f8e]",
-            compact ? "text-sm" : "text-sm sm:text-base",
+            "mt-1 flex w-full min-w-0 items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-1.5 py-1.5 text-left transition hover:border-[#0f2f8e]",
+            compact ? "text-sm" : "text-[11px] sm:text-base",
           )}
         >
-          <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#eef4ff] text-[#0f2f8e]">
-            <MapPin className="h-4.5 w-4.5" />
+          <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#eef4ff] text-[#0f2f8e] sm:h-10 sm:w-10 sm:rounded-2xl">
+            <MapPin className="h-3.5 w-3.5 sm:h-4.5 sm:w-4.5" />
           </span>
           <span className="min-w-0 flex-1">
             <span className="block truncate font-semibold text-slate-900">
               {selectedLocationOption?.label ?? "Chọn địa điểm"}
             </span>
-            <span className="block truncate text-xs text-slate-500">
+            <span className="block truncate text-[10px] text-slate-500 sm:text-xs">
               {selectedLocationOption
                 ? getLocationSubtitle(selectedLocationOption)
                 : "Mở danh sách khu vực nổi bật"}
@@ -220,7 +222,7 @@ export function RoomSearchForm({
 
       <label
         className={cn(
-          "rounded-2xl border border-line bg-white px-4 py-2.5 xl:col-span-4",
+          "min-w-0 rounded-xl border border-line bg-white px-2.5 py-1.5 xl:col-span-4",
           panelClassName,
         )}
       >
@@ -232,15 +234,15 @@ export function RoomSearchForm({
           defaultValue={roomName}
           placeholder="Ví dụ: studio, sea view"
           className={cn(
-            "mt-1 w-full border-none bg-transparent text-slate-900 outline-none",
-            compact ? "text-sm" : "text-sm sm:text-base",
+            "mt-1 w-full min-w-0 border-none bg-transparent text-slate-900 outline-none",
+            compact ? "text-sm" : "text-[11px] sm:text-base",
           )}
         />
       </label>
 
       <div
         className={cn(
-          "rounded-2xl border border-line bg-white px-3 py-2.5 xl:col-span-3",
+          "min-w-0 rounded-xl border border-line bg-white px-2 py-1.5 xl:col-span-3",
           panelClassName,
         )}
       >
@@ -252,18 +254,18 @@ export function RoomSearchForm({
           onClick={() => setOpenPanel((current) => (current === "amenity" ? null : "amenity"))}
           aria-expanded={openPanel === "amenity"}
           className={cn(
-            "mt-1.5 flex w-full items-center gap-2.5 rounded-2xl border border-slate-200 bg-white px-2.5 py-2.5 text-left transition hover:border-[#0f2f8e]",
-            compact ? "text-sm" : "text-sm sm:text-base",
+            "mt-1 flex w-full min-w-0 items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-1.5 py-1.5 text-left transition hover:border-[#0f2f8e]",
+            compact ? "text-sm" : "text-[11px] sm:text-base",
           )}
         >
-          <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#eef4ff] text-[#0f2f8e]">
-            {renderAmenityIcon(selectedAmenityOption?.value ?? "", "h-4.5 w-4.5")}
+          <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#eef4ff] text-[#0f2f8e] sm:h-10 sm:w-10 sm:rounded-2xl">
+            {renderAmenityIcon(selectedAmenityOption?.value ?? "", "h-3.5 w-3.5 sm:h-4.5 sm:w-4.5")}
           </span>
           <span className="min-w-0 flex-1">
             <span className="block truncate font-semibold text-slate-900">
               {selectedAmenityOption?.label ?? "Tất cả tiện ích"}
             </span>
-            <span className="block truncate text-xs text-slate-500">
+            <span className="block truncate text-[10px] text-slate-500 sm:text-xs">
               {selectedAmenityOption ? "Đang lọc theo tiện ích này" : "Chọn nhanh theo tiện ích nổi bật"}
             </span>
           </span>
@@ -278,7 +280,7 @@ export function RoomSearchForm({
 
       <label
         className={cn(
-          "rounded-2xl border border-line bg-white px-4 py-2.5 xl:col-span-2",
+          "min-w-0 rounded-xl border border-line bg-white px-2.5 py-1.5 xl:col-span-2",
           panelClassName,
         )}
       >
@@ -294,152 +296,20 @@ export function RoomSearchForm({
           defaultValue={guest}
           placeholder="Nhập số khách"
           className={cn(
-            "mt-1 w-full border-none bg-transparent text-slate-900 outline-none",
-            compact ? "text-sm" : "text-sm sm:text-base",
+            "mt-1 w-full min-w-0 border-none bg-transparent text-slate-900 outline-none",
+            compact ? "text-sm" : "text-[11px] sm:text-base",
           )}
         />
       </label>
 
-      {openPanel === "destination" ? (
-        <div className="md:col-span-2 lg:col-span-4 xl:col-span-12">
-          <div className="rounded-[28px] border border-[#dbe4ff] bg-white p-3 shadow-xl sm:p-4 xl:p-5">
-            <div className="mb-3 flex items-center justify-between gap-3">
-              <div>
-                <p className="text-sm font-bold text-[#0f2f8e]">Chọn địa điểm</p>
-                <p className="text-xs text-slate-500">Danh sách địa điểm thật lấy từ API hiện tại</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setSelectedDestination("");
-                  setOpenPanel(null);
-                }}
-                className="rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:border-[#0f2f8e] hover:text-[#0f2f8e]"
-              >
-                Bỏ chọn
-              </button>
-            </div>
-
-            <div className="grid max-h-[28rem] gap-3 overflow-y-auto pr-1 sm:grid-cols-2 xl:max-h-none xl:grid-cols-3 2xl:grid-cols-4">
-              {locationOptions.map((option) => {
-                const isSelected = selectedDestination === option.value;
-
-                return (
-                  <button
-                    key={option.value}
-                    type="button"
-                    onClick={() => {
-                      setSelectedDestination(option.value);
-                      setOpenPanel(null);
-                    }}
-                    className={cn(
-                      "flex items-center gap-3 rounded-2xl border px-3 py-3 text-left transition",
-                      isSelected
-                        ? "border-[#0f2f8e] bg-[#0f2f8e] text-white shadow-lg shadow-[#0f2f8e]/20"
-                        : "border-slate-200 bg-white text-slate-900 hover:border-[#0f2f8e] hover:bg-[#f8fbff]",
-                    )}
-                  >
-                    <span
-                      className={cn(
-                        "inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl",
-                        isSelected ? "bg-white/15 text-white" : "bg-[#eef4ff] text-[#0f2f8e]",
-                      )}
-                    >
-                      <MapPin className="h-5 w-5" />
-                    </span>
-                    <span className="min-w-0">
-                      <span className="block truncate font-bold">{option.label}</span>
-                      <span
-                        className={cn(
-                          "mt-0.5 block truncate text-xs",
-                          isSelected ? "text-white/80" : "text-slate-500",
-                        )}
-                      >
-                        {getLocationSubtitle(option)}
-                      </span>
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      ) : null}
-
-      {openPanel === "amenity" ? (
-        <div className="md:col-span-2 lg:col-span-4 xl:col-span-12">
-          <div className="rounded-[28px] border border-[#dbe4ff] bg-white p-3 shadow-xl sm:p-4 xl:p-5">
-            <div className="mb-3 flex items-center justify-between gap-3">
-              <div>
-                <p className="text-sm font-bold text-[#0f2f8e]">Chọn tiện ích</p>
-                <p className="text-xs text-slate-500">Lọc nhanh theo tiện ích bạn cần</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setSelectedAmenity("");
-                  setOpenPanel(null);
-                }}
-                className="rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:border-[#0f2f8e] hover:text-[#0f2f8e]"
-              >
-                Bỏ chọn
-              </button>
-            </div>
-
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-              {amenityOptions.map((option) => {
-                const isSelected = selectedAmenity === option.value;
-
-                return (
-                  <button
-                    key={option.value}
-                    type="button"
-                    onClick={() => {
-                      setSelectedAmenity(option.value);
-                      setOpenPanel(null);
-                    }}
-                    className={cn(
-                      "flex items-center gap-3 rounded-2xl border px-3 py-3 text-left transition",
-                      isSelected
-                        ? "border-[#0f2f8e] bg-[#0f2f8e] text-white shadow-lg shadow-[#0f2f8e]/20"
-                        : "border-slate-200 bg-white text-slate-900 hover:border-[#0f2f8e] hover:bg-[#f8fbff]",
-                    )}
-                  >
-                    <span
-                      className={cn(
-                        "inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl",
-                        isSelected ? "bg-white/15 text-white" : "bg-[#eef4ff] text-[#0f2f8e]",
-                      )}
-                    >
-                      {renderAmenityIcon(option.value, "h-5 w-5")}
-                    </span>
-                    <span className="min-w-0">
-                      <span className="block truncate font-bold">{option.label}</span>
-                      <span
-                        className={cn(
-                          "mt-0.5 block truncate text-xs",
-                          isSelected ? "text-white/80" : "text-slate-500",
-                        )}
-                      >
-                        Chọn để lọc phòng theo tiện ích này
-                      </span>
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      ) : null}
-
       <div
         className={cn(
-          "rounded-[22px] border border-slate-200 bg-slate-50/80 p-2 md:col-span-2 lg:col-span-2 xl:col-span-8",
+          "rounded-[20px] border border-slate-200 bg-slate-50/80 p-1 md:col-span-2 md:p-1.5 lg:col-span-2 xl:col-span-8",
           panelClassName && "border-transparent bg-slate-50/80",
         )}
       >
-        <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
-          <label className="rounded-2xl border border-line bg-white px-4 py-3">
+        <div className="grid gap-1.5 sm:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
+          <label className="min-w-0 rounded-xl border border-line bg-white px-2.5 py-2 sm:rounded-2xl sm:px-4 sm:py-3">
             <span className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
               Nhận phòng
             </span>
@@ -449,13 +319,13 @@ export function RoomSearchForm({
               value={checkInValue}
               onChange={(event) => handleCheckInChange(event.target.value)}
               className={cn(
-                "mt-1 w-full border-none bg-transparent text-slate-900 outline-none",
-                compact ? "text-sm" : "text-sm sm:text-base",
+                "mt-1 w-full min-w-0 border-none bg-transparent text-slate-900 outline-none",
+                compact ? "text-sm" : "text-[11px] sm:text-base",
               )}
             />
           </label>
 
-          <label className="rounded-2xl border border-line bg-white px-4 py-3">
+          <label className="min-w-0 rounded-xl border border-line bg-white px-2.5 py-2 sm:rounded-2xl sm:px-4 sm:py-3">
             <span className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
               Trả phòng
             </span>
@@ -466,8 +336,8 @@ export function RoomSearchForm({
               min={minCheckOutDate || undefined}
               onChange={(event) => setCheckOutValue(event.target.value)}
               className={cn(
-                "mt-1 w-full border-none bg-transparent text-slate-900 outline-none",
-                compact ? "text-sm" : "text-sm sm:text-base",
+                "mt-1 w-full min-w-0 border-none bg-transparent text-slate-900 outline-none",
+                compact ? "text-sm" : "text-[11px] sm:text-base",
               )}
             />
           </label>
@@ -477,11 +347,11 @@ export function RoomSearchForm({
             onClick={handleClearDates}
             disabled={!checkInValue && !checkOutValue}
             className={cn(
-              "inline-flex min-h-[52px] items-center justify-center gap-2 rounded-xl border border-line bg-white px-4 text-sm font-semibold text-slate-700 transition hover:border-[#0f2f8e] hover:text-[#0f2f8e] disabled:cursor-not-allowed disabled:opacity-50 sm:col-span-2 xl:col-span-1 xl:self-center",
-              compact && "min-h-[46px] text-xs",
+              "inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-xl border border-line bg-white px-2.5 text-[11px] font-semibold text-slate-700 transition hover:border-[#0f2f8e] hover:text-[#0f2f8e] disabled:cursor-not-allowed disabled:opacity-50 sm:col-span-2 sm:min-h-[52px] sm:px-4 sm:text-sm xl:col-span-1 xl:self-center",
+              compact && "min-h-[38px] text-[11px]",
             )}
           >
-            <X className="h-4 w-4" />
+            <X className="h-3.5 w-3.5" />
             Xóa ngày
           </button>
         </div>
@@ -491,14 +361,132 @@ export function RoomSearchForm({
         <button
           type="submit"
           className={cn(
-            "inline-flex min-h-[60px] w-full items-center justify-center gap-2 rounded-2xl bg-[#0f2f8e] px-6 text-sm font-semibold text-white transition hover:bg-[#0b246d] sm:min-h-[68px]",
+            "inline-flex min-h-[44px] w-full items-center justify-center gap-1.5 rounded-xl bg-[#0f2f8e] px-4 text-[11px] font-semibold text-white transition hover:bg-[#0b246d] sm:min-h-[68px] sm:gap-2 sm:rounded-2xl sm:px-6 sm:text-sm",
             submitClassName,
           )}
         >
-          <Search className="h-4 w-4" />
+          <Search className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
           Tìm phòng
         </button>
       </div>
+
+      {(isDestinationPanelOpen || isAmenityPanelOpen) && (
+        <div
+          className="fixed inset-0 z-[120] flex items-start justify-center bg-black/45 p-2.5 sm:items-center sm:p-4 md:p-5"
+          onClick={() => setOpenPanel(null)}
+        >
+          <div
+            className={cn(
+              "w-full overflow-hidden rounded-[28px] border border-[#dbe4ff] bg-white shadow-2xl",
+              isDestinationPanelOpen ? "max-w-6xl" : "max-w-5xl",
+            )}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex max-h-[calc(100vh-1rem)] flex-col p-2.5 sm:max-h-[calc(100vh-3rem)] sm:p-3.5 md:p-4 xl:p-5">
+              <div className="mb-2.5 flex items-center justify-between gap-2 sm:mb-3 sm:gap-3">
+                <div>
+                  <p className="text-xs font-bold text-[#0f2f8e] sm:text-sm">
+                    {isDestinationPanelOpen ? "Chọn địa điểm" : "Chọn tiện ích"}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (isDestinationPanelOpen) {
+                      setSelectedDestination("");
+                    }
+
+                    if (isAmenityPanelOpen) {
+                      setSelectedAmenity("");
+                    }
+
+                    setOpenPanel(null);
+                  }}
+                  className="whitespace-nowrap rounded-full border border-line px-2.5 py-1 text-[11px] font-semibold text-slate-600 transition hover:border-[#0f2f8e] hover:text-[#0f2f8e] sm:px-3 sm:py-1.5 sm:text-xs"
+                >
+                  Bỏ chọn
+                </button>
+              </div>
+
+              {isDestinationPanelOpen ? (
+                <div className="grid max-h-[calc(100vh-6.5rem)] grid-cols-2 gap-1.5 overflow-y-auto pr-1 sm:max-h-[calc(100vh-9rem)] sm:grid-cols-2 sm:gap-2 md:grid-cols-3 md:gap-2.5 xl:max-h-[calc(100vh-12rem)] xl:grid-cols-4 2xl:grid-cols-5">
+                  {locationOptions.map((option) => {
+                    const isSelected = selectedDestination === option.value;
+
+                    return (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => {
+                          setSelectedDestination(option.value);
+                          setOpenPanel(null);
+                        }}
+                        className={cn(
+                          "flex min-w-0 items-center gap-1.5 rounded-xl border px-2 py-2 text-left transition sm:gap-2 sm:rounded-2xl sm:px-2.5 sm:py-2.5 md:gap-2.5 md:px-3 md:py-3",
+                          isSelected
+                            ? "border-[#0f2f8e] bg-[#0f2f8e] text-white shadow-lg shadow-[#0f2f8e]/20"
+                            : "border-slate-200 bg-white text-slate-900 hover:border-[#0f2f8e] hover:bg-[#f8fbff]",
+                        )}
+                      >
+                        <span
+                          className={cn(
+                            "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl sm:h-9 sm:w-9 sm:rounded-2xl md:h-10 md:w-10",
+                            isSelected ? "bg-white/15 text-white" : "bg-[#eef4ff] text-[#0f2f8e]",
+                          )}
+                        >
+                          <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-4.5 md:w-4.5" />
+                        </span>
+                        <span className="min-w-0">
+                          <span className="block truncate text-xs font-bold leading-tight sm:text-sm md:text-[15px]">
+                            {option.label}
+                          </span>
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="grid max-h-[calc(100vh-6.5rem)] grid-cols-2 gap-1.5 overflow-y-auto pr-1 sm:max-h-[calc(100vh-9rem)] sm:grid-cols-2 sm:gap-2 md:grid-cols-3 md:gap-2.5 xl:max-h-[calc(100vh-12rem)] xl:grid-cols-4 2xl:grid-cols-5">
+                  {amenityOptions.map((option) => {
+                    const isSelected = selectedAmenity === option.value;
+
+                    return (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => {
+                          setSelectedAmenity(option.value);
+                          setOpenPanel(null);
+                        }}
+                        className={cn(
+                          "flex min-w-0 items-center gap-1.5 rounded-xl border px-2 py-2 text-left transition sm:gap-2 sm:rounded-2xl sm:px-2.5 sm:py-2.5 md:gap-2.5 md:px-3 md:py-3",
+                          isSelected
+                            ? "border-[#0f2f8e] bg-[#0f2f8e] text-white shadow-lg shadow-[#0f2f8e]/20"
+                            : "border-slate-200 bg-white text-slate-900 hover:border-[#0f2f8e] hover:bg-[#f8fbff]",
+                        )}
+                      >
+                        <span
+                          className={cn(
+                            "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl sm:h-9 sm:w-9 sm:rounded-2xl md:h-10 md:w-10",
+                            isSelected ? "bg-white/15 text-white" : "bg-[#eef4ff] text-[#0f2f8e]",
+                          )}
+                        >
+                          {renderAmenityIcon(option.value, "h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-4.5 md:w-4.5")}
+                        </span>
+                        <span className="min-w-0">
+                          <span className="block truncate text-xs font-bold leading-tight sm:text-sm md:text-[15px]">
+                            {option.label}
+                          </span>
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
     </form>
   );

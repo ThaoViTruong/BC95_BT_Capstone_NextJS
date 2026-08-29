@@ -381,21 +381,21 @@ export default function AdminRoomPage() {
 
   return (
     <>
-      <section className="rounded-3xl border border-line bg-card p-6 shadow-sm">
+      <section className="rounded-3xl border border-line bg-card p-4 shadow-sm sm:p-5 lg:p-6">
         <div>
-          <h3 className="text-xl font-bold text-slate-950">Danh sách phòng</h3>
+          <h3 className="text-lg font-bold text-slate-950 sm:text-xl">Danh sách phòng</h3>
 
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-xs text-slate-500 sm:text-sm">
             Tổng cộng: {displayedTotal} phòng
           </p>
-          <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-            <div className="relative flex-1">
+          <div className="mt-5 flex flex-col gap-3">
+            <div className="relative">
               <input
                 type="text"
                 value={searchInput}
                 onChange={(event) => setSearchInput(event.target.value)}
                 placeholder="Tìm theo tên phòng..."
-                className="h-11 w-full rounded-xl border border-line px-4 pr-10 text-sm outline-none"
+                className="h-10 w-full rounded-xl border border-line px-3.5 pr-9 text-[11px] outline-none sm:h-11 sm:px-4 sm:pr-10 sm:text-sm"
               />
 
               {searchInput && (
@@ -404,14 +404,14 @@ export default function AdminRoomPage() {
                   onClick={() => setSearchInput("")}
                   aria-label="Xóa nội dung tìm kiếm"
                   title="Xóa tìm kiếm"
-                  className="absolute right-3 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+                  className="absolute right-2.5 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 sm:right-3 sm:h-6 sm:w-6"
                 >
                   <svg
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
                     strokeWidth={2}
-                    className="h-4 w-4"
+                    className="h-3.5 w-3.5 sm:h-4 sm:w-4"
                   >
                     <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
                   </svg>
@@ -419,27 +419,31 @@ export default function AdminRoomPage() {
               )}
             </div>
 
-            <select
-              value={selectedLocation}
-              onChange={(event) => setSelectedLocation(event.target.value)}
-              className="h-11 rounded-xl border border-line bg-white px-4 text-sm"
-            >
-              <option value="">Tất cả địa điểm</option>
+            <div className="flex gap-2 sm:gap-3 xl:justify-end">
+              <select
+                value={selectedLocation}
+                onChange={(event) => setSelectedLocation(event.target.value)}
+                className="h-10 min-w-0 flex-[1.35] rounded-xl border border-line bg-white px-3 text-[11px] sm:h-11 sm:flex-1 sm:px-4 sm:text-sm xl:max-w-[320px]"
+              >
+                <option value="">Tất cả địa điểm</option>
 
-              {locations.map((location) => (
-                <option key={location.id} value={location.id}>
-                  {location.tenViTri} - {location.tinhThanh}
-                </option>
-              ))}
-            </select>
+                {locations.map((location) => (
+                  <option key={location.id} value={location.id}>
+                    {location.tenViTri} - {location.tinhThanh}
+                  </option>
+                ))}
+              </select>
 
-            <button
-              type="button"
-              onClick={() => setShowCreateForm(true)}
-              className="h-11 whitespace-nowrap rounded-xl bg-[#0B246D] px-5 text-sm font-semibold text-white sm:w-auto"
-            >
-              + Thêm phòng
-            </button>
+              <button
+                type="button"
+                onClick={() => setShowCreateForm(true)}
+                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#0B246D] text-base font-bold text-white sm:h-11 sm:w-auto sm:px-5 sm:text-sm sm:font-semibold"
+                aria-label="Thêm phòng"
+              >
+                <span className="sm:hidden">+</span>
+                <span className="hidden sm:inline">+ Thêm phòng</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -460,64 +464,148 @@ export default function AdminRoomPage() {
                 displayedRooms.map((room) => (
                   <article
                     key={room.id}
-                    className="overflow-hidden rounded-2xl border border-line bg-white shadow-sm"
+                    className="rounded-[20px] border border-line bg-white p-3 shadow-sm"
                   >
-                    <div className="relative aspect-[16/10] bg-slate-100">
-                      {room.hinhAnh ? (
-                        <Image
-                          src={getRoomImageSrc(room.hinhAnh)}
-                          alt={room.tenPhong}
-                          fill
-                          sizes="(max-width: 767px) 100vw, 0px"
-                          className="object-cover"
-                        />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center text-sm text-slate-400">
-                          Chưa có ảnh
-                        </div>
-                      )}
-                    </div>
-                    <div className="p-4">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-                            Phòng #{room.id}
-                          </p>
-                          <Link
-                            href={`/phong/${room.id}`}
-                            className="mt-2 block text-base font-semibold text-slate-950"
-                          >
-                            {room.tenPhong}
-                          </Link>
-                          <p className="mt-1 text-sm text-slate-500">
-                            {getLocationName(room.maViTri)}
-                          </p>
-                        </div>
-                        <span className="shrink-0 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                    <div className="flex items-start gap-3">
+                      <Link
+                        href={`/phong/${room.id}`}
+                        className="relative h-[76px] w-[78px] shrink-0 overflow-hidden rounded-[14px] bg-slate-100"
+                        aria-label={`Xem phòng ${room.tenPhong}`}
+                      >
+                        {room.hinhAnh ? (
+                          <Image
+                            src={getRoomImageSrc(room.hinhAnh)}
+                            alt={room.tenPhong}
+                            fill
+                            sizes="78px"
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center text-[10px] text-slate-400">
+                            Chưa có ảnh
+                          </div>
+                        )}
+                      </Link>
+
+                      <div className="min-w-0 flex-1">
+                        <Link
+                          href={`/phong/${room.id}`}
+                          className="block line-clamp-2 text-[11px] font-bold leading-[1.15rem] text-[#0B246D]"
+                        >
+                          {room.tenPhong}
+                        </Link>
+                        <p className="mt-1 line-clamp-1 text-[9px] text-slate-500">
+                          {getLocationName(room.maViTri)}
+                        </p>
+                        <p className="mt-1.5 text-[12px] font-extrabold leading-none text-[#0B246D]">
                           {room.giaTien.toLocaleString("vi-VN")} ₫
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-2.5 flex items-center justify-between gap-2 border-t border-slate-200 pt-2">
+                      <div className="flex min-w-0 items-center gap-2.5 text-[9px] font-medium text-slate-700">
+                        <span className="inline-flex items-center gap-1 whitespace-nowrap">
+                          <svg
+                            viewBox="0 0 24 24"
+                            className="h-3 w-3 text-[#0B246D]"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                          >
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2" />
+                            <circle cx="9.5" cy="7" r="4" />
+                            <path d="M20 8v6" />
+                            <path d="M23 11h-6" />
+                          </svg>
+                          {room.khach}
+                        </span>
+                        <span className="inline-flex items-center gap-1 whitespace-nowrap">
+                          <svg
+                            viewBox="0 0 24 24"
+                            className="h-3 w-3 text-[#0B246D]"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                          >
+                            <path d="M3 11v8" />
+                            <path d="M21 11v8" />
+                            <path d="M3 15h18" />
+                            <path d="M5 11V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v4" />
+                          </svg>
+                          {room.phongNgu}
+                        </span>
+                        <span className="inline-flex items-center gap-1 whitespace-nowrap">
+                          <svg
+                            viewBox="0 0 24 24"
+                            className="h-3 w-3 text-[#0B246D]"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                          >
+                            <path d="M3 12v7" />
+                            <path d="M21 12v7" />
+                            <path d="M3 16h18" />
+                            <path d="M5 12V9a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v3" />
+                            <path d="M13 12V9a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v3" />
+                          </svg>
+                          {room.giuong}
                         </span>
                       </div>
 
-                      <div className="mt-4 flex flex-wrap gap-2 text-xs text-slate-600">
-                        <span className="rounded-full bg-slate-50 px-3 py-1.5">{room.khach} khách</span>
-                        <span className="rounded-full bg-slate-50 px-3 py-1.5">{room.phongNgu} phòng ngủ</span>
-                        <span className="rounded-full bg-slate-50 px-3 py-1.5">{room.giuong} giường</span>
-                      </div>
-
-                      <div className="mt-4 flex gap-2">
+                      <div className="flex shrink-0 items-center gap-1">
                         <button
                           type="button"
                           onClick={() => handleOpenEdit(room)}
-                          className="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl bg-blue-50 px-4 py-2.5 text-sm font-semibold text-blue-600 hover:bg-blue-100"
+                          aria-label={`Sửa phòng ${room.tenPhong}`}
+                          className="inline-flex h-7 w-7 items-center justify-center rounded-lg text-[#0B246D] transition hover:bg-blue-50"
                         >
-                          Sửa phòng
+                          <svg
+                            viewBox="0 0 24 24"
+                            className="h-3.5 w-3.5"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                          >
+                            <path
+                              d="M4 20h4l10-10-4-4L4 16v4z"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                            <path
+                              d="M13 7l4 4"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
                         </button>
                         <button
                           type="button"
                           onClick={() => setDeleteRoomId(room.id)}
-                          className="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-100"
+                          aria-label={`Xóa phòng ${room.tenPhong}`}
+                          className="inline-flex h-7 w-7 items-center justify-center rounded-lg text-red-600 transition hover:bg-red-50"
                         >
-                          Xóa phòng
+                          <svg
+                            viewBox="0 0 24 24"
+                            className="h-3.5 w-3.5"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                          >
+                            <path d="M4 7h16" strokeLinecap="round" />
+                            <path d="M10 11v6" strokeLinecap="round" />
+                            <path d="M14 11v6" strokeLinecap="round" />
+                            <path
+                              d="M6 7l1 12h10l1-12"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                            <path
+                              d="M9 7V4h6v3"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
                         </button>
                       </div>
                     </div>
@@ -526,19 +614,19 @@ export default function AdminRoomPage() {
               )}
             </div>
 
-            <div className="mt-6 hidden overflow-x-auto md:block">
-              <table className="min-w-[860px] w-full text-left lg:min-w-[980px]">
+            <div className="mt-6 hidden md:block">
+              <table className="w-full table-fixed text-left">
                 <thead>
-                  <tr className="border-b border-line text-sm text-slate-500">
-                    <th className="p-3">ID</th>
-                    <th className="p-3">Hình ảnh</th>
-                    <th className="p-3">Tên phòng</th>
-                    <th className="p-3">Địa điểm</th>
-                    <th className="p-3">Khách</th>
-                    <th className="whitespace-nowrap p-3">Phòng ngủ</th>
-                    <th className="whitespace-nowrap p-3">Giường</th>
-                    <th className="whitespace-nowrap p-3">Giá</th>
-                    <th className="p-3">Thao tác</th>
+                  <tr className="border-b border-line text-[11px] text-slate-500 lg:text-sm">
+                    <th className="w-[6%] px-2 py-3 lg:px-3">ID</th>
+                    <th className="w-[12%] px-2 py-3 lg:px-3">Hình ảnh</th>
+                    <th className="w-[24%] px-2 py-3 lg:px-3">Tên phòng</th>
+                    <th className="w-[20%] px-2 py-3 lg:px-3">Địa điểm</th>
+                    <th className="w-[8%] px-2 py-3 lg:px-3">Khách</th>
+                    <th className="w-[10%] whitespace-nowrap px-2 py-3 lg:px-3">Phòng ngủ</th>
+                    <th className="w-[8%] whitespace-nowrap px-2 py-3 lg:px-3">Giường</th>
+                    <th className="w-[12%] whitespace-nowrap px-2 py-3 lg:px-3">Giá</th>
+                    <th className="w-[10%] px-2 py-3 lg:px-3">Thao tác</th>
                   </tr>
                 </thead>
 
@@ -558,8 +646,8 @@ export default function AdminRoomPage() {
                         key={room.id}
                         className="border-b border-line text-sm"
                       >
-                        <td className="p-3">{room.id}</td>
-                        <td className="p-3">
+                        <td className="px-2 py-3 text-xs lg:px-3 lg:text-sm">{room.id}</td>
+                        <td className="px-2 py-3 lg:px-3">
                           <Link
                             href={`/phong/${room.id}`}
                             className="inline-block"
@@ -569,54 +657,56 @@ export default function AdminRoomPage() {
                               <Image
                                 src={getRoomImageSrc(room.hinhAnh)}
                                 alt={room.tenPhong}
-                                width={80}
-                                height={56}
-                                sizes="80px"
-                                className="h-14 w-20 cursor-pointer rounded-lg object-cover transition hover:opacity-80"
+                                width={72}
+                                height={52}
+                                sizes="72px"
+                                className="h-12 w-[72px] cursor-pointer rounded-lg object-cover transition hover:opacity-80 lg:h-14 lg:w-20"
                               />
                             ) : (
-                              <div className="flex h-14 w-20 cursor-pointer items-center justify-center rounded-lg bg-slate-100 text-xs text-slate-400 transition hover:bg-slate-200">
+                              <div className="flex h-12 w-[72px] cursor-pointer items-center justify-center rounded-lg bg-slate-100 text-[10px] text-slate-400 transition hover:bg-slate-200 lg:h-14 lg:w-20 lg:text-xs">
                                 Chưa có ảnh
                               </div>
                             )}
                           </Link>
                         </td>
 
-                        <td className="max-w-72 p-3 font-semibold text-slate-900">
+                        <td className="px-2 py-3 font-semibold text-slate-900 lg:px-3">
                           <Link
                             href={`/phong/${room.id}`}
-                            className="line-clamp-2 cursor-pointer hover:underline"
+                            className="line-clamp-2 cursor-pointer text-xs hover:underline lg:text-sm"
                             aria-label={`Xem chi tiết phòng ${room.tenPhong}`}
                           >
                             {room.tenPhong}
                           </Link>
                         </td>
 
-                        <td className="p-3">{getLocationName(room.maViTri)}</td>
+                        <td className="px-2 py-3 text-xs text-slate-600 lg:px-3 lg:text-sm">
+                          <p className="line-clamp-2">{getLocationName(room.maViTri)}</p>
+                        </td>
 
-                        <td className="p-3">{room.khach}</td>
+                        <td className="px-2 py-3 text-xs lg:px-3 lg:text-sm">{room.khach}</td>
 
-                        <td className="whitespace-nowrap p-3">
+                        <td className="whitespace-nowrap px-2 py-3 text-xs lg:px-3 lg:text-sm">
                           {room.phongNgu}
                         </td>
 
-                        <td className="whitespace-nowrap p-3">{room.giuong}</td>
+                        <td className="whitespace-nowrap px-2 py-3 text-xs lg:px-3 lg:text-sm">{room.giuong}</td>
 
-                        <td className="whitespace-nowrap p-3 font-semibold">
+                        <td className="whitespace-nowrap px-2 py-3 text-xs font-semibold lg:px-3 lg:text-sm">
                           {room.giaTien.toLocaleString("vi-VN")} ₫
                         </td>
 
-                        <td className="p-3">
-                          <div className="flex gap-2">
+                        <td className="px-2 py-3 lg:px-3">
+                          <div className="flex gap-1.5 lg:gap-2">
                             <button
                               type="button"
                               onClick={() => handleOpenEdit(room)}
                               aria-label={`Sửa phòng ${room.tenPhong}`}
-                              className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg bg-blue-50 px-3 py-1.5 text-sm font-semibold text-blue-600 hover:bg-blue-100"
+                              className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 lg:h-9 lg:w-9"
                             >
                               <svg
                                 viewBox="0 0 24 24"
-                                className="h-4 w-4"
+                                className="h-3.5 w-3.5 lg:h-4 lg:w-4"
                                 fill="none"
                                 stroke="currentColor"
                                 strokeWidth={2}
@@ -639,11 +729,11 @@ export default function AdminRoomPage() {
                               type="button"
                               onClick={() => setDeleteRoomId(room.id)}
                               aria-label={`Xóa phòng ${room.tenPhong}`}
-                              className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg bg-red-50 px-3 py-1.5 text-sm font-semibold text-red-600 hover:bg-red-100"
+                              className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-red-50 text-red-600 hover:bg-red-100 lg:h-9 lg:w-9"
                             >
                               <svg
                                 viewBox="0 0 24 24"
-                                className="h-4 w-4"
+                                className="h-3.5 w-3.5 lg:h-4 lg:w-4"
                                 fill="none"
                                 stroke="currentColor"
                                 strokeWidth={2}
@@ -677,17 +767,17 @@ export default function AdminRoomPage() {
             </div>
 
             {totalPages > 0 && (
-              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <button
                   type="button"
                   disabled={page <= 1}
                   onClick={() => setPage((current) => current - 1)}
-                  className="rounded-xl border border-line px-4 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-40"
+                  className="rounded-xl border border-line px-3 py-2 text-[11px] font-semibold disabled:cursor-not-allowed disabled:opacity-40 sm:px-4 sm:text-sm"
                 >
                   ← Trang trước
                 </button>
 
-                <span className="text-center text-sm text-slate-600">
+                <span className="text-center text-[11px] text-slate-600 sm:text-sm">
                   Trang {page} / {totalPages}
                 </span>
 
@@ -695,7 +785,7 @@ export default function AdminRoomPage() {
                   type="button"
                   disabled={page >= totalPages}
                   onClick={() => setPage((current) => current + 1)}
-                  className="rounded-xl border border-line px-4 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-40"
+                  className="rounded-xl border border-line px-3 py-2 text-[11px] font-semibold disabled:cursor-not-allowed disabled:opacity-40 sm:px-4 sm:text-sm"
                 >
                   Trang sau →
                 </button>

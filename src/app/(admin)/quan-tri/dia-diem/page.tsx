@@ -288,12 +288,19 @@ export default function AdminLocationPage() {
 
     setDeleteLocationId(null);
     showNotification("success", "Xóa thành công", "Địa điểm đã được xóa.");
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Lỗi xóa địa điểm:", error);
     setDeleteLocationId(null);
 
     const serverMessage =
-      error?.response?.data?.content || "Không thể xóa địa điểm này.";
+      typeof error === "object" &&
+      error !== null &&
+      "response" in error &&
+      typeof (error as { response?: { data?: { content?: unknown } } }).response
+        ?.data?.content === "string"
+        ? (error as { response?: { data?: { content?: string } } }).response?.data
+            ?.content || "Không thể xóa địa điểm này."
+        : "Không thể xóa địa điểm này.";
 
     showNotification("error", "Xóa thất bại", serverMessage);
   }
@@ -301,14 +308,14 @@ export default function AdminLocationPage() {
 
   return (
     <>
-      <section className="rounded-3xl border border-line bg-card p-6 shadow-sm">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+      <section className="rounded-3xl border border-line bg-card p-4 shadow-sm sm:p-5 lg:p-6">
+        <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div>
-            <h2 className="text-3xl font-bold text-slate-950">
+            <h2 className="text-2xl font-bold text-slate-950 sm:text-3xl">
               Danh sách địa điểm
             </h2>
 
-            <p className="mt-2 text-sm text-slate-600">
+            <p className="mt-1 text-xs text-slate-600 sm:mt-2 sm:text-sm">
               Trang <span className="font-semibold text-slate-950">{page}</span>{" "}
               / {totalPages || 1}
               {" - "}
@@ -320,14 +327,14 @@ export default function AdminLocationPage() {
             </p>
           </div>
 
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <div className="relative">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center xl:w-full xl:max-w-[520px]">
+            <div className="relative min-w-0 flex-1">
               <input
                 type="text"
                 value={searchInput}
                 onChange={(event) => setSearchInput(event.target.value)}
                 placeholder="Tìm tên vị trí, tỉnh thành..."
-                className="h-11 w-full rounded-xl border border-line bg-white px-4 pr-10 text-sm outline-none sm:w-80"
+                className="h-10 w-full rounded-xl border border-line bg-white px-3.5 pr-9 text-[11px] outline-none sm:h-11 sm:px-4 sm:pr-10 sm:text-sm"
               />
 
               {searchInput && (
@@ -348,7 +355,7 @@ export default function AdminLocationPage() {
             <button
               type="button"
               onClick={() => setShowCreateForm(true)}
-              className="h-11 whitespace-nowrap rounded-xl bg-[#0B246D] px-5 text-sm font-semibold text-white"
+              className="h-10 whitespace-nowrap rounded-xl bg-[#0B246D] px-4 text-[11px] font-semibold text-white sm:h-11 sm:px-5 sm:text-sm"
             >
               + Thêm địa điểm
             </button>
@@ -363,21 +370,125 @@ export default function AdminLocationPage() {
 
         {!loading && !error && (
           <>
-            <div className="mt-8 overflow-x-auto">
-              <table className="w-full text-left">
+            <div className="mt-6 space-y-3 md:hidden">
+              {displayedLocations.length === 0 ? (
+                <div className="rounded-2xl border border-dashed border-line bg-white p-6 text-center text-sm text-slate-500">
+                  Không tìm thấy địa điểm phù hợp.
+                </div>
+              ) : (
+                displayedLocations.map((location) => (
+                  <article
+                    key={location.id}
+                    className="rounded-2xl border border-line bg-white px-3 py-3 shadow-sm"
+                  >
+                    <div className="flex items-start gap-2.5">
+                      <div className="h-[58px] w-[58px] shrink-0 overflow-hidden rounded-2xl bg-slate-100">
+                        {location.hinhAnh ? (
+                          <img
+                            src={location.hinhAnh}
+                            alt={location.tenViTri}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center text-[10px] text-slate-400">
+                            Chưa có ảnh
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="min-w-0 flex-1 pt-0.5">
+                        <p className="line-clamp-2 text-[13px] font-semibold leading-[1.15rem] text-slate-950">
+                          {location.tenViTri}
+                        </p>
+                        <div className="mt-1 flex min-w-0 items-start gap-1 text-[10px] text-slate-500">
+                          <svg
+                            viewBox="0 0 24 24"
+                            className="mt-[1px] h-3 w-3 shrink-0"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                          >
+                            <path d="M12 21s6-4.35 6-10a6 6 0 1 0-12 0c0 5.65 6 10 6 10Z" />
+                            <circle cx="12" cy="11" r="2.5" />
+                          </svg>
+                          <p className="line-clamp-2">
+                            {location.tinhThanh}, {location.quocGia}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex shrink-0 items-center gap-1 self-center">
+                        <button
+                          type="button"
+                          onClick={() => handleOpenEdit(location)}
+                          className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200"
+                          title="Sửa"
+                        >
+                          <svg
+                            viewBox="0 0 24 24"
+                            className="h-3.5 w-3.5"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                          >
+                            <path
+                              d="M4 20h4l10-10-4-4L4 16v4z"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                            <path
+                              d="M13 7l4 4"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteLocation(location.id)}
+                          className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-red-50 text-red-500 hover:bg-red-100"
+                          title="Xóa"
+                        >
+                          <svg
+                            viewBox="0 0 24 24"
+                            className="h-3.5 w-3.5"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                          >
+                            <path d="M4 7h16" strokeLinecap="round" />
+                            <path d="M10 11v6" strokeLinecap="round" />
+                            <path d="M14 11v6" strokeLinecap="round" />
+                            <path
+                              d="M6 7l1 12h10l1-12"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                            <path
+                              d="M9 7V4h6v3"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  </article>
+                ))
+              )}
+            </div>
+
+            <div className="mt-8 hidden md:block">
+              <table className="w-full table-fixed text-left">
                 <thead>
-                  <tr className="border-b border-line text-sm text-slate-500">
-                    <th className="p-3">ID</th>
-
-                    <th className="p-3">Hình ảnh</th>
-
-                    <th className="p-3">Tên vị trí</th>
-
-                    <th className="p-3">Tỉnh thành</th>
-
-                    <th className="p-3">Quốc gia</th>
-
-                    <th className="p-3">Thao tác</th>
+                  <tr className="border-b border-line text-[11px] text-slate-500 lg:text-sm">
+                    <th className="w-[8%] px-2 py-3 lg:px-3">ID</th>
+                    <th className="w-[14%] px-2 py-3 lg:px-3">Hình ảnh</th>
+                    <th className="w-[22%] px-2 py-3 lg:px-3">Tên vị trí</th>
+                    <th className="w-[22%] px-2 py-3 lg:px-3">Tỉnh thành</th>
+                    <th className="w-[18%] px-2 py-3 lg:px-3">Quốc gia</th>
+                    <th className="w-[16%] px-2 py-3 lg:px-3">Thao tác</th>
                   </tr>
                 </thead>
 
@@ -397,41 +508,45 @@ export default function AdminLocationPage() {
                         key={location.id}
                         className="border-b border-line text-sm"
                       >
-                        <td className="p-3">{location.id}</td>
+                        <td className="px-2 py-3 text-xs lg:px-3 lg:text-sm">{location.id}</td>
 
-                        <td className="p-3">
+                        <td className="px-2 py-3 lg:px-3">
                           {location.hinhAnh ? (
                             <img
                               src={location.hinhAnh}
                               alt={location.tenViTri}
-                              className="h-14 w-20 rounded-lg object-cover"
+                              className="h-12 w-[72px] rounded-lg object-cover lg:h-14 lg:w-20"
                             />
                           ) : (
-                            <div className="flex h-14 w-20 items-center justify-center rounded-lg bg-slate-100 text-center text-xs text-slate-400">
+                            <div className="flex h-12 w-[72px] items-center justify-center rounded-lg bg-slate-100 text-center text-[10px] text-slate-400 lg:h-14 lg:w-20 lg:text-xs">
                               Chưa có ảnh
                             </div>
                           )}
                         </td>
 
-                        <td className="p-3 font-semibold text-slate-900">
+                        <td className="px-2 py-3 text-xs font-semibold text-slate-900 lg:px-3 lg:text-sm">
                           {location.tenViTri}
                         </td>
 
-                        <td className="p-3">{location.tinhThanh}</td>
+                        <td className="px-2 py-3 text-xs text-slate-600 lg:px-3 lg:text-sm">
+                          {location.tinhThanh}
+                        </td>
 
-                        <td className="p-3">{location.quocGia}</td>
+                        <td className="px-2 py-3 text-xs text-slate-600 lg:px-3 lg:text-sm">
+                          {location.quocGia}
+                        </td>
 
-                        <td className="p-3">
-                          <div className="flex gap-2">
+                        <td className="px-2 py-3 lg:px-3">
+                          <div className="flex gap-1.5 lg:gap-2">
                             <button
                               type="button"
                               onClick={() => handleOpenEdit(location)}
-                              className="rounded-lg bg-blue-50 px-3 py-1.5 text-blue-600 hover:bg-blue-100"
+                              className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 lg:h-9 lg:w-9"
                               title="Sửa"
                             >
                               <svg
                                 viewBox="0 0 24 24"
-                                className="h-4 w-4"
+                                className="h-3.5 w-3.5 lg:h-4 lg:w-4"
                                 fill="none"
                                 stroke="currentColor"
                                 strokeWidth={2}
@@ -453,12 +568,12 @@ export default function AdminLocationPage() {
                             <button
                               type="button"
                               onClick={() => handleDeleteLocation(location.id)}
-                              className="rounded-lg bg-red-50 px-3 py-1.5 text-red-600 hover:bg-red-100"
+                              className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-red-50 text-red-600 hover:bg-red-100 lg:h-9 lg:w-9"
                               title="Xóa"
                             >
                               <svg
                                 viewBox="0 0 24 24"
-                                className="h-4 w-4"
+                                className="h-3.5 w-3.5 lg:h-4 lg:w-4"
                                 fill="none"
                                 stroke="currentColor"
                                 strokeWidth={2}
@@ -492,7 +607,7 @@ export default function AdminLocationPage() {
             </div>
 
             {totalPages > 0 && (
-              <div className="mt-6 flex items-center justify-between">
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <button
                   type="button"
                   disabled={page <= 1}
@@ -502,7 +617,7 @@ export default function AdminLocationPage() {
                   ← Trang trước
                 </button>
 
-                <span className="text-sm text-slate-600">
+                <span className="text-center text-sm text-slate-600">
                   Trang {page} / {totalPages}
                 </span>
 

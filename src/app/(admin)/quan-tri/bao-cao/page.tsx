@@ -232,78 +232,91 @@ export default function AdminReportPage() {
     <div className="space-y-6">
       <section className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Báo cáo & thống kê</h1>
+          <h1 className="text-xl font-bold text-white sm:text-2xl">Báo cáo & thống kê</h1>
 
-          <p className="mt-1 text-sm text-white/80">
+          <p className="mt-1 text-xs text-white/80 sm:text-sm">
             Theo dõi hiệu suất đặt phòng và doanh thu
           </p>
         </div>
       </section>
 
-      <section className="rounded-2xl border border-line bg-card p-3 shadow-sm">
-        <div className="flex flex-wrap gap-2">
+      <section className="rounded-2xl border border-line bg-card p-2 shadow-sm sm:p-3">
+        <div className="grid grid-cols-4 gap-0.5 sm:flex sm:flex-wrap sm:gap-2">
           {[
             {
               value: "7d" as const,
               label: "7 ngày",
+              mobileLabel: "7 ngày",
             },
             {
               value: "30d" as const,
               label: "30 ngày",
+              mobileLabel: "30 ngày",
             },
             {
               value: "month" as const,
               label: "Tháng này",
+              mobileLabel: "Tháng",
             },
             {
               value: "all" as const,
               label: "Tất cả",
+              mobileLabel: "Tất cả",
             },
           ].map((item) => (
             <button
               key={item.value}
               type="button"
               onClick={() => setRange(item.value)}
-              className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${
+              className={`min-w-0 overflow-hidden rounded-md px-0 py-1 text-[7px] leading-none tracking-[-0.03em] font-medium transition sm:shrink-0 sm:rounded-xl sm:px-4 sm:py-2 sm:text-sm sm:font-semibold ${
                 range === item.value
                   ? "bg-[#0B246D] text-white shadow-sm"
                   : "text-slate-600 hover:bg-slate-100"
               }`}
             >
-              {item.label}
+              <span className="block whitespace-nowrap px-0 text-center sm:hidden">{item.mobileLabel}</span>
+              <span className="hidden sm:block">{item.label}</span>
             </button>
           ))}
         </div>
       </section>
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <KpiCard
-          title="Doanh thu ước tính"
-          value={`${totalRevenue.toLocaleString("vi-VN")} ₫`}
-          icon="₫"
-          color="green"
-        />
-
-        <KpiCard
-          title="Tổng đơn đặt"
-          value={`${filteredBookings.length.toLocaleString("vi-VN")} đơn`}
-          icon="✓"
-          color="blue"
-        />
-
-        <KpiCard
-          title="Thời gian lưu trú"
-          value={`${totalNights.toLocaleString("vi-VN")} đêm`}
-          icon="☾"
-          color="purple"
-        />
-
-        <KpiCard
-          title="Trung bình / đơn"
-          value={`${Math.round(averageBookingValue).toLocaleString("vi-VN")} ₫`}
-          icon="↗"
-          color="orange"
-        />
+      <section className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
+        {[
+          {
+            title: "Doanh thu ước tính",
+            value: `${totalRevenue.toLocaleString("vi-VN")} ₫`,
+            icon: "₫",
+            color: "green" as const,
+          },
+          {
+            title: "Tổng đơn đặt",
+            value: `${filteredBookings.length.toLocaleString("vi-VN")} đơn`,
+            icon: "✓",
+            color: "blue" as const,
+          },
+          {
+            title: "Thời gian lưu trú",
+            value: `${totalNights.toLocaleString("vi-VN")} đêm`,
+            icon: "☾",
+            color: "purple" as const,
+          },
+          {
+            title: "Trung bình / đơn",
+            value: `${Math.round(averageBookingValue).toLocaleString("vi-VN")} ₫`,
+            icon: "↗",
+            color: "orange" as const,
+          },
+        ].map((item, index) => (
+          <KpiCard
+            key={item.title}
+            title={item.title}
+            value={item.value}
+            icon={item.icon}
+            color={item.color}
+            className={index < 2 ? "col-span-2 md:col-span-1" : "col-span-1"}
+          />
+        ))}
       </section>
 
       {filteredBookings.length === 0 && (
@@ -321,49 +334,49 @@ export default function AdminReportPage() {
       )}
 
       {filteredBookings.length > 0 && (
-        <section className="grid gap-6 xl:grid-cols-2">
-          <article className="rounded-3xl border border-line bg-card p-6 shadow-sm">
+        <section className="grid min-w-0 gap-4 md:grid-cols-2 md:gap-6">
+          <article className="min-w-0 overflow-hidden rounded-3xl border border-line bg-card p-3 shadow-sm sm:p-6">
             <div>
-              <h2 className="text-lg font-bold text-slate-950">
+              <h2 className="text-base font-bold leading-6 text-slate-950 sm:text-lg">
                 Top phòng được đặt nhiều nhất
               </h2>
 
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="mt-1 text-xs text-slate-500 sm:text-sm">
                 Xếp hạng dựa trên số lượt đặt
               </p>
             </div>
 
-            <div className="mt-6 space-y-3">
+            <div className="mt-4 min-w-0 space-y-2 sm:mt-6 sm:space-y-3">
               {topRooms.map((room, index) => {
                 const percentage = (room.count / maxRoomCount) * 100;
 
                 return (
                   <div
                     key={room.id}
-                    className="group rounded-2xl border border-line p-4 transition hover:border-slate-300 hover:bg-slate-50"
+                    className="group min-w-0 rounded-2xl border border-line p-2.5 transition hover:border-slate-300 hover:bg-slate-50 sm:p-4"
                   >
-                    <div className="flex items-center gap-4">
+                    <div className="flex min-w-0 items-center gap-2 sm:gap-4">
                       <RankingNumber index={index} />
 
                       <div className="min-w-0 flex-1">
-                        <div className="flex items-center justify-between gap-3">
-                          <p className="truncate font-semibold text-slate-950">
+                        <div className="flex min-w-0 items-center justify-between gap-2">
+                          <p className="min-w-0 truncate text-[11px] font-semibold text-slate-950 sm:text-sm">
                             {room.name}
                           </p>
 
-                          <p className="shrink-0 font-bold text-slate-950">
+                          <p className="shrink-0 text-[11px] font-bold text-slate-950 sm:text-sm">
                             {room.count}
-                            <span className="ml-1 text-xs font-normal text-slate-500">
+                            <span className="ml-1 text-[10px] font-normal text-slate-500 sm:text-xs">
                               lượt
                             </span>
                           </p>
                         </div>
 
-                        <p className="mt-1 text-xs text-slate-400">
+                        <p className="mt-0.5 truncate text-[9px] text-slate-400 sm:mt-1 sm:text-xs">
                           ID phòng: {room.id}
                         </p>
 
-                        <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100">
+                        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100 sm:mt-3 sm:h-2">
                           <div
                             className="h-full rounded-full bg-[#0B246D] transition-all duration-500"
                             style={{
@@ -379,48 +392,48 @@ export default function AdminReportPage() {
             </div>
           </article>
 
-          <article className="rounded-3xl border border-line bg-card p-6 shadow-sm">
+          <article className="min-w-0 overflow-hidden rounded-3xl border border-line bg-card p-3 shadow-sm sm:p-6">
             <div>
-              <h2 className="text-lg font-bold text-slate-950">
+              <h2 className="text-base font-bold leading-6 text-slate-950 sm:text-lg">
                 Top địa điểm được đặt nhiều nhất
               </h2>
 
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="mt-1 text-xs text-slate-500 sm:text-sm">
                 Địa điểm được khách lựa chọn nhiều nhất
               </p>
             </div>
 
-            <div className="mt-6 space-y-3">
+            <div className="mt-4 min-w-0 space-y-2 sm:mt-6 sm:space-y-3">
               {topLocations.map((location, index) => {
                 const percentage = (location.count / maxLocationCount) * 100;
 
                 return (
                   <div
                     key={location.id}
-                    className="group rounded-2xl border border-line p-4 transition hover:border-slate-300 hover:bg-slate-50"
+                    className="group min-w-0 rounded-2xl border border-line p-2.5 transition hover:border-slate-300 hover:bg-slate-50 sm:p-4"
                   >
-                    <div className="flex items-center gap-4">
+                    <div className="flex min-w-0 items-center gap-2 sm:gap-4">
                       <RankingNumber index={index} />
 
                       <div className="min-w-0 flex-1">
-                        <div className="flex items-center justify-between gap-3">
-                          <p className="truncate font-semibold text-slate-950">
+                        <div className="flex min-w-0 items-center justify-between gap-2">
+                          <p className="min-w-0 truncate text-[11px] font-semibold text-slate-950 sm:text-sm">
                             {location.name}
                           </p>
 
-                          <p className="shrink-0 font-bold text-slate-950">
+                          <p className="shrink-0 text-[11px] font-bold text-slate-950 sm:text-sm">
                             {location.count}
-                            <span className="ml-1 text-xs font-normal text-slate-500">
+                            <span className="ml-1 text-[10px] font-normal text-slate-500 sm:text-xs">
                               lượt
                             </span>
                           </p>
                         </div>
 
-                        <p className="mt-1 truncate text-xs text-slate-400">
+                        <p className="mt-0.5 truncate text-[9px] text-slate-400 sm:mt-1 sm:text-xs">
                           {location.city || `ID địa điểm: ${location.id}`}
                         </p>
 
-                        <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100">
+                        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100 sm:mt-3 sm:h-2">
                           <div
                             className="h-full rounded-full bg-emerald-500 transition-all duration-500"
                             style={{
@@ -450,7 +463,7 @@ function RankingNumber({ index }: { index: number }) {
 
   return (
     <div
-      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl font-bold ${
+      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-xs font-bold sm:h-10 sm:w-10 sm:rounded-xl sm:text-base ${
         colors[index] ?? "bg-[#0B246D] text-white"
       }`}
     >
@@ -464,9 +477,10 @@ type KpiCardProps = {
   value: string;
   icon: string;
   color: "green" | "blue" | "purple" | "orange";
+  className?: string;
 };
 
-function KpiCard({ title, value, icon, color }: KpiCardProps) {
+function KpiCard({ title, value, icon, color, className }: KpiCardProps) {
   const colorClasses = {
     green: "bg-emerald-50 text-emerald-600",
     blue: "bg-blue-50 text-blue-600",
@@ -475,20 +489,22 @@ function KpiCard({ title, value, icon, color }: KpiCardProps) {
   };
 
   return (
-    <article className="group flex min-h-[152px] flex-col rounded-3xl border border-line bg-card px-4 py-4 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-md sm:min-h-[160px]">
+    <article
+      className={`group flex min-h-[108px] flex-col rounded-3xl border border-line bg-card px-3 py-3 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-md sm:min-h-[136px] sm:px-4 sm:py-4 ${className ?? ""}`}
+    >
       <div className="flex items-start justify-between gap-3">
-        <p className="max-w-[78%] text-sm font-semibold leading-5 text-slate-500 sm:max-w-[72%]">
+        <p className="max-w-[78%] text-[10px] font-semibold uppercase leading-4 tracking-[0.08em] text-slate-500 sm:max-w-[72%] sm:text-xs">
           {title}
         </p>
         <div
-          className={`flex h-9 w-9 shrink-0 items-center justify-center self-start rounded-xl text-sm font-bold ${colorClasses[color]}`}
+          className={`flex h-7 w-7 shrink-0 items-center justify-center self-start rounded-lg text-[11px] font-bold sm:h-9 sm:w-9 sm:rounded-xl sm:text-sm ${colorClasses[color]}`}
         >
           {icon}
         </div>
       </div>
 
-      <div className="mt-4 overflow-hidden rounded-2xl bg-slate-50/70 px-2.5 py-3">
-        <p className="min-w-0 whitespace-nowrap text-[clamp(1rem,3.8vw,1.34rem)] leading-none font-extrabold tracking-[-0.01em] text-slate-950 sm:text-[clamp(1.08rem,1.42vw,1.34rem)]">
+      <div className="mt-3 overflow-hidden rounded-2xl bg-slate-50/70 px-2 py-2.5 sm:mt-4 sm:px-2.5 sm:py-3">
+        <p className="min-w-0 whitespace-nowrap text-[clamp(0.92rem,3.8vw,1.2rem)] leading-none font-extrabold tracking-[-0.01em] text-slate-950 sm:text-[clamp(1rem,1.42vw,1.34rem)]">
           {value}
         </p>
       </div>

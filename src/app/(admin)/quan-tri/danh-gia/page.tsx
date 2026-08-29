@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { commentsService } from "@/services/comments.service";
 import { roomsService } from "@/services/rooms.service";
 import type { Comment } from "@/types/comment";
@@ -110,11 +110,14 @@ export default function AdminCommentPage() {
     fetchData();
   }, []);
 
-  function getRoomName(roomId: number) {
-    const room = rooms.find((item) => item.id === roomId);
+  const getRoomName = useCallback(
+    (roomId: number) => {
+      const room = rooms.find((item) => item.id === roomId);
 
-    return room?.tenPhong ?? `Phòng #${roomId}`;
-  }
+      return room?.tenPhong ?? `Phòng #${roomId}`;
+    },
+    [rooms],
+  );
 
   function formatDate(dateString?: string) {
     if (!dateString) {
@@ -224,28 +227,16 @@ export default function AdminCommentPage() {
 
       return sortDirection === "asc" ? result : -result;
     });
-  }, [comments, rooms, searchInput, selectedStar, sortField, sortDirection]);
+  }, [comments, getRoomName, searchInput, selectedStar, sortField, sortDirection]);
 
   const totalPages = Math.ceil(filteredComments.length / PAGE_SIZE);
 
+  const currentPage = totalPages === 0 ? 1 : Math.min(page, totalPages);
+
   const displayedComments = filteredComments.slice(
-    (page - 1) * PAGE_SIZE,
-    page * PAGE_SIZE,
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE,
   );
-
-  useEffect(() => {
-    if (totalPages === 0) {
-      if (page !== 1) {
-        setPage(1);
-      }
-
-      return;
-    }
-
-    if (page > totalPages) {
-      setPage(totalPages);
-    }
-  }, [page, totalPages]);
 
   async function handleDeleteComment() {
     if (deleteCommentId === null || deleting) {
@@ -287,13 +278,13 @@ export default function AdminCommentPage() {
 
   return (
     <>
-      <section className="rounded-3xl border border-line bg-card p-6 shadow-sm">
+      <section className="rounded-3xl border border-line bg-card p-4 shadow-sm sm:p-5 lg:p-6">
         <div>
           <h3 className="text-xl font-bold text-slate-950">
             Danh sách bình luận
           </h3>
 
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-xs text-slate-500 sm:text-sm">
             Tổng cộng: {filteredComments.length} bình luận
           </p>
 
@@ -307,7 +298,7 @@ export default function AdminCommentPage() {
                   setPage(1);
                 }}
                 placeholder="Tìm theo nội dung, người dùng hoặc phòng..."
-                className="h-11 w-full rounded-xl border border-line px-4 pr-10 text-sm outline-none focus:border-slate-400"
+                className="h-10 w-full rounded-xl border border-line px-3.5 pr-9 text-[11px] outline-none focus:border-slate-400 sm:h-11 sm:px-4 sm:pr-10 sm:text-sm"
               />
 
               {searchInput && (
@@ -340,7 +331,7 @@ export default function AdminCommentPage() {
                 setSelectedStar(event.target.value);
                 setPage(1);
               }}
-              className="h-11 rounded-xl border border-line bg-white px-4 text-sm outline-none"
+              className="h-10 rounded-xl border border-line bg-white px-3 text-[11px] outline-none sm:h-11 sm:px-4 sm:text-sm"
             >
               <option value="">Tất cả đánh giá</option>
 
@@ -412,31 +403,34 @@ export default function AdminCommentPage() {
                         <p className="font-semibold text-slate-900">
                           {comment.tenNguoiBinhLuan || "Người dùng"}
                         </p>
-                        <p className="mt-1 text-sm text-slate-500">
+                        <p className="mt-1 line-clamp-2 text-[11px] text-slate-500">
                           {getRoomName(comment.maPhong)}
                         </p>
+                        <p className="mt-1 text-[10px] text-slate-400">
+                          #{comment.maPhong}
+                        </p>
                       </div>
-                      <span className="shrink-0 rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-600">
+                      <span className="shrink-0 rounded-full bg-amber-50 px-2 py-1 text-[11px] font-semibold text-amber-500">
                         ★ {comment.saoBinhLuan ?? 0}
                       </span>
                     </div>
 
-                    <div className="mt-4 rounded-2xl bg-slate-50 px-3 py-3">
-                      <p className="text-sm leading-6 text-slate-700">
+                    <div className="mt-4 border-t border-slate-100 pt-3">
+                      <p className="text-[13px] leading-6 text-slate-700">
                         {comment.noiDung || "Không có nội dung"}
                       </p>
                     </div>
 
                     <div className="mt-4 flex items-center justify-between gap-3">
-                      <p className="text-sm text-slate-500">
+                      <p className="text-[11px] text-slate-500">
                         {formatDate(comment.ngayBinhLuan)}
                       </p>
                       <button
                         type="button"
                         onClick={() => setDeleteCommentId(comment.id)}
-                        className="inline-flex min-h-11 items-center justify-center rounded-xl bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-100"
+                        className="inline-flex h-8 items-center justify-center rounded-lg bg-red-50 px-3 text-[11px] font-semibold text-red-600 transition hover:bg-red-100"
                       >
-                        Xóa bình luận
+                        Xóa
                       </button>
                     </div>
                   </article>
@@ -444,12 +438,12 @@ export default function AdminCommentPage() {
               )}
             </div>
 
-            <div className="mt-6 hidden overflow-x-auto md:block">
-              <table className="w-full min-w-[760px] text-left">
+            <div className="mt-6 hidden md:block">
+              <table className="w-full table-fixed text-left">
                 <thead>
-                  <tr className="border-b border-line text-sm text-slate-500">
-                    <th className="p-3">ID</th>
-                    <th className="p-3">
+                  <tr className="border-b border-line text-[11px] text-slate-500 lg:text-sm">
+                    <th className="w-[8%] px-2 py-3 lg:px-3">ID</th>
+                    <th className="w-[20%] px-2 py-3 lg:px-3">
                       <button
                         type="button"
                         onClick={() => handleSort("user")}
@@ -459,7 +453,7 @@ export default function AdminCommentPage() {
                         <span className="text-xs">{getSortIcon("user")}</span>
                       </button>
                     </th>
-                    <th className="p-3">
+                    <th className="w-[20%] px-2 py-3 lg:px-3">
                       <button
                         type="button"
                         onClick={() => handleSort("room")}
@@ -470,11 +464,11 @@ export default function AdminCommentPage() {
                       </button>
                     </th>
 
-                    <th className="p-3">Nội dung</th>
+                    <th className="w-[24%] px-2 py-3 lg:px-3">Nội dung</th>
 
-                    <th className="p-3">Sao</th>
+                    <th className="w-[10%] px-2 py-3 lg:px-3">Sao</th>
 
-                    <th className="p-3">
+                    <th className="w-[10%] px-2 py-3 lg:px-3">
                       <button
                         type="button"
                         onClick={() => handleSort("date")}
@@ -485,7 +479,7 @@ export default function AdminCommentPage() {
                       </button>
                     </th>
 
-                    <th className="p-3">Thao tác</th>
+                    <th className="w-[8%] px-2 py-3 lg:px-3">Thao tác</th>
                   </tr>
                 </thead>
 
@@ -505,10 +499,10 @@ export default function AdminCommentPage() {
                         key={`${comment.maPhong}-${comment.id}`}
                         className="border-b border-line text-sm transition hover:bg-slate-50/60"
                       >
-                        <td className="p-3">{comment.id}</td>
+                        <td className="px-2 py-3 text-xs lg:px-3 lg:text-sm">{comment.id}</td>
 
-                        <td className="p-3">
-                          <div className="flex min-w-44 items-center gap-3">
+                        <td className="px-2 py-3 lg:px-3">
+                          <div className="flex min-w-0 items-center gap-3">
                             {comment.avatar ? (
                               <img
                                 src={comment.avatar}
@@ -516,11 +510,11 @@ export default function AdminCommentPage() {
                                   comment.tenNguoiBinhLuan ||
                                   "Avatar người dùng"
                                 }
-                                className="h-10 w-10 shrink-0 rounded-full border border-slate-200 object-cover"
+                                className="h-9 w-9 shrink-0 rounded-full border border-slate-200 object-cover lg:h-10 lg:w-10"
                                 referrerPolicy="no-referrer"
                               />
                             ) : (
-                              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-400">
+                              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-400 lg:h-10 lg:w-10">
                                 <svg
                                   viewBox="0 0 24 24"
                                   fill="none"
@@ -539,41 +533,41 @@ export default function AdminCommentPage() {
                             )}
 
                             <div className="min-w-0">
-                              <p className="max-w-40 truncate font-medium text-slate-900">
+                              <p className="truncate text-xs font-medium text-slate-900 lg:text-sm">
                                 {comment.tenNguoiBinhLuan || "Người dùng"}
                               </p>
                             </div>
                           </div>
                         </td>
-                        <td className="max-w-56 p-3">
-                          <p className="line-clamp-2 font-medium text-slate-700">
+                        <td className="max-w-56 px-2 py-3 lg:px-3">
+                          <p className="line-clamp-2 text-xs font-medium text-slate-700 lg:text-sm">
                             {getRoomName(comment.maPhong)}
                           </p>
 
-                          <p className="mt-1 text-xs text-slate-400">
+                          <p className="mt-1 text-[10px] text-slate-400 lg:text-xs">
                             #{comment.maPhong}
                           </p>
                         </td>
 
-                        <td className="max-w-80 p-3">
-                          <p className="line-clamp-3 text-slate-700">
+                        <td className="max-w-80 px-2 py-3 lg:px-3">
+                          <p className="line-clamp-3 text-xs text-slate-700 lg:text-sm">
                             {comment.noiDung || "Không có nội dung"}
                           </p>
                         </td>
 
-                        <td className="p-3">
-                          <span className="whitespace-nowrap font-medium text-amber-500">
+                        <td className="px-2 py-3 lg:px-3">
+                          <span className="whitespace-nowrap text-xs font-medium text-amber-500 lg:text-sm">
                             ★ {comment.saoBinhLuan ?? 0}
                           </span>
                         </td>
-                        <td className="whitespace-nowrap p-3 text-slate-600">
+                        <td className="whitespace-nowrap px-2 py-3 text-xs text-slate-600 lg:px-3 lg:text-sm">
                           {formatDate(comment.ngayBinhLuan)}
                         </td>
-                        <td className="p-3">
+                        <td className="px-2 py-3 lg:px-3">
                           <button
                             type="button"
                             onClick={() => setDeleteCommentId(comment.id)}
-                            className="rounded-lg bg-red-50 px-3 py-1.5 text-sm font-semibold text-red-600 transition hover:bg-red-100"
+                            className="rounded-lg bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-100 lg:text-sm"
                           >
                             Xóa
                           </button>
@@ -586,23 +580,23 @@ export default function AdminCommentPage() {
             </div>
 
             {totalPages > 0 && (
-              <div className="mt-6 flex items-center justify-between gap-4">
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <button
                   type="button"
-                  disabled={page <= 1}
+                  disabled={currentPage <= 1}
                   onClick={() => setPage((current) => Math.max(1, current - 1))}
                   className="rounded-xl border border-line px-4 py-2 text-sm font-medium transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   ← Trang trước
                 </button>
 
-                <span className="whitespace-nowrap text-sm text-slate-600">
-                  Trang <strong>{page}</strong> / {totalPages}
+                <span className="whitespace-nowrap text-center text-sm text-slate-600">
+                  Trang <strong>{currentPage}</strong> / {totalPages}
                 </span>
 
                 <button
                   type="button"
-                  disabled={page >= totalPages}
+                  disabled={currentPage >= totalPages}
                   onClick={() =>
                     setPage((current) => Math.min(totalPages, current + 1))
                   }

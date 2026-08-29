@@ -1,9 +1,19 @@
 import type { Route } from "next";
 
+export type NavIconKey =
+  | "dashboard"
+  | "report"
+  | "users"
+  | "rooms"
+  | "locations"
+  | "bookings"
+  | "reviews";
+
 export type NavItem = {
   label: string;
   href: Route;
   note: string;
+  icon?: NavIconKey;
 };
 
 export type RoleKey = "guest" | "customer" | "admin";
@@ -49,36 +59,42 @@ export const roleList: RoleInfo[] = [
     desc: "",
     href: "/quan-tri",
     items: [
-      { label: "Tổng quan", href: "/quan-tri", note: "" },
+      { label: "Tổng quan", href: "/quan-tri", note: "", icon: "dashboard" },
       {
         label: "Báo cáo",
         href: "/quan-tri/bao-cao",
         note: "Doanh thu và Số liệu",
+        icon: "report",
       },
       {
         label: "Người dùng",
         href: "/quan-tri/nguoi-dung",
         note: "Quản lý tài khoản",
+        icon: "users",
       },
       {
         label: "Danh sách phòng",
         href: "/quan-tri/phong",
         note: "Quản lý danh sách phòng",
+        icon: "rooms",
       },
       {
         label: "Địa điểm",
         href: "/quan-tri/dia-diem",
         note: "Quản lý địa điểm",
+        icon: "locations",
       },
       {
         label: "Booking",
         href: "/quan-tri/booking",
         note: "Quản lý đặt phòng",
+        icon: "bookings",
       },
       {
         label: "Đánh giá",
         href: "/quan-tri/danh-gia",
         note: "Quản lý đánh giá",
+        icon: "reviews",
       },
     ],
   },

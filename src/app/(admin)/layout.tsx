@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 import { AppHeader } from "@/components/layout/app-header";
 import { RoleShell } from "@/components/layout/role-shell";
 import { getRole } from "@/config/navigation";
@@ -15,16 +17,18 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   return (
     <div className="min-h-screen bg-[#0B246D] [&_.bg-card]:bg-slate-50 [&_.bg-white]:bg-slate-50">
-      <AppHeader />
+      <AppHeader showAdminSidebarButton />
 
       <div className="mx-auto flex max-w-[1900px] items-start justify-center gap-4 px-4 py-5 sm:gap-5 sm:px-5 sm:py-7">
 
         <aside className="sticky top-6 hidden w-[160px] shrink-0 2xl:block">
           <div className="relative h-[650px] overflow-hidden rounded-3xl shadow-xl">
-            <img
+            <Image
               src="/images/admin-banner-left.jpg"
               alt="Stayora"
-              className="h-full w-full object-cover"
+              fill
+              sizes="160px"
+              className="object-cover"
             />
 
             <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-[#0B246D]/70" />
@@ -46,6 +50,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             title={role.title}
             desc={role.desc}
             items={role.items}
+            compactSidebar
           >
             {children}
           </RoleShell>
@@ -53,10 +58,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
         <aside className="sticky top-6 hidden w-[160px] shrink-0 2xl:block">
           <div className="relative h-[650px] overflow-hidden rounded-3xl shadow-xl">
-            <img
+            <Image
               src="/images/admin-banner-right.jpg"
               alt="Stayora Resort"
-              className="h-full w-full object-cover"
+              fill
+              sizes="160px"
+              className="object-cover"
             />
 
             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0B246D]/70" />
