@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -12,8 +12,6 @@ import {
   BadgeCheck,
   CalendarDays,
   CircleUserRound,
-  LockKeyhole,
-  KeyRound,
   MapPin,
   Mail,
   Phone,
@@ -51,68 +49,35 @@ type AccountOverviewProps = {
   }>;
 };
 
-const profileFormSchema = z
-  .object({
-    name: z.string().trim().min(2, "Vui lòng nhập họ và tên."),
-    email: z
-      .string()
-      .trim()
-      .min(1, "Vui lòng nhập email.")
-      .email("Email không hợp lệ."),
-    phone: z
-      .string()
-      .trim()
-      .regex(/^\d{10,11}$/, "Số điện thoại phải từ 10-11 chữ số."),
-    birthday: z
-      .string()
-      .min(1, "Vui lòng chọn ngày sinh.")
-      .refine((value) => {
-        const birthday = new Date(`${value}T00:00:00`);
+const profileFormSchema = z.object({
+  name: z.string().trim().min(2, "Vui lòng nhập họ và tên."),
+  email: z
+    .string()
+    .trim()
+    .min(1, "Vui lòng nhập email.")
+    .email("Email không hợp lệ."),
+  phone: z
+    .string()
+    .trim()
+    .regex(/^\d{10,11}$/, "Số điện thoại phải từ 10-11 chữ số."),
+  birthday: z
+    .string()
+    .min(1, "Vui lòng chọn ngày sinh.")
+    .refine((value) => {
+      const birthday = new Date(`${value}T00:00:00`);
 
-        if (Number.isNaN(birthday.getTime())) {
-          return false;
-        }
+      if (Number.isNaN(birthday.getTime())) {
+        return false;
+      }
 
-        return birthday <= getLatestAllowedBirthday();
-      }, "Người dùng phải đủ 18 tuổi mới được sử dụng tài khoản."),
-    gender: z.enum(["male", "female"], {
-      message: "Vui lòng chọn giới tính.",
-    }),
-  });
+      return birthday <= getLatestAllowedBirthday();
+    }, "Người dùng phải đủ 18 tuổi mới được sử dụng tài khoản."),
+  gender: z.enum(["male", "female"], {
+    message: "Vui lòng chọn giới tính.",
+  }),
+});
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
-
-const passwordFormSchema = z
-  .object({
-    newPassword: z.string().trim().min(6, "Mật khẩu mới tối thiểu 6 ký tự."),
-    confirmNewPassword: z.string().trim(),
-  })
-  .superRefine((data, context) => {
-    if (!data.newPassword) {
-      return;
-    }
-
-    if (!data.confirmNewPassword) {
-      context.addIssue({
-        code: "custom",
-        path: ["confirmNewPassword"],
-        message: "Vui lòng xác nhận mật khẩu mới.",
-      });
-    }
-
-    if (
-      data.confirmNewPassword &&
-      data.newPassword !== data.confirmNewPassword
-    ) {
-      context.addIssue({
-        code: "custom",
-        path: ["confirmNewPassword"],
-        message: "Mật khẩu xác nhận chưa khớp.",
-      });
-    }
-  });
-
-type PasswordFormValues = z.infer<typeof passwordFormSchema>;
 
 function formatJoinYear() {
   return new Date().getFullYear();
@@ -237,7 +202,6 @@ export function AccountOverview({ initialUser, rentedRooms }: AccountOverviewPro
   const router = useRouter();
   const [user, setUser] = useState(initialUser);
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [isPasswordOpen, setIsPasswordOpen] = useState(false);
   const [isLoadingLatestUser, setIsLoadingLatestUser] = useState(false);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [activeRoomTab, setActiveRoomTab] = useState<"rented" | "favorite">("rented");
@@ -248,23 +212,12 @@ export function AccountOverview({ initialUser, rentedRooms }: AccountOverviewPro
     resolver: zodResolver(profileFormSchema),
     defaultValues: createFormValues(initialUser),
   });
-  const passwordForm = useForm<PasswordFormValues>({
-    resolver: zodResolver(passwordFormSchema),
-    defaultValues: {
-      newPassword: "",
-      confirmNewPassword: "",
-    },
-  });
 
   const displayName = user.name?.trim() || user.email?.trim() || "Khách hàng";
   const displayEmail = user.email?.trim() || "";
   const displayPhone = user.phone?.trim() || "";
   const avatarSrc = getAvatarSrc(user.avatar);
   const latestAllowedBirthday = formatDateInputValue(getLatestAllowedBirthday());
-  const nextPasswordValue = useWatch({
-    control: passwordForm.control,
-    name: "newPassword",
-  });
   const verifyItems = useMemo(
     () => [
       {
@@ -332,13 +285,45 @@ export function AccountOverview({ initialUser, rentedRooms }: AccountOverviewPro
 
   const handleUpdateProfile = profileForm.handleSubmit(async (values) => {
     try {
-      const updatedUser = await profileService.updateProfile({
-        name: values.name,
-        email: values.email,
-        phone: values.phone,
-        birthday: formatBirthdayPayload(values.birthday),
-        gender: values.gender === "male",
-      });
+      const nextName = values.name.trim();
+      const nextEmail = values.email.trim();
+      const nextPhone = values.phone.trim();
+      const nextBirthday = formatBirthdayPayload(values.birthday);
+      const nextGender = values.gender === "male";
+      const profilePayload: {
+        name?: string;
+        email?: string;
+        phone?: string;
+        birthday?: string;
+        gender?: boolean;
+      } = {};
+
+      if (nextName !== (user.name || "").trim()) {
+        profilePayload.name = nextName;
+      }
+
+      if (nextEmail !== (user.email || "").trim()) {
+        profilePayload.email = nextEmail;
+      }
+
+      if (nextPhone !== (user.phone || "").trim()) {
+        profilePayload.phone = nextPhone;
+      }
+
+      if (nextBirthday !== (user.birthday || "")) {
+        profilePayload.birthday = nextBirthday;
+      }
+
+      if (nextGender !== user.gender) {
+        profilePayload.gender = nextGender;
+      }
+
+      if (Object.keys(profilePayload).length === 0) {
+        toast.info("Chưa có thông tin nào thay đổi.");
+        return;
+      }
+
+      const updatedUser = await profileService.updateProfile(profilePayload);
 
       setUser(updatedUser);
       profileForm.reset(createFormValues(updatedUser));
@@ -349,37 +334,6 @@ export function AccountOverview({ initialUser, rentedRooms }: AccountOverviewPro
       router.refresh();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Không thể cập nhật hồ sơ.");
-    }
-  });
-
-  const handleOpenPasswordFlow = () => {
-    passwordForm.reset({
-      newPassword: "",
-      confirmNewPassword: "",
-    });
-    setIsPasswordOpen(true);
-  };
-
-  const handleClosePasswordFlow = () => {
-    passwordForm.reset({
-      newPassword: "",
-      confirmNewPassword: "",
-    });
-    setIsPasswordOpen(false);
-  };
-
-  const handleUpdatePassword = passwordForm.handleSubmit(async (values) => {
-    try {
-      await profileService.updatePassword(values.newPassword);
-
-      passwordForm.reset({
-        newPassword: "",
-        confirmNewPassword: "",
-      });
-      setIsPasswordOpen(false);
-      toast.success("Đổi mật khẩu thành công.");
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Không thể đổi mật khẩu.");
     }
   });
 
@@ -488,13 +442,6 @@ export function AccountOverview({ initialUser, rentedRooms }: AccountOverviewPro
               className="mt-5 inline-flex h-11 w-full items-center justify-center rounded-2xl border border-[#0f2f8e] bg-white px-4 text-sm font-bold text-[#0f2f8e] transition hover:bg-[#0f2f8e] hover:text-white disabled:cursor-not-allowed disabled:opacity-70"
             >
               {isLoadingLatestUser ? "Đang tải hồ sơ..." : "Chỉnh sửa hồ sơ"}
-            </button>
-            <button
-              type="button"
-              onClick={handleOpenPasswordFlow}
-              className="mt-3 inline-flex h-11 w-full items-center justify-center rounded-2xl bg-[#0f2f8e] px-4 text-sm font-bold text-white transition hover:bg-[#0b246d]"
-            >
-              Đổi mật khẩu
             </button>
           </section>
 
@@ -686,90 +633,6 @@ export function AccountOverview({ initialUser, rentedRooms }: AccountOverviewPro
                   <button
                     type="button"
                     onClick={handleCloseEdit}
-                    className="inline-flex h-12 items-center justify-center rounded-2xl border border-line px-5 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:text-slate-950"
-                  >
-                    Hủy
-                  </button>
-                </div>
-              </form>
-            </section>
-          ) : null}
-
-          {isPasswordOpen ? (
-            <section className="rounded-[28px] border border-white/80 bg-white p-6 shadow-sm sm:p-7">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
-                    Bảo mật tài khoản
-                  </p>
-                  <h2 className="mt-2 text-2xl font-extrabold text-[#12315f]">
-                    Đổi mật khẩu
-                  </h2>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={handleClosePasswordFlow}
-                  className="inline-flex h-10 items-center justify-center rounded-2xl border border-line px-4 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:text-slate-950"
-                >
-                  Đóng luồng đổi mật khẩu
-                </button>
-              </div>
-
-              <form onSubmit={handleUpdatePassword} className="mt-6 grid gap-4 md:grid-cols-2">
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-[#12315f]">
-                    Mật khẩu mới
-                  </label>
-                  <div className="flex items-center gap-3 rounded-2xl border border-line bg-white px-4">
-                    <LockKeyhole className="h-4 w-4 shrink-0 text-slate-400" />
-                    <input
-                      {...passwordForm.register("newPassword")}
-                      type="password"
-                      placeholder="Nhập mật khẩu mới"
-                      className="h-12 w-full border-none bg-transparent text-sm text-slate-900 outline-none"
-                    />
-                  </div>
-                  <FieldError message={passwordForm.formState.errors.newPassword?.message} />
-                </div>
-
-                {nextPasswordValue ? (
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-[#12315f]">
-                      Xác nhận mật khẩu mới
-                    </label>
-                    <div className="flex items-center gap-3 rounded-2xl border border-line bg-white px-4">
-                      <KeyRound className="h-4 w-4 shrink-0 text-slate-400" />
-                      <input
-                        {...passwordForm.register("confirmNewPassword")}
-                        type="password"
-                        placeholder="Nhập lại mật khẩu mới"
-                        className="h-12 w-full border-none bg-transparent text-sm text-slate-900 outline-none"
-                      />
-                    </div>
-                    <FieldError
-                      message={passwordForm.formState.errors.confirmNewPassword?.message}
-                    />
-                  </div>
-                ) : (
-                  <div className="rounded-2xl bg-slate-50 px-4 py-4 text-sm leading-6 text-slate-500">
-                    Nhập mật khẩu mới trước, sau đó hệ thống sẽ yêu cầu bạn xác nhận lại.
-                  </div>
-                )}
-
-                <div className="md:col-span-2 flex flex-col gap-3 sm:flex-row">
-                  <button
-                    type="submit"
-                    disabled={passwordForm.formState.isSubmitting}
-                    className="inline-flex h-12 items-center justify-center rounded-2xl bg-[#0f2f8e] px-5 text-sm font-bold text-white transition hover:bg-[#0b246d] disabled:cursor-not-allowed disabled:opacity-70"
-                  >
-                    {passwordForm.formState.isSubmitting
-                      ? "Đang đổi mật khẩu..."
-                      : "Lưu mật khẩu mới"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleClosePasswordFlow}
                     className="inline-flex h-12 items-center justify-center rounded-2xl border border-line px-5 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:text-slate-950"
                   >
                     Hủy

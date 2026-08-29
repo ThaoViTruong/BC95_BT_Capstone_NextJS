@@ -12,6 +12,21 @@ import { setProfileSeed } from "@/lib/profile-seed";
 import { usersService } from "@/services/users.service";
 import type { UpdateUserPayload } from "@/types/user";
 
+function buildFullProfilePayload(
+  resolvedUser: NonNullable<Awaited<ReturnType<typeof resolveSessionUser>>>,
+  payload: UpdateUserPayload,
+): UpdateUserPayload {
+  return {
+    name: payload.name ?? resolvedUser.name,
+    email: payload.email ?? resolvedUser.email,
+    phone: payload.phone ?? resolvedUser.phone,
+    birthday: payload.birthday ?? resolvedUser.birthday,
+    gender: payload.gender ?? resolvedUser.gender,
+    role: payload.role ?? resolvedUser.role,
+    ...(payload.password ? { password: payload.password } : {}),
+  };
+}
+
 function createUnauthorizedResponse() {
   return Response.json(
     { message: "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại." },
@@ -73,7 +88,8 @@ export async function PUT(request: Request) {
 
   try {
     const payload = (await request.json()) as UpdateUserPayload;
-    const user = await usersService.update(resolvedUser.id, payload, authSession.token);
+    const fullPayload = buildFullProfilePayload(resolvedUser, payload);
+    const user = await usersService.update(resolvedUser.id, fullPayload, authSession.token);
     const response = NextResponse.json(user);
 
     response.cookies.set({

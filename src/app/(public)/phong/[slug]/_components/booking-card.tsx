@@ -815,65 +815,71 @@ export function BookingCard({
       </article>
 
       {isConfirmOpen ? (
-        <div className="fixed inset-0 z-50 flex items-end justify-center overflow-y-auto bg-slate-950/45 p-3 sm:items-center sm:p-4">
-          <div className="w-full max-w-3xl overflow-hidden rounded-[28px] border border-white/70 bg-white shadow-[0_24px_80px_rgba(15,47,142,0.22)] sm:max-h-[calc(100vh-2rem)] sm:overflow-y-auto">
-            <div className="flex items-start justify-between gap-4 border-b border-line px-5 py-4 sm:px-6">
-              <h3 className="text-xl font-extrabold text-slate-950 sm:text-2xl">
+        <div className="fixed inset-0 z-[90] flex items-center justify-center overflow-y-auto bg-slate-950/45 p-2 sm:p-3">
+          <div className="max-h-[calc(100vh-1rem)] w-full max-w-[920px] overflow-y-auto rounded-[24px] border border-white/70 bg-white shadow-[0_24px_80px_rgba(15,47,142,0.22)] sm:max-h-[calc(100vh-1.5rem)]">
+            <div className="flex items-start justify-between gap-4 border-b border-line px-4 py-3 sm:px-5 sm:py-4">
+              <h3 className="text-lg font-extrabold text-slate-950 sm:text-xl">
                 Xác nhận đặt phòng
               </h3>
 
               <button
                 type="button"
                 onClick={() => setIsConfirmOpen(false)}
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-line text-slate-500 transition hover:border-slate-300 hover:text-slate-950"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-line text-slate-500 transition hover:border-slate-300 hover:text-slate-950 sm:h-10 sm:w-10"
                 aria-label="Đóng xác nhận đặt phòng"
               >
-                <X className="h-5 w-5" />
+                <X className="h-4 w-4 sm:h-5 sm:w-5" />
               </button>
             </div>
 
-            <div className="grid gap-5 px-4 py-4 sm:px-6 sm:py-5 lg:grid-cols-[minmax(0,1fr)_260px] xl:grid-cols-[minmax(0,1fr)_320px]">
-              <article className="rounded-[24px] border border-line bg-slate-50 p-4 sm:p-5">
-                <div className="grid gap-4">
-                  <div className="rounded-3xl border border-line bg-white p-4">
-                    <div className="flex min-h-[104px] items-center gap-3">
-                      <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#0f2f8e] text-white">
-                        <House className="h-5 w-5" />
+            <div className="grid gap-4 px-3 py-3 sm:px-4 sm:py-4 lg:grid-cols-[minmax(0,1fr)_280px]">
+              <article className="rounded-[22px] border border-line bg-slate-50 p-3 sm:p-4">
+                <div className="grid gap-3">
+                  <div className="rounded-3xl border border-line bg-white p-3 sm:p-4">
+                    <div className="flex min-h-[88px] items-center gap-3 sm:min-h-[96px]">
+                      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#0f2f8e] text-white sm:h-11 sm:w-11">
+                        <House className="h-4 w-4 sm:h-5 sm:w-5" />
                       </span>
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm text-slate-500">Phòng đã chọn</p>
-                        <p className="mt-1 break-words font-bold text-slate-950">
+                        <p className="text-xs text-slate-500 sm:text-sm">Phòng đã chọn</p>
+                        <p className="mt-1 break-words text-base font-bold text-slate-950 sm:text-[22px] sm:leading-8">
                           {roomName}
                         </p>
-                        <p className="mt-2 text-sm text-slate-500">Mã phòng #{roomId}</p>
+                        <p className="mt-1.5 text-xs text-slate-500 sm:mt-2 sm:text-sm">
+                          Mã phòng #{roomId}
+                        </p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="rounded-3xl border border-line bg-white p-4">
-                    <div className="flex min-h-[104px] items-center gap-3">
-                      <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#0f2f8e] text-white">
-                        <Users className="h-5 w-5" />
+                  <div className="rounded-3xl border border-line bg-white p-3 sm:p-4">
+                    <div className="flex min-h-[88px] items-center gap-3 sm:min-h-[96px]">
+                      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#0f2f8e] text-white sm:h-11 sm:w-11">
+                        <Users className="h-4 w-4 sm:h-5 sm:w-5" />
                       </span>
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm text-slate-500">Số lượng khách</p>
-                        <p className="mt-1 font-bold text-slate-950">{guestCount} khách</p>
-                        <p className="mt-2 text-sm text-slate-500">Tối đa {maxGuests} khách</p>
+                        <p className="text-xs text-slate-500 sm:text-sm">Số lượng khách</p>
+                        <p className="mt-1 text-base font-bold text-slate-950 sm:text-[22px]">
+                          {guestCount} khách
+                        </p>
+                        <p className="mt-1.5 text-xs text-slate-500 sm:mt-2 sm:text-sm">
+                          Tối đa {maxGuests} khách
+                        </p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="rounded-3xl border border-line bg-white p-4">
-                    <div className="flex min-h-[104px] items-center gap-3">
-                      <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#0f2f8e] text-white">
-                        <CalendarDays className="h-5 w-5" />
+                  <div className="rounded-3xl border border-line bg-white p-3 sm:p-4">
+                    <div className="flex min-h-[88px] items-center gap-3 sm:min-h-[96px]">
+                      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#0f2f8e] text-white sm:h-11 sm:w-11">
+                        <CalendarDays className="h-4 w-4 sm:h-5 sm:w-5" />
                       </span>
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm text-slate-500">Thời gian lưu trú</p>
-                        <p className="mt-1 break-words font-bold text-slate-950">
+                        <p className="text-xs text-slate-500 sm:text-sm">Thời gian lưu trú</p>
+                        <p className="mt-1 break-words text-base font-bold text-slate-950 sm:text-[22px] sm:leading-8">
                           {formatDisplayDate(checkIn)} - {formatDisplayDate(checkOut)}
                         </p>
-                        <p className="mt-2 text-sm text-slate-500">
+                        <p className="mt-1.5 text-xs text-slate-500 sm:mt-2 sm:text-sm">
                           Tổng thời gian lưu trú {stayNights} đêm
                         </p>
                       </div>
@@ -882,15 +888,17 @@ export function BookingCard({
                 </div>
               </article>
 
-              <aside className="rounded-[24px] border border-line bg-white p-4 shadow-sm sm:p-5">
+              <aside className="rounded-[22px] border border-line bg-white p-3 shadow-sm sm:p-4">
                 <div className="flex items-center gap-3">
-                  <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#0f2f8e] text-white">
-                    <CreditCard className="h-5 w-5" />
+                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#0f2f8e] text-white sm:h-11 sm:w-11">
+                    <CreditCard className="h-4 w-4 sm:h-5 sm:w-5" />
                   </span>
-                  <h4 className="text-xl font-bold text-slate-950">Tóm tắt thanh toán</h4>
+                  <h4 className="text-lg font-bold text-slate-950 sm:text-xl">
+                    Tóm tắt thanh toán
+                  </h4>
                 </div>
 
-                <div className="mt-5 space-y-4 border-t border-line pt-5 text-sm text-slate-600">
+                <div className="mt-4 space-y-3 border-t border-line pt-4 text-sm text-slate-600">
                   <div className="flex items-center justify-between gap-3">
                     <span>
                       {formatCurrency(pricePerNight)} x {stayNights} đêm
@@ -901,19 +909,19 @@ export function BookingCard({
                   </div>
                 </div>
 
-                <div className="mt-5 border-t border-line pt-5">
+                <div className="mt-4 border-t border-line pt-4">
                   <div className="flex items-center justify-between gap-3 text-base font-bold text-slate-950">
                     <span>Tổng tiền phòng</span>
                     <span>{formatCurrency(totalPrice)}</span>
                   </div>
                 </div>
 
-                <div className="mt-6 flex flex-col gap-3">
+                <div className="mt-5 flex flex-col gap-2.5">
                   <button
                     type="button"
                     onClick={handleConfirmBooking}
                     disabled={isSubmitting}
-                    className="inline-flex h-12 w-full items-center justify-center rounded-2xl bg-[#0f2f8e] px-5 text-sm font-semibold text-white transition hover:bg-[#0b246d] disabled:cursor-not-allowed disabled:opacity-70"
+                    className="inline-flex h-11 w-full items-center justify-center rounded-2xl bg-[#0f2f8e] px-5 text-sm font-semibold text-white transition hover:bg-[#0b246d] disabled:cursor-not-allowed disabled:opacity-70 sm:h-12"
                   >
                     {isSubmitting ? "Đang xác nhận đặt phòng" : "Xác nhận đặt phòng"}
                   </button>
@@ -921,7 +929,7 @@ export function BookingCard({
                     type="button"
                     onClick={() => setIsConfirmOpen(false)}
                     disabled={isSubmitting}
-                    className="inline-flex h-12 w-full items-center justify-center rounded-2xl border border-line px-5 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:text-slate-950 disabled:cursor-not-allowed disabled:opacity-70"
+                    className="inline-flex h-11 w-full items-center justify-center rounded-2xl border border-line px-5 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:text-slate-950 disabled:cursor-not-allowed disabled:opacity-70 sm:h-12"
                   >
                     Tiếp tục chỉnh thông tin
                   </button>

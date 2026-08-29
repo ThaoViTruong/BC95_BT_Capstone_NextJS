@@ -1,15 +1,5 @@
-import { NextResponse } from "next/server";
-
-import { ApiError } from "@/lib/api-error";
-import {
-  createAuthCookieValue,
-  getAuthCookieMaxAge,
-  getAuthCookieName,
-  getAuthSession,
-} from "@/lib/auth-session";
+import { getAuthSession } from "@/lib/auth-session";
 import { resolveSessionUser } from "@/lib/auth-session-user";
-import { setProfileSeed } from "@/lib/profile-seed";
-import { usersService } from "@/services/users.service";
 
 function createUnauthorizedResponse() {
   return Response.json(
@@ -36,41 +26,16 @@ export async function PUT(request: Request) {
       );
     }
 
-    const user = await usersService.update(
-      resolvedUser.id,
-      { password: payload.password.trim() },
-      authSession.token,
-    );
-    const response = NextResponse.json(user);
-
-    response.cookies.set({
-      name: getAuthCookieName(),
-      value: createAuthCookieValue({
-        token: authSession.token,
-        user: {
-          ...user,
-          token: authSession.token,
-        },
-      }),
-      httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-      path: "/",
-      maxAge: getAuthCookieMaxAge(),
-    });
-    setProfileSeed(response, {
-      ...user,
-      token: authSession.token,
-    });
-
-    return response;
-  } catch (error) {
-    if (error instanceof ApiError) {
-      return Response.json({ message: error.message }, { status: error.status });
-    }
-
     return Response.json(
-      { message: "Không thể cập nhật mật khẩu." },
+      {
+        message:
+          "API hiện tại chưa hỗ trợ đổi mật khẩu trực tiếp. Vui lòng dùng mật khẩu cũ để đăng nhập.",
+      },
+      { status: 501 },
+    );
+  } catch {
+    return Response.json(
+      { message: "Không thể kiểm tra yêu cầu đổi mật khẩu." },
       { status: 500 },
     );
   }

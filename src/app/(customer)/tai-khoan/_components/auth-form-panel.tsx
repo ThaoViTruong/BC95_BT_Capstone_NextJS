@@ -91,6 +91,10 @@ type SignUpValues = z.infer<typeof signUpSchema>;
 
 function getErrorMessage(error: unknown) {
   if (error instanceof ApiError) {
+    if (error.status === 400 || error.status === 401) {
+      return "Email hoặc mật khẩu sai";
+    }
+
     return error.message;
   }
 

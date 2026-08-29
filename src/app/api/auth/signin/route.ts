@@ -57,6 +57,10 @@ export async function POST(request: Request) {
     return response;
   } catch (error) {
     if (error instanceof ApiError) {
+      if (error.status === 400 || error.status === 401) {
+        return Response.json({ message: "Email hoặc mật khẩu sai" }, { status: 401 });
+      }
+
       return Response.json({ message: error.message }, { status: error.status });
     }
 
