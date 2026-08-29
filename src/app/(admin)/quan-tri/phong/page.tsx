@@ -353,7 +353,7 @@ export default function AdminRoomPage() {
             <button
               type="button"
               onClick={() => setShowCreateForm(true)}
-              className="h-11 whitespace-nowrap rounded-xl bg-[#0B246D] px-5 text-sm font-semibold text-white"
+              className="h-11 whitespace-nowrap rounded-xl bg-[#0B246D] px-5 text-sm font-semibold text-white sm:w-auto"
             >
               + Thêm phòng
             </button>
@@ -368,8 +368,81 @@ export default function AdminRoomPage() {
 
         {!loading && !error && (
           <>
-            <div className="mt-6 overflow-x-auto">
-              <table className="w-full text-left">
+            <div className="mt-6 space-y-3 md:hidden">
+              {displayedRooms.length === 0 ? (
+                <div className="rounded-2xl border border-dashed border-line bg-white p-6 text-center text-sm text-slate-500">
+                  Không có phòng.
+                </div>
+              ) : (
+                displayedRooms.map((room) => (
+                  <article
+                    key={room.id}
+                    className="overflow-hidden rounded-2xl border border-line bg-white shadow-sm"
+                  >
+                    <div className="relative aspect-[16/10] bg-slate-100">
+                      {room.hinhAnh ? (
+                        <img
+                          src={room.hinhAnh}
+                          alt={room.tenPhong}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-sm text-slate-400">
+                          Chưa có ảnh
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                            Phòng #{room.id}
+                          </p>
+                          <Link
+                            href={`/phong/${room.id}`}
+                            className="mt-2 block text-base font-semibold text-slate-950"
+                          >
+                            {room.tenPhong}
+                          </Link>
+                          <p className="mt-1 text-sm text-slate-500">
+                            {getLocationName(room.maViTri)}
+                          </p>
+                        </div>
+                        <span className="shrink-0 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                          {room.giaTien.toLocaleString("vi-VN")} ₫
+                        </span>
+                      </div>
+
+                      <div className="mt-4 flex flex-wrap gap-2 text-xs text-slate-600">
+                        <span className="rounded-full bg-slate-50 px-3 py-1.5">{room.khach} khách</span>
+                        <span className="rounded-full bg-slate-50 px-3 py-1.5">{room.phongNgu} phòng ngủ</span>
+                        <span className="rounded-full bg-slate-50 px-3 py-1.5">{room.giuong} giường</span>
+                      </div>
+
+                      <div className="mt-4 flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleOpenEdit(room)}
+                          className="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl bg-blue-50 px-4 py-2.5 text-sm font-semibold text-blue-600 hover:bg-blue-100"
+                        >
+                          Sửa phòng
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setDeleteRoomId(room.id)}
+                          className="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-100"
+                        >
+                          Xóa phòng
+                        </button>
+                      </div>
+                    </div>
+                  </article>
+                ))
+              )}
+            </div>
+
+            <div className="mt-6 hidden overflow-x-auto md:block">
+              <table className="min-w-[860px] w-full text-left lg:min-w-[980px]">
                 <thead>
                   <tr className="border-b border-line text-sm text-slate-500">
                     <th className="p-3">ID</th>
@@ -404,8 +477,8 @@ export default function AdminRoomPage() {
                         <td className="p-3">
                           <Link
                             href={`/phong/${room.id}`}
-                            title={`Xem ${room.tenPhong}`}
                             className="inline-block"
+                            aria-label={`Xem phòng ${room.tenPhong}`}
                           >
                             {room.hinhAnh ? (
                               <img
@@ -424,8 +497,8 @@ export default function AdminRoomPage() {
                         <td className="max-w-72 p-3 font-semibold text-slate-900">
                           <Link
                             href={`/phong/${room.id}`}
-                            title={room.tenPhong}
-                            className="line-clamp-2 cursor-pointer  hover:underline"
+                            className="line-clamp-2 cursor-pointer hover:underline"
+                            aria-label={`Xem chi tiết phòng ${room.tenPhong}`}
                           >
                             {room.tenPhong}
                           </Link>
@@ -450,7 +523,8 @@ export default function AdminRoomPage() {
                             <button
                               type="button"
                               onClick={() => handleOpenEdit(room)}
-                              className="rounded-lg bg-blue-50 px-3 py-1.5 text-sm font-semibold text-blue-600 hover:bg-blue-100"
+                              aria-label={`Sửa phòng ${room.tenPhong}`}
+                              className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg bg-blue-50 px-3 py-1.5 text-sm font-semibold text-blue-600 hover:bg-blue-100"
                             >
                               <svg
                                 viewBox="0 0 24 24"
@@ -476,7 +550,8 @@ export default function AdminRoomPage() {
                             <button
                               type="button"
                               onClick={() => setDeleteRoomId(room.id)}
-                              className="rounded-lg bg-red-50 px-3 py-1.5 text-sm font-semibold text-red-600 hover:bg-red-100"
+                              aria-label={`Xóa phòng ${room.tenPhong}`}
+                              className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg bg-red-50 px-3 py-1.5 text-sm font-semibold text-red-600 hover:bg-red-100"
                             >
                               <svg
                                 viewBox="0 0 24 24"
@@ -514,7 +589,7 @@ export default function AdminRoomPage() {
             </div>
 
             {totalPages > 0 && (
-              <div className="mt-6 flex items-center justify-between">
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <button
                   type="button"
                   disabled={page <= 1}
@@ -524,7 +599,7 @@ export default function AdminRoomPage() {
                   ← Trang trước
                 </button>
 
-                <span className="text-sm text-slate-600">
+                <span className="text-center text-sm text-slate-600">
                   Trang {page} / {totalPages}
                 </span>
 
@@ -543,11 +618,11 @@ export default function AdminRoomPage() {
       </section>
       {showCreateForm && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4 sm:items-center"
           onClick={() => setShowCreateForm(false)}
         >
           <div
-            className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl"
+            className="max-h-[calc(100vh-2rem)] w-full max-w-3xl overflow-y-auto rounded-2xl bg-white p-4 shadow-2xl sm:p-6"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-center justify-between">
@@ -663,7 +738,7 @@ export default function AdminRoomPage() {
             <div className="mt-7 border-t border-line pt-6">
               <h4 className="font-bold text-slate-900">Sức chứa</h4>
 
-              <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4">
+              <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <div>
                   <label className="mb-2 block text-sm font-semibold">
                     Khách
@@ -745,7 +820,7 @@ export default function AdminRoomPage() {
             <div className="mt-7 border-t border-line pt-6">
               <h4 className="font-bold text-slate-900">Tiện nghi</h4>
 
-              <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-3">
+              <div className="mt-4 grid gap-3 sm:grid-cols-2 md:grid-cols-3">
                 {[
                   ["mayGiat", "Máy giặt"],
                   ["banLa", "Bàn là"],
@@ -782,7 +857,7 @@ export default function AdminRoomPage() {
               <h4 className="font-bold text-slate-900">Hình ảnh</h4>
 
               <div className="mt-4">
-                <label className="flex h-32 w-48 cursor-pointer items-center justify-center overflow-hidden rounded-xl border border-dashed border-slate-300 bg-slate-50">
+                <label className="flex h-32 w-full max-w-48 cursor-pointer items-center justify-center overflow-hidden rounded-xl border border-dashed border-slate-300 bg-slate-50">
                   {imagePreview ? (
                     <img
                       src={imagePreview}
@@ -817,7 +892,7 @@ export default function AdminRoomPage() {
               </div>
             </div>
 
-            <div className="mt-8 flex justify-end gap-3 border-t border-line pt-5">
+            <div className="mt-8 flex flex-col-reverse gap-3 border-t border-line pt-5 sm:flex-row sm:justify-end">
               <button
                 type="button"
                 onClick={() => setShowCreateForm(false)}
@@ -839,8 +914,8 @@ export default function AdminRoomPage() {
       )}
 
       {editingRoom && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="max-h-[90vh] w-full max-w-5xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4 sm:items-center">
+          <div className="max-h-[calc(100vh-2rem)] w-full max-w-5xl overflow-y-auto rounded-2xl bg-white p-4 shadow-2xl sm:p-6">
             <div className="flex items-center justify-between">
               <h3 className="text-xl font-bold">Sửa phòng #{editingRoom.id}</h3>
 
@@ -857,7 +932,7 @@ export default function AdminRoomPage() {
               <div className="border-t border-line pt-4">
                 <h4 className="mb-4 font-bold text-slate-900">Hình ảnh</h4>
 
-                <label className="flex h-32 w-48 cursor-pointer items-center justify-center overflow-hidden rounded-xl border border-dashed border-slate-300 bg-slate-50">
+                <label className="flex h-32 w-full max-w-48 cursor-pointer items-center justify-center overflow-hidden rounded-xl border border-dashed border-slate-300 bg-slate-50">
                   {editImagePreview ? (
                     <img
                       src={editImagePreview}
@@ -971,7 +1046,7 @@ export default function AdminRoomPage() {
               <div className="border-t border-line pt-4">
                 <h4 className="mb-4 font-bold text-slate-900">Sức chứa</h4>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-4 sm:grid-cols-2">
                   <div>
                     <label className="mb-2 block text-sm font-semibold">
                       Khách
@@ -1056,7 +1131,7 @@ export default function AdminRoomPage() {
               <div className="border-t border-line pt-4">
                 <h4 className="mb-4 font-bold text-slate-900">Tiện nghi</h4>
 
-                <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+                <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
                   {[
                     ["mayGiat", "Máy giặt"],
                     ["banLa", "Bàn là"],
@@ -1090,7 +1165,7 @@ export default function AdminRoomPage() {
               </div>
             </div>
 
-            <div className="mt-6 flex justify-end gap-3">
+            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
               <button
                 type="button"
                 onClick={() => setEditingRoom(null)}
@@ -1112,7 +1187,7 @@ export default function AdminRoomPage() {
       )}
       {deleteRoomId !== null && (
         <div
-          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4"
+          className="fixed inset-0 z-[60] flex items-start justify-center overflow-y-auto bg-black/50 p-4 sm:items-center"
           onClick={() => setDeleteRoomId(null)}
         >
           <div
@@ -1137,7 +1212,7 @@ export default function AdminRoomPage() {
               </p>
             </div>
 
-            <div className="mt-6 flex gap-3">
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               <button
                 type="button"
                 onClick={() => setDeleteRoomId(null)}
@@ -1160,7 +1235,7 @@ export default function AdminRoomPage() {
 
       {successMessage && (
         <div
-          className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 p-4"
+          className="fixed inset-0 z-[70] flex items-start justify-center overflow-y-auto bg-black/50 p-4 sm:items-center"
           onClick={() => setSuccessMessage("")}
         >
           <div

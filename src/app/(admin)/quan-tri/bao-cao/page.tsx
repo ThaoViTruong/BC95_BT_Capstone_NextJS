@@ -475,9 +475,9 @@ function KpiCard({ title, value, icon, color }: KpiCardProps) {
   };
 
   return (
-    <article className="group flex min-h-[160px] flex-col rounded-3xl border border-line bg-card px-4 py-4 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-md">
+    <article className="group flex min-h-[152px] flex-col rounded-3xl border border-line bg-card px-4 py-4 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-md sm:min-h-[160px]">
       <div className="flex items-start justify-between gap-3">
-        <p className="max-w-[72%] text-sm font-semibold leading-5 text-slate-500">
+        <p className="max-w-[78%] text-sm font-semibold leading-5 text-slate-500 sm:max-w-[72%]">
           {title}
         </p>
         <div
@@ -488,7 +488,7 @@ function KpiCard({ title, value, icon, color }: KpiCardProps) {
       </div>
 
       <div className="mt-4 overflow-hidden rounded-2xl bg-slate-50/70 px-2.5 py-3">
-        <p className="min-w-0 whitespace-nowrap text-[clamp(1.08rem,1.42vw,1.34rem)] leading-none font-extrabold tracking-[-0.01em] text-slate-950">
+        <p className="min-w-0 whitespace-nowrap text-[clamp(1rem,3.8vw,1.34rem)] leading-none font-extrabold tracking-[-0.01em] text-slate-950 sm:text-[clamp(1.08rem,1.42vw,1.34rem)]">
           {value}
         </p>
       </div>

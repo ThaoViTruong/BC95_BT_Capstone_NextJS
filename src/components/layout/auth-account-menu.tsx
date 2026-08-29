@@ -48,7 +48,7 @@ export function AuthAccountMenu() {
     return (
       <Link
         href="/tai-khoan"
-        className="inline-flex items-center gap-2 rounded-full bg-[#0f2f8e] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0c2570]"
+        className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[#0f2f8e] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0c2570]"
       >
         <CircleUserRound className="h-4 w-4 text-white" />
         <span className="font-semibold text-white">Đăng nhập</span>
@@ -71,21 +71,19 @@ export function AuthAccountMenu() {
   };
 
   return (
-    <div className="flex items-center gap-2 rounded-full border border-line bg-white px-2 py-1 shadow-sm">
-      {/* Trang tài khoản cá nhân */}
+    <div className="flex max-w-full flex-wrap items-center justify-end gap-2 rounded-[24px] border border-line bg-white px-2 py-1 shadow-sm sm:flex-nowrap sm:rounded-full">
       <Link
         href="/tai-khoan"
-        className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-semibold text-[#0f2f8e] transition hover:bg-slate-100"
+        className="inline-flex min-h-10 min-w-0 items-center gap-2 rounded-full px-3 py-1.5 text-sm font-semibold text-[#0f2f8e] transition hover:bg-slate-100 sm:max-w-[240px]"
       >
-        <CircleUserRound className="h-4 w-4" />
-        <span>{displayName}</span>
+        <CircleUserRound className="h-4 w-4 shrink-0" />
+        <span className="truncate">{displayName}</span>
       </Link>
 
-      {/* Chỉ ADMIN mới thấy nút quản trị */}
       {currentUser.role?.trim().toUpperCase() === "ADMIN" && (
         <Link
           href="/quan-tri"
-          className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-[#0f2f8e] transition hover:bg-slate-200"
+          className="inline-flex min-h-10 items-center rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-[#0f2f8e] transition hover:bg-slate-200"
         >
           Quản trị
         </Link>
@@ -95,7 +93,7 @@ export function AuthAccountMenu() {
         type="button"
         onClick={handleSignOut}
         disabled={isSigningOut}
-        className="inline-flex items-center gap-1 rounded-full bg-[#0f2f8e] px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-[#0b246d] disabled:cursor-not-allowed disabled:opacity-70"
+        className="inline-flex min-h-10 items-center gap-1 rounded-full bg-[#0f2f8e] px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-[#0b246d] disabled:cursor-not-allowed disabled:opacity-70"
       >
         <LogOut className="h-3.5 w-3.5" />
         {isSigningOut ? "Đang thoát" : "Đăng xuất"}

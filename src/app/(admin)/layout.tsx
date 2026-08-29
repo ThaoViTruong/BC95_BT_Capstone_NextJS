@@ -17,7 +17,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     <div className="min-h-screen bg-[#0B246D] [&_.bg-card]:bg-slate-50 [&_.bg-white]:bg-slate-50">
       <AppHeader />
 
-      <div className="mx-auto flex max-w-[1900px] items-start justify-center gap-5 px-5 py-7">
+      <div className="mx-auto flex max-w-[1900px] items-start justify-center gap-4 px-4 py-5 sm:gap-5 sm:px-5 sm:py-7">
 
         <aside className="sticky top-6 hidden w-[160px] shrink-0 2xl:block">
           <div className="relative h-[650px] overflow-hidden rounded-3xl shadow-xl">

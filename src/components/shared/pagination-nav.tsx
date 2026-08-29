@@ -85,29 +85,29 @@ export function PaginationNav({
   return (
     <nav
       aria-label="Phân trang danh sách phòng"
-      className={cn("flex flex-wrap items-center justify-center gap-3", className)}
+      className={cn("flex flex-wrap items-center justify-center gap-2 sm:gap-3", className)}
     >
       {currentPage > 1 ? (
         <Link
           href={buildPageHref(pathname, query, previousPage)}
-          className="inline-flex h-12 items-center gap-2 rounded-2xl border border-line bg-white px-5 text-sm font-semibold text-slate-800 transition hover:border-[#0f2f8e] hover:bg-[#0f2f8e] hover:text-white"
+          className="inline-flex h-10 items-center gap-1.5 rounded-2xl border border-line bg-white px-3 text-sm font-semibold text-slate-800 transition hover:border-[#0f2f8e] hover:bg-[#0f2f8e] hover:text-white sm:h-12 sm:gap-2 sm:px-5"
         >
           <ChevronLeft className="h-4 w-4" />
-          Trước
+          <span className="sr-only sm:not-sr-only">Trước</span>
         </Link>
       ) : (
-        <span className="inline-flex h-12 cursor-not-allowed items-center gap-2 rounded-2xl border border-line bg-slate-100 px-5 text-sm font-semibold text-slate-400">
+        <span className="inline-flex h-10 cursor-not-allowed items-center gap-1.5 rounded-2xl border border-line bg-slate-100 px-3 text-sm font-semibold text-slate-400 sm:h-12 sm:gap-2 sm:px-5">
           <ChevronLeft className="h-4 w-4" />
-          Trước
+          <span className="sr-only sm:not-sr-only">Trước</span>
         </span>
       )}
 
-      <div className="flex flex-wrap items-center justify-center gap-3">
+      <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
         {items.map((item, index) =>
           item === "ellipsis" ? (
             <span
               key={`ellipsis-${currentPage}-${index}`}
-              className="inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-line bg-white text-slate-500"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-line bg-white text-slate-500 sm:h-12 sm:w-12"
             >
               <MoreHorizontal className="h-4 w-4" />
             </span>
@@ -115,7 +115,7 @@ export function PaginationNav({
             <span
               key={item}
               aria-current="page"
-              className="inline-flex h-12 min-w-12 items-center justify-center rounded-2xl bg-[#0f2f8e] px-4 text-sm font-bold text-white shadow-sm"
+              className="inline-flex h-10 min-w-10 items-center justify-center rounded-2xl bg-[#0f2f8e] px-3 text-sm font-bold text-white shadow-sm sm:h-12 sm:min-w-12 sm:px-4"
             >
               {item}
             </span>
@@ -123,7 +123,7 @@ export function PaginationNav({
             <Link
               key={item}
               href={buildPageHref(pathname, query, item)}
-              className="inline-flex h-12 min-w-12 items-center justify-center rounded-2xl border border-line bg-white px-4 text-sm font-semibold text-slate-800 transition hover:border-[#0f2f8e] hover:bg-[#0f2f8e] hover:text-white"
+              className="inline-flex h-10 min-w-10 items-center justify-center rounded-2xl border border-line bg-white px-3 text-sm font-semibold text-slate-800 transition hover:border-[#0f2f8e] hover:bg-[#0f2f8e] hover:text-white sm:h-12 sm:min-w-12 sm:px-4"
             >
               {item}
             </Link>
@@ -134,14 +134,14 @@ export function PaginationNav({
       {currentPage < totalPages ? (
         <Link
           href={buildPageHref(pathname, query, nextPage)}
-          className="inline-flex h-12 items-center gap-2 rounded-2xl border border-line bg-white px-5 text-sm font-semibold text-slate-800 transition hover:border-[#0f2f8e] hover:bg-[#0f2f8e] hover:text-white"
+          className="inline-flex h-10 items-center gap-1.5 rounded-2xl border border-line bg-white px-3 text-sm font-semibold text-slate-800 transition hover:border-[#0f2f8e] hover:bg-[#0f2f8e] hover:text-white sm:h-12 sm:gap-2 sm:px-5"
         >
-          Sau
+          <span className="sr-only sm:not-sr-only">Sau</span>
           <ChevronRight className="h-4 w-4" />
         </Link>
       ) : (
-        <span className="inline-flex h-12 cursor-not-allowed items-center gap-2 rounded-2xl border border-line bg-slate-100 px-5 text-sm font-semibold text-slate-400">
-          Sau
+        <span className="inline-flex h-10 cursor-not-allowed items-center gap-1.5 rounded-2xl border border-line bg-slate-100 px-3 text-sm font-semibold text-slate-400 sm:h-12 sm:gap-2 sm:px-5">
+          <span className="sr-only sm:not-sr-only">Sau</span>
           <ChevronRight className="h-4 w-4" />
         </span>
       )}

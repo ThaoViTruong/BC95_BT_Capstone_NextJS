@@ -48,29 +48,29 @@ export function PaginationButtons({
   return (
     <nav
       aria-label="Phân trang danh sách"
-      className={cn("flex flex-wrap items-center justify-center gap-3", className)}
+      className={cn("flex flex-wrap items-center justify-center gap-2 sm:gap-3", className)}
     >
       <button
         type="button"
         onClick={() => onPageChange(Math.max(1, currentPage - 1))}
         disabled={currentPage <= 1}
         className={cn(
-          "inline-flex h-12 items-center gap-2 rounded-2xl border px-5 text-sm font-semibold transition",
+          "inline-flex h-10 items-center gap-1.5 rounded-2xl border px-3 text-sm font-semibold transition sm:h-12 sm:gap-2 sm:px-5",
           currentPage <= 1
             ? "cursor-not-allowed border-line bg-slate-100 text-slate-400"
             : "border-line bg-white text-slate-800 hover:border-[#0f2f8e] hover:bg-[#0f2f8e] hover:text-white",
         )}
       >
         <ChevronLeft className="h-4 w-4" />
-        Trước
+        <span className="sr-only sm:not-sr-only">Trước</span>
       </button>
 
-      <div className="flex flex-wrap items-center justify-center gap-3">
+      <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
         {items.map((item, index) =>
           item === "ellipsis" ? (
             <span
               key={`ellipsis-${currentPage}-${index}`}
-              className="inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-line bg-white text-slate-500"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-line bg-white text-slate-500 sm:h-12 sm:w-12"
             >
               <MoreHorizontal className="h-4 w-4" />
             </span>
@@ -78,7 +78,7 @@ export function PaginationButtons({
             <span
               key={item}
               aria-current="page"
-              className="inline-flex h-12 min-w-12 items-center justify-center rounded-2xl bg-[#0f2f8e] px-4 text-sm font-bold text-white shadow-sm"
+              className="inline-flex h-10 min-w-10 items-center justify-center rounded-2xl bg-[#0f2f8e] px-3 text-sm font-bold text-white shadow-sm sm:h-12 sm:min-w-12 sm:px-4"
             >
               {item}
             </span>
@@ -87,7 +87,7 @@ export function PaginationButtons({
               key={item}
               type="button"
               onClick={() => onPageChange(item)}
-              className="inline-flex h-12 min-w-12 items-center justify-center rounded-2xl border border-line bg-white px-4 text-sm font-semibold text-slate-800 transition hover:border-[#0f2f8e] hover:bg-[#0f2f8e] hover:text-white"
+              className="inline-flex h-10 min-w-10 items-center justify-center rounded-2xl border border-line bg-white px-3 text-sm font-semibold text-slate-800 transition hover:border-[#0f2f8e] hover:bg-[#0f2f8e] hover:text-white sm:h-12 sm:min-w-12 sm:px-4"
             >
               {item}
             </button>
@@ -100,13 +100,13 @@ export function PaginationButtons({
         onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
         disabled={currentPage >= totalPages}
         className={cn(
-          "inline-flex h-12 items-center gap-2 rounded-2xl border px-5 text-sm font-semibold transition",
+          "inline-flex h-10 items-center gap-1.5 rounded-2xl border px-3 text-sm font-semibold transition sm:h-12 sm:gap-2 sm:px-5",
           currentPage >= totalPages
             ? "cursor-not-allowed border-line bg-slate-100 text-slate-400"
             : "border-line bg-white text-slate-800 hover:border-[#0f2f8e] hover:bg-[#0f2f8e] hover:text-white",
         )}
       >
-        Sau
+        <span className="sr-only sm:not-sr-only">Sau</span>
         <ChevronRight className="h-4 w-4" />
       </button>
     </nav>

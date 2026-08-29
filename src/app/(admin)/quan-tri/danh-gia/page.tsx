@@ -370,8 +370,82 @@ export default function AdminCommentPage() {
 
         {!loading && !error && (
           <>
-            <div className="mt-6 overflow-x-auto">
-              <table className="w-full text-left">
+            <div className="mt-6 space-y-3 md:hidden">
+              {displayedComments.length === 0 ? (
+                <div className="rounded-2xl border border-dashed border-line bg-white p-6 text-center text-sm text-slate-500">
+                  Không có bình luận.
+                </div>
+              ) : (
+                displayedComments.map((comment) => (
+                  <article
+                    key={`${comment.maPhong}-${comment.id}`}
+                    className="rounded-2xl border border-line bg-white p-4 shadow-sm"
+                  >
+                    <div className="flex items-start gap-3">
+                      {comment.avatar ? (
+                        <img
+                          src={comment.avatar}
+                          alt={comment.tenNguoiBinhLuan || "Avatar người dùng"}
+                          className="h-11 w-11 shrink-0 rounded-full border border-slate-200 object-cover"
+                          referrerPolicy="no-referrer"
+                        />
+                      ) : (
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-400">
+                          <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.7"
+                            className="h-5 w-5"
+                            aria-hidden="true"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M15.75 6.75a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.5 20.25a7.5 7.5 0 0 1 15 0"
+                            />
+                          </svg>
+                        </div>
+                      )}
+
+                      <div className="min-w-0 flex-1">
+                        <p className="font-semibold text-slate-900">
+                          {comment.tenNguoiBinhLuan || "Người dùng"}
+                        </p>
+                        <p className="mt-1 text-sm text-slate-500">
+                          {getRoomName(comment.maPhong)}
+                        </p>
+                      </div>
+                      <span className="shrink-0 rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-600">
+                        ★ {comment.saoBinhLuan ?? 0}
+                      </span>
+                    </div>
+
+                    <div className="mt-4 rounded-2xl bg-slate-50 px-3 py-3">
+                      <p className="text-sm leading-6 text-slate-700">
+                        {comment.noiDung || "Không có nội dung"}
+                      </p>
+                    </div>
+
+                    <div className="mt-4 flex items-center justify-between gap-3">
+                      <p className="text-sm text-slate-500">
+                        {formatDate(comment.ngayBinhLuan)}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setDeleteCommentId(comment.id)}
+                        className="inline-flex min-h-11 items-center justify-center rounded-xl bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-100"
+                      >
+                        Xóa bình luận
+                      </button>
+                    </div>
+                  </article>
+                ))
+              )}
+            </div>
+
+            <div className="mt-6 hidden overflow-x-auto md:block">
+              <table className="w-full min-w-[760px] text-left">
                 <thead>
                   <tr className="border-b border-line text-sm text-slate-500">
                     <th className="p-3">ID</th>
@@ -482,10 +556,7 @@ export default function AdminCommentPage() {
                         </td>
 
                         <td className="max-w-80 p-3">
-                          <p
-                            className="line-clamp-3 text-slate-700"
-                            title={comment.noiDung ?? ""}
-                          >
+                          <p className="line-clamp-3 text-slate-700">
                             {comment.noiDung || "Không có nội dung"}
                           </p>
                         </td>
@@ -547,7 +618,7 @@ export default function AdminCommentPage() {
 
       {deleteCommentId !== null && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4 sm:items-center"
           onClick={() => {
             if (!deleting) {
               setDeleteCommentId(null);
@@ -582,7 +653,7 @@ export default function AdminCommentPage() {
               </p>
             </div>
 
-            <div className="mt-6 flex gap-3">
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               <button
                 type="button"
                 disabled={deleting}
@@ -607,7 +678,7 @@ export default function AdminCommentPage() {
 
       {notification && (
         <div
-          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4"
+          className="fixed inset-0 z-[60] flex items-start justify-center overflow-y-auto bg-black/50 p-4 sm:items-center"
           onClick={() => setNotification(null)}
         >
           <div

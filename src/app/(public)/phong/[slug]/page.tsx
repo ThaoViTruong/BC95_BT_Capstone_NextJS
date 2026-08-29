@@ -195,9 +195,9 @@ export default async function RoomDetailPage({ params }: RoomDetailPageProps) {
   const hostBadgeText = location?.tenViTri?.slice(0, 1).toUpperCase() || room.tenPhong.slice(0, 1).toUpperCase();
 
   return (
-    <main className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-8 sm:px-6 lg:px-8">
-      <section className="flex flex-wrap items-start justify-between gap-4">
-        <div>
+    <main className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:gap-8 sm:px-6 sm:py-8 lg:px-8">
+      <section className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+        <div className="min-w-0">
           <Link
             href="/"
             className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-slate-900"
@@ -206,7 +206,7 @@ export default async function RoomDetailPage({ params }: RoomDetailPageProps) {
             Quay lại trang chủ
           </Link>
 
-          <h1 className="mt-3 text-3xl font-extrabold text-slate-950 sm:text-4xl">
+          <h1 className="mt-3 break-words text-2xl font-extrabold text-slate-950 sm:text-4xl">
             {room.tenPhong}
           </h1>
 
@@ -228,7 +228,7 @@ export default async function RoomDetailPage({ params }: RoomDetailPageProps) {
       </section>
 
       <section className="overflow-hidden rounded-[28px] border border-line bg-card shadow-sm">
-        <div className="relative aspect-[16/10] md:aspect-[16/8]">
+        <div className="relative aspect-[16/11] sm:aspect-[16/10] md:aspect-[16/8]">
           <Image
             src={roomImageSrc}
             alt={room.tenPhong}
@@ -240,12 +240,12 @@ export default async function RoomDetailPage({ params }: RoomDetailPageProps) {
         </div>
       </section>
 
-      <section className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_400px]">
+      <section className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px] xl:grid-cols-[minmax(0,1fr)_400px]">
         <div className="min-w-0 space-y-8">
-          <article className="rounded-[28px] border border-line bg-white p-6 text-slate-950 shadow-sm sm:p-8">
+          <article className="rounded-[28px] border border-line bg-white p-5 text-slate-950 shadow-sm sm:p-8">
             <div className="flex flex-wrap items-start justify-between gap-5 border-b border-line pb-6">
               <div>
-                <h2 className="text-2xl font-bold sm:text-3xl">
+                <h2 className="text-xl font-bold sm:text-3xl">
                   Toàn bộ căn hộ. {room.tenPhong}
                 </h2>
                 <p className="mt-3 flex flex-wrap gap-3 text-sm text-slate-600">
@@ -268,11 +268,11 @@ export default async function RoomDetailPage({ params }: RoomDetailPageProps) {
                 </p>
               </div>
 
-              <div className="flex items-center gap-3 rounded-full border border-line bg-slate-50 px-4 py-3">
+              <div className="flex w-full items-center gap-3 rounded-[20px] border border-line bg-slate-50 px-4 py-3 sm:w-auto sm:rounded-full">
                 <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#0f2f8e] font-bold text-white">
                   {hostBadgeText}
                 </div>
-                <div className="text-right">
+                <div className="min-w-0 text-left sm:text-right">
                   <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Mã phòng</p>
                   <p className="text-sm font-semibold text-slate-950">#{room.id}</p>
                 </div>
@@ -315,8 +315,8 @@ export default async function RoomDetailPage({ params }: RoomDetailPageProps) {
             </div>
           </article>
 
-          <article className="rounded-[28px] border border-line bg-white p-6 text-slate-950 shadow-sm">
-            <h2 className="text-2xl font-bold text-slate-950">Các tiện ích đi kèm</h2>
+          <article className="rounded-[28px] border border-line bg-white p-5 text-slate-950 shadow-sm sm:p-6">
+            <h2 className="text-xl font-bold text-slate-950 sm:text-2xl">Các tiện ích đi kèm</h2>
             {amenityList.length > 0 ? (
               <div className="mt-6 grid gap-x-6 gap-y-5 sm:grid-cols-2">
                 {amenityList.map((item) => (
@@ -336,13 +336,13 @@ export default async function RoomDetailPage({ params }: RoomDetailPageProps) {
             )}
           </article>
 
-          <article className="min-w-0 rounded-[28px] border border-line bg-white p-6 shadow-sm">
+          <article className="min-w-0 rounded-[28px] border border-line bg-white p-5 shadow-sm sm:p-6">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
                   Bình luận
                 </p>
-                <h2 className="mt-2 text-2xl font-bold text-slate-950">Đánh giá từ khách đã ở</h2>
+                <h2 className="mt-2 text-xl font-bold text-slate-950 sm:text-2xl">Đánh giá từ khách đã ở</h2>
               </div>
               <span className="rounded-full bg-[#0f2f8e] px-4 py-2 text-sm font-semibold text-white">
                 {visibleComments.length} bình luận

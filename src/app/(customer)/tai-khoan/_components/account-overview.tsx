@@ -418,9 +418,9 @@ export function AccountOverview({ initialUser, rentedRooms }: AccountOverviewPro
   return (
     <main className="min-h-screen bg-[#f3f4f6]">
       <header className="sticky top-0 z-30 border-b border-white/70 bg-white/90 backdrop-blur-xl">
-        <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
+        <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4 lg:px-8">
           <Link href="/" className="flex items-center gap-3">
-            <div className="relative h-12 w-28 shrink-0 sm:h-14 sm:w-32">
+            <div className="relative h-11 w-24 shrink-0 sm:h-14 sm:w-32">
               <Image
                 src="/images/logo.png"
                 alt="Stayora"
@@ -434,14 +434,14 @@ export function AccountOverview({ initialUser, rentedRooms }: AccountOverviewPro
 
           <Link
             href="/"
-            className="inline-flex h-11 items-center justify-center rounded-2xl border border-[#0f2f8e] px-4 text-sm font-bold text-[#0f2f8e] transition hover:bg-[#0f2f8e] hover:text-white"
+            className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-[#0f2f8e] px-4 text-sm font-bold text-[#0f2f8e] transition hover:bg-[#0f2f8e] hover:text-white"
           >
             Về trang chủ
           </Link>
         </div>
       </header>
 
-      <div className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-8 sm:px-6 lg:grid-cols-[300px_minmax(0,1fr)] lg:px-8">
+      <div className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-6 sm:px-6 sm:py-8 lg:grid-cols-[300px_minmax(0,1fr)] lg:px-8">
         <aside className="space-y-5">
           <section className="rounded-[28px] border border-white/80 bg-white p-6 text-center shadow-sm">
             <div className="mx-auto flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-4 border-slate-100 bg-slate-100">
@@ -552,7 +552,7 @@ export function AccountOverview({ initialUser, rentedRooms }: AccountOverviewPro
             <button
               type="button"
               onClick={() => setActiveRoomTab("rented")}
-              className={`relative z-10 rounded-2xl px-4 py-3 text-sm font-semibold transition-colors duration-300 ${
+              className={`relative z-10 rounded-2xl px-3 py-3 text-sm font-semibold transition-colors duration-300 sm:px-4 ${
                 activeRoomTab === "rented" ? "text-white" : "text-slate-600 hover:text-[#0f2f8e]"
               }`}
             >
@@ -561,7 +561,7 @@ export function AccountOverview({ initialUser, rentedRooms }: AccountOverviewPro
             <button
               type="button"
               onClick={() => setActiveRoomTab("favorite")}
-              className={`relative z-10 rounded-2xl px-4 py-3 text-sm font-semibold transition-colors duration-300 ${
+              className={`relative z-10 rounded-2xl px-3 py-3 text-sm font-semibold transition-colors duration-300 sm:px-4 ${
                 activeRoomTab === "favorite"
                   ? "text-white"
                   : "text-slate-600 hover:text-[#0f2f8e]"
@@ -803,7 +803,7 @@ export function AccountOverview({ initialUser, rentedRooms }: AccountOverviewPro
                             setActiveStayTab(tab.key);
                             setRentedPage(1);
                           }}
-                          className={`inline-flex h-10 items-center justify-center rounded-full px-4 text-sm font-semibold transition ${
+                          className={`inline-flex min-h-10 items-center justify-center rounded-full px-4 text-sm font-semibold transition ${
                             activeStayTab === tab.key
                               ? "bg-[#0f2f8e] text-white"
                               : "bg-slate-50 text-slate-700 hover:bg-slate-100"

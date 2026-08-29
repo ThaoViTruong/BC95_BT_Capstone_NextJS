@@ -132,8 +132,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     <main className="pb-12">
       <HomeHero />
 
-      <section className="mx-auto mt-8 w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="rounded-[28px] border border-line/70 bg-white/90 p-5 shadow-sm">
+      <section className="mx-auto mt-6 w-full max-w-7xl px-4 sm:mt-8 sm:px-6 lg:px-8">
+        <div className="rounded-[28px] border border-line/70 bg-white/90 p-4 shadow-sm sm:p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
@@ -142,7 +142,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             </div>
           </div>
 
-          <div className="mt-5 rounded-[28px] border border-[#dbe4ff] bg-[linear-gradient(135deg,#eef4ff_0%,#ffffff_100%)] p-4 sm:p-5">
+          <div className="mt-5 rounded-[28px] border border-[#dbe4ff] bg-[linear-gradient(135deg,#eef4ff_0%,#ffffff_100%)] p-3.5 sm:p-5">
             <div className="mb-4">
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#0f2f8e]">
                 Tìm nhanh phòng phù hợp
@@ -153,8 +153,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
               </p>
             </div>
 
-            <div className="rounded-[26px] border border-white bg-white p-3 shadow-sm">
-              
+            <div className="rounded-[26px] border border-white bg-white p-2.5 shadow-sm sm:p-3">
               <RoomSearchForm
                 key={[
                   query.diemDen ?? "",
@@ -177,12 +176,11 @@ export default async function HomePage({ searchParams }: HomePageProps) {
               />
             </div>
           </div>
-          <p className="mt-2 text-2xl font-bold text-slate-950">
-                Tìm nhanh theo khu vực nổi bật
-              </p>
+          <p className="mt-4 text-xl font-bold text-slate-950 sm:text-2xl">
+            Tìm nhanh theo khu vực nổi bật
+          </p>
 
           <div className="mt-5 flex flex-wrap gap-3">
-            
             {searchableLocations.slice(0, 8).map((location) => (
               (() => {
                 const locationLabel = getLocationLabel(location);
@@ -211,7 +209,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       <section className="mx-auto mt-8 w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h2 className="text-2xl font-bold text-slate-950">
+            <h2 className="text-xl font-bold text-slate-950 sm:text-2xl">
               Danh sách phòng
             </h2>
           </div>
@@ -229,7 +227,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
         {roomsToShow.length > 0 ? (
           <>
-            <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <div className="mt-5 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {roomsToShow.map((room) => (
                 <RoomCard key={room.id} room={room} />
               ))}

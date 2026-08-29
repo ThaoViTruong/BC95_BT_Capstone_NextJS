@@ -17,8 +17,8 @@ export function RoleShell({ title, desc, items, children }: RoleShellProps) {
   const path = usePathname();
 
   return (
-    <section className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-8 sm:px-6 lg:grid-cols-[280px_minmax(0,1fr)] lg:px-8">
-      <aside className="rounded-3xl border border-line bg-card p-5 shadow-sm">
+    <section className="mx-auto grid w-full max-w-7xl gap-5 px-4 py-6 sm:px-6 sm:py-8 lg:grid-cols-[280px_minmax(0,1fr)] lg:px-8">
+      <aside className="rounded-3xl border border-line bg-card p-4 shadow-sm sm:p-5 lg:sticky lg:top-24 lg:self-start">
         <div className="space-y-2 border-b border-line pb-4">
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
             Vai trò
@@ -27,7 +27,7 @@ export function RoleShell({ title, desc, items, children }: RoleShellProps) {
           <p className="text-sm leading-6 text-slate-600">{desc}</p>
         </div>
 
-        <nav className="mt-4 space-y-2">
+        <nav className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
           {items.map((item, index) => {
             const active =
               index === 0
@@ -42,7 +42,7 @@ export function RoleShell({ title, desc, items, children }: RoleShellProps) {
                   "block rounded-2xl border px-4 py-3 transition",
                   active
                     ? "border-[#0B246D] bg-[#0B246D] text-white"
-                    : "border-line bg-white text-slate-800 hover:bg-slate-400",
+                    : "border-line bg-white text-slate-800 hover:bg-slate-100",
                 )}
               >
                 <p className="text-sm font-semibold">{item.label}</p>

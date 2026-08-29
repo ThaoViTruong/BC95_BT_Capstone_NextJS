@@ -707,8 +707,127 @@ export default function AdminUserPage() {
 
           {!loading && !error && (
             <>
-              <div className="w-full overflow-hidden">
-                <table className="w-full table-fixed text-left">
+              <div className="space-y-3 md:hidden">
+                {displayedUsers.length === 0 ? (
+                  <div className="rounded-2xl border border-dashed border-line bg-white p-6 text-center">
+                    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-100">
+                      🔍
+                    </div>
+                    <p className="mt-3 font-semibold text-slate-700">
+                      Không tìm thấy người dùng
+                    </p>
+                    <p className="mt-1 text-sm text-slate-400">
+                      Thử tìm kiếm bằng từ khóa khác.
+                    </p>
+                  </div>
+                ) : (
+                  displayedUsers.map((user) => (
+                    <article
+                      key={user.id}
+                      className="rounded-2xl border border-line bg-white p-4 shadow-sm"
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="h-12 w-12 shrink-0 overflow-hidden rounded-full border border-slate-200 bg-slate-100">
+                          {user.avatar ? (
+                            <img
+                              src={user.avatar}
+                              alt={user.name || "Avatar"}
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center text-slate-400">
+                              <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth={2}
+                                className="h-5 w-5"
+                              >
+                                <circle cx="12" cy="8" r="4" />
+                                <path d="M4 21c0-4 3.6-7 8-7s8 3 8 7" />
+                              </svg>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <p className="font-semibold text-slate-900">
+                              {user.name || "—"}
+                            </p>
+                            {user.id === currentUserId && (
+                              <span className="shrink-0 rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-bold text-green-700">
+                                Bạn
+                              </span>
+                            )}
+                            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-semibold text-slate-600">
+                              #{user.id}
+                            </span>
+                          </div>
+                          <p className="mt-1 break-all text-sm text-slate-500">
+                            {user.email}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                        <div className="rounded-2xl bg-slate-50 px-3 py-2.5">
+                          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                            Điện thoại
+                          </p>
+                          <p className="mt-1 font-medium text-slate-900">
+                            {user.phone || "—"}
+                          </p>
+                        </div>
+                        <div className="rounded-2xl bg-slate-50 px-3 py-2.5">
+                          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                            Ngày sinh
+                          </p>
+                          <p className="mt-1 font-medium text-slate-900">
+                            {formatBirthday(user.birthday)}
+                          </p>
+                        </div>
+                        <div className="rounded-2xl bg-slate-50 px-3 py-2.5">
+                          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                            Giới tính
+                          </p>
+                          <p className="mt-1 font-medium text-slate-900">
+                            {user.gender ? "Nam" : "Nữ"}
+                          </p>
+                        </div>
+                        <div className="rounded-2xl bg-slate-50 px-3 py-2.5">
+                          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                            Vai trò
+                          </p>
+                          <p className="mt-1 font-medium text-slate-900">
+                            {user.role}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="mt-4 flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleOpenEdit(user)}
+                          className="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl border border-blue-200 bg-blue-50 px-4 py-2.5 text-sm font-semibold text-blue-600 transition hover:bg-blue-100"
+                        >
+                          Sửa người dùng
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteUser(user.id)}
+                          className="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-100"
+                        >
+                          Xóa người dùng
+                        </button>
+                      </div>
+                    </article>
+                  ))
+                )}
+              </div>
+
+              <div className="hidden w-full overflow-x-auto md:block">
+                <table className="min-w-[880px] w-full table-fixed text-left lg:min-w-[980px]">
                   <thead className="bg-slate-50">
                     <tr className="border-b border-slate-200">
                       <th className="w-[9%] px-3 py-3.5 text-xs font-semibold uppercase text-slate-500">
@@ -906,9 +1025,9 @@ export default function AdminUserPage() {
                             <div className="flex items-center justify-center gap-1">
                               <button
                                 type="button"
-                                title="Sửa người dùng"
+                                aria-label={`Sửa người dùng ${user.name || user.email}`}
                                 onClick={() => handleOpenEdit(user)}
-                                className="flex h-8 w-8 items-center justify-center rounded-lg border border-blue-200 bg-blue-50 text-blue-600 transition hover:bg-blue-100"
+                                className="flex min-h-10 min-w-10 items-center justify-center rounded-lg border border-blue-200 bg-blue-50 text-blue-600 transition hover:bg-blue-100"
                               >
                                 <svg
                                   viewBox="0 0 24 24"
@@ -929,9 +1048,9 @@ export default function AdminUserPage() {
 
                               <button
                                 type="button"
-                                title="Xóa người dùng"
+                                aria-label={`Xóa người dùng ${user.name || user.email}`}
                                 onClick={() => handleDeleteUser(user.id)}
-                                className="flex h-8 w-8 items-center justify-center rounded-lg border border-red-200 bg-red-50 text-red-600 transition hover:bg-red-100"
+                                className="flex min-h-10 min-w-10 items-center justify-center rounded-lg border border-red-200 bg-red-50 text-red-600 transition hover:bg-red-100"
                               >
                                 <svg
                                   viewBox="0 0 24 24"
@@ -992,14 +1111,14 @@ export default function AdminUserPage() {
 
       {showCreateForm && (
         <div
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4"
+          className="fixed inset-0 z-[9999] flex items-start justify-center overflow-y-auto bg-black/50 p-4 sm:items-center"
           onClick={() => setShowCreateForm(false)}
         >
           <div
-            className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white shadow-2xl"
+            className="max-h-[calc(100vh-2rem)] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white shadow-2xl"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white px-6 py-5">
+            <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-slate-200 bg-white px-4 py-5 sm:px-6">
               <div>
                 <h3 className="text-xl font-bold text-slate-950">
                   Thêm người dùng
@@ -1019,7 +1138,7 @@ export default function AdminUserPage() {
               </button>
             </div>
 
-            <div className="grid gap-5 p-6 md:grid-cols-2">
+            <div className="grid gap-5 p-4 sm:p-6 md:grid-cols-2">
               <div>
                 <label className="mb-2 block text-sm font-semibold text-slate-700">
                   Họ tên <span className="text-red-500">*</span>
@@ -1239,7 +1358,7 @@ export default function AdminUserPage() {
               </div>
             </div>
 
-            <div className="flex justify-end gap-3 border-t border-slate-200 px-6 py-5">
+            <div className="flex flex-col-reverse gap-3 border-t border-slate-200 px-4 py-5 sm:flex-row sm:justify-end sm:px-6">
               <button
                 type="button"
                 onClick={() => setShowCreateForm(false)}
@@ -1263,14 +1382,14 @@ export default function AdminUserPage() {
 
       {editingUser && (
         <div
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4"
+          className="fixed inset-0 z-[9999] flex items-start justify-center overflow-y-auto bg-black/50 p-4 sm:items-center"
           onClick={() => setEditingUser(null)}
         >
           <div
-            className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white shadow-2xl"
+            className="max-h-[calc(100vh-2rem)] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white shadow-2xl"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className="flex items-center justify-between border-b border-slate-200 p-6">
+            <div className="flex items-start justify-between gap-4 border-b border-slate-200 p-4 sm:p-6">
               <div>
                 <h3 className="text-xl font-bold text-slate-950">
                   Sửa người dùng
@@ -1294,7 +1413,7 @@ export default function AdminUserPage() {
                 ✕
               </button>
             </div>
-            <div className="grid gap-5 p-6 md:grid-cols-2">
+            <div className="grid gap-5 p-4 sm:p-6 md:grid-cols-2">
               <div>
                 <label className="mb-2 block text-sm font-semibold">
                   Họ tên <span className="text-red-500">*</span>
@@ -1475,7 +1594,7 @@ export default function AdminUserPage() {
               </div>
             </div>
 
-            <div className="flex justify-end gap-3 border-t border-slate-200 p-6">
+            <div className="flex flex-col-reverse gap-3 border-t border-slate-200 p-4 sm:flex-row sm:justify-end sm:p-6">
               <button
                 type="button"
                 onClick={() => setEditingUser(null)}
@@ -1499,7 +1618,7 @@ export default function AdminUserPage() {
 
       {deleteUserId !== null && (
         <div
-          className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 p-4"
+          className="fixed inset-0 z-[10000] flex items-start justify-center overflow-y-auto bg-black/50 p-4 sm:items-center"
           onClick={() => setDeleteUserId(null)}
         >
           <div
@@ -1524,7 +1643,7 @@ export default function AdminUserPage() {
               </p>
             </div>
 
-            <div className="mt-6 flex gap-3">
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               <button
                 type="button"
                 onClick={() => setDeleteUserId(null)}
@@ -1547,7 +1666,7 @@ export default function AdminUserPage() {
 
       {notification.show && (
         <div
-          className="fixed inset-0 z-[10001] flex items-center justify-center bg-black/50 p-4"
+          className="fixed inset-0 z-[10001] flex items-start justify-center overflow-y-auto bg-black/50 p-4 sm:items-center"
           onClick={closeNotification}
         >
           <div
@@ -1591,7 +1710,7 @@ export default function AdminUserPage() {
 
       {protectedAccountPopup && (
         <div
-          className="fixed inset-0 z-[10002] flex items-center justify-center bg-black/50 p-4"
+          className="fixed inset-0 z-[10002] flex items-start justify-center overflow-y-auto bg-black/50 p-4 sm:items-center"
           onClick={() => setProtectedAccountPopup(false)}
         >
           <div

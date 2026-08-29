@@ -522,14 +522,14 @@ export default function AdminLocationPage() {
 
       {showCreateForm && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4 sm:items-center"
           onClick={() => setShowCreateForm(false)}
         >
           <div
-            className="w-full max-w-xl rounded-2xl bg-white p-6 shadow-2xl"
+            className="max-h-[calc(100vh-2rem)] w-full max-w-xl overflow-y-auto rounded-2xl bg-white p-4 shadow-2xl sm:p-6"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className="flex items-center justify-between">
+            <div className="flex items-start justify-between gap-4">
               <h3 className="text-xl font-bold text-slate-900">
                 Thêm địa điểm
               </h3>
@@ -549,7 +549,7 @@ export default function AdminLocationPage() {
                   Hình ảnh
                 </label>
 
-                <label className="flex h-20 w-24 cursor-pointer items-center justify-center overflow-hidden rounded-xl border border-slate-300">
+                <label className="flex h-20 w-full max-w-24 cursor-pointer items-center justify-center overflow-hidden rounded-xl border border-slate-300">
                   {imagePreview ? (
                     <img
                       src={imagePreview}
@@ -632,7 +632,7 @@ export default function AdminLocationPage() {
               </div>
             </div>
 
-            <div className="mt-6 flex justify-end gap-3">
+            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
               <button
                 type="button"
                 onClick={() => setShowCreateForm(false)}
@@ -655,14 +655,14 @@ export default function AdminLocationPage() {
 
       {editingLocation && (
         <div
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4"
+          className="fixed inset-0 z-[9999] flex items-start justify-center overflow-y-auto bg-black/50 p-4 sm:items-center"
           onClick={() => setEditingLocation(null)}
         >
           <div
-            className="w-full max-w-xl rounded-2xl bg-white p-6 shadow-2xl"
+            className="max-h-[calc(100vh-2rem)] w-full max-w-xl overflow-y-auto rounded-2xl bg-white p-4 shadow-2xl sm:p-6"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+            <div className="flex items-start justify-between gap-4 border-b border-slate-200 pb-4">
               <div>
                 <h3 className="text-xl font-bold text-slate-950">
                   Sửa địa điểm
@@ -688,7 +688,7 @@ export default function AdminLocationPage() {
                   Hình ảnh
                 </label>
 
-                <label className="flex h-24 w-32 cursor-pointer items-center justify-center overflow-hidden rounded-xl border border-slate-300">
+                <label className="flex h-24 w-full max-w-32 cursor-pointer items-center justify-center overflow-hidden rounded-xl border border-slate-300">
                   {editImagePreview ? (
                     <img
                       src={editImagePreview}
@@ -768,7 +768,7 @@ export default function AdminLocationPage() {
               </div>
             </div>
 
-            <div className="mt-8 flex justify-end gap-3 border-t border-slate-200 pt-5">
+            <div className="mt-8 flex flex-col-reverse gap-3 border-t border-slate-200 pt-5 sm:flex-row sm:justify-end">
               <button
                 type="button"
                 onClick={() => setEditingLocation(null)}
@@ -791,7 +791,7 @@ export default function AdminLocationPage() {
 
       {deleteLocationId !== null && (
         <div
-          className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 p-4"
+          className="fixed inset-0 z-[10000] flex items-start justify-center overflow-y-auto bg-black/50 p-4 sm:items-center"
           onClick={() => setDeleteLocationId(null)}
         >
           <div
@@ -816,7 +816,7 @@ export default function AdminLocationPage() {
               </p>
             </div>
 
-            <div className="mt-6 flex gap-3">
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               <button
                 type="button"
                 onClick={() => setDeleteLocationId(null)}
@@ -839,7 +839,7 @@ export default function AdminLocationPage() {
 
       {notification.show && (
         <div
-          className="fixed inset-0 z-[11000] flex items-center justify-center bg-black/50 p-4"
+          className="fixed inset-0 z-[11000] flex items-start justify-center overflow-y-auto bg-black/50 p-4 sm:items-center"
           onClick={closeNotification}
         >
           <div

@@ -183,7 +183,7 @@ function CalendarPanel({
     <div
       data-calendar-panel="true"
       className={[
-        "absolute left-0 z-50 w-[276px] max-w-[calc(100vw-1rem)] overflow-hidden rounded-[20px] border border-slate-800 bg-[#050b18] text-white shadow-[0_22px_48px_rgba(2,6,23,0.5)]",
+        "absolute left-1/2 z-50 w-[calc(100vw-1rem)] max-w-[320px] -translate-x-1/2 overflow-hidden rounded-[20px] border border-slate-800 bg-[#050b18] text-white shadow-[0_22px_48px_rgba(2,6,23,0.5)] sm:left-0 sm:max-w-[calc(100vw-1rem)] sm:translate-x-0 sm:w-[276px]",
         placement === "top" ? "bottom-full mb-3" : "top-full mt-1.5",
       ].join(" ")}
       onClick={(event) => event.stopPropagation()}
@@ -639,12 +639,12 @@ export function BookingCard({
   return (
     <>
       <article className="rounded-[28px] border border-line bg-white p-6 text-slate-950 shadow-lg">
-        <div className="flex items-start justify-between gap-4 border-b border-line pb-5">
-          <p className="text-3xl font-extrabold text-slate-950">
+        <div className="flex flex-wrap items-start justify-between gap-4 border-b border-line pb-5">
+          <p className="text-2xl font-extrabold text-slate-950 sm:text-3xl">
             {formatCurrency(pricePerNight)}
             <span className="ml-1 text-base font-medium text-slate-500">/ đêm</span>
           </p>
-          <div className="text-right">
+          <div className="text-left sm:text-right">
             <p className="inline-flex items-center gap-1 text-sm font-semibold text-slate-950">
               <Star className="h-4 w-4 fill-[#0f2f8e] text-[#0f2f8e]" />
               {ratingText}
@@ -815,10 +815,10 @@ export function BookingCard({
       </article>
 
       {isConfirmOpen ? (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/45 p-4 sm:items-center">
-          <div className="w-full max-w-3xl overflow-hidden rounded-[28px] border border-white/70 bg-white shadow-[0_24px_80px_rgba(15,47,142,0.22)]">
+        <div className="fixed inset-0 z-50 flex items-end justify-center overflow-y-auto bg-slate-950/45 p-3 sm:items-center sm:p-4">
+          <div className="w-full max-w-3xl overflow-hidden rounded-[28px] border border-white/70 bg-white shadow-[0_24px_80px_rgba(15,47,142,0.22)] sm:max-h-[calc(100vh-2rem)] sm:overflow-y-auto">
             <div className="flex items-start justify-between gap-4 border-b border-line px-5 py-4 sm:px-6">
-              <h3 className="text-2xl font-extrabold text-slate-950">
+              <h3 className="text-xl font-extrabold text-slate-950 sm:text-2xl">
                 Xác nhận đặt phòng
               </h3>
 
@@ -832,8 +832,8 @@ export function BookingCard({
               </button>
             </div>
 
-            <div className="grid gap-6 px-5 py-5 sm:px-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-              <article className="rounded-[24px] border border-line bg-slate-50 p-5">
+            <div className="grid gap-5 px-4 py-4 sm:px-6 sm:py-5 lg:grid-cols-[minmax(0,1fr)_260px] xl:grid-cols-[minmax(0,1fr)_320px]">
+              <article className="rounded-[24px] border border-line bg-slate-50 p-4 sm:p-5">
                 <div className="grid gap-4">
                   <div className="rounded-3xl border border-line bg-white p-4">
                     <div className="flex min-h-[104px] items-center gap-3">
@@ -882,7 +882,7 @@ export function BookingCard({
                 </div>
               </article>
 
-              <aside className="rounded-[24px] border border-line bg-white p-5 shadow-sm">
+              <aside className="rounded-[24px] border border-line bg-white p-4 shadow-sm sm:p-5">
                 <div className="flex items-center gap-3">
                   <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#0f2f8e] text-white">
                     <CreditCard className="h-5 w-5" />

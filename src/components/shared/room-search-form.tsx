@@ -83,7 +83,7 @@ export function RoomSearchForm({
     <form
       action={action}
       className={cn(
-        "grid gap-2 md:grid-cols-2 xl:grid-cols-12",
+        "grid gap-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-12",
         className,
       )}
     >
@@ -176,11 +176,11 @@ export function RoomSearchForm({
 
       <div
         className={cn(
-          "rounded-[22px] border border-slate-200 bg-slate-50/80 p-2 md:col-span-2 xl:col-span-8",
+          "rounded-[22px] border border-slate-200 bg-slate-50/80 p-2 md:col-span-2 lg:col-span-2 xl:col-span-8",
           panelClassName && "border-transparent bg-slate-50/80",
         )}
       >
-        <div className="grid gap-2 xl:grid-cols-[1fr_1fr_auto]">
+        <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
           <label className="rounded-2xl border border-line bg-white px-4 py-3">
             <span className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
               Nhận phòng
@@ -219,7 +219,7 @@ export function RoomSearchForm({
             onClick={handleClearDates}
             disabled={!checkInValue && !checkOutValue}
             className={cn(
-              "inline-flex min-h-[52px] items-center justify-center gap-2 self-center rounded-xl border border-line bg-white px-4 text-sm font-semibold text-slate-700 transition hover:border-[#0f2f8e] hover:text-[#0f2f8e] disabled:cursor-not-allowed disabled:opacity-50",
+              "inline-flex min-h-[52px] items-center justify-center gap-2 rounded-xl border border-line bg-white px-4 text-sm font-semibold text-slate-700 transition hover:border-[#0f2f8e] hover:text-[#0f2f8e] disabled:cursor-not-allowed disabled:opacity-50 sm:col-span-2 xl:col-span-1 xl:self-center",
               compact && "min-h-[46px] text-xs",
             )}
           >
@@ -229,11 +229,11 @@ export function RoomSearchForm({
         </div>
       </div>
 
-      <div className="md:col-span-2 xl:col-span-4">
+      <div className="md:col-span-2 lg:col-span-2 xl:col-span-4">
         <button
           type="submit"
           className={cn(
-            "inline-flex min-h-[68px] w-full items-center justify-center gap-2 rounded-2xl bg-[#0f2f8e] px-6 text-sm font-semibold text-white transition hover:bg-[#0b246d]",
+            "inline-flex min-h-[60px] w-full items-center justify-center gap-2 rounded-2xl bg-[#0f2f8e] px-6 text-sm font-semibold text-white transition hover:bg-[#0b246d] sm:min-h-[68px]",
             submitClassName,
           )}
         >
