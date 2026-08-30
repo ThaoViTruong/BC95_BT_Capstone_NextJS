@@ -33,13 +33,17 @@ export function RoomCard({ room }: RoomCardProps) {
         </div>
 
         <div className="flex flex-1 flex-col p-3.5 sm:p-6">
-          <h2 className="line-clamp-2 text-sm font-bold text-slate-950 sm:text-xl">{room.tenPhong}</h2>
+          <h2 className="line-clamp-2 text-sm font-bold text-slate-950 sm:text-xl">
+            {room.tenPhong}
+          </h2>
 
           <p className="mt-2 text-xs font-semibold text-[#0f2f8e] sm:mt-3 sm:text-sm">
             {formatCurrency(room.giaTien)} / đêm
           </p>
 
-          <p className="mt-2 line-clamp-3 text-xs leading-5 text-slate-600 sm:mt-3 sm:text-sm sm:leading-6">{room.moTa}</p>
+          <p className="mt-2 line-clamp-3 text-xs leading-5 text-slate-600 sm:mt-3 sm:text-sm sm:leading-6">
+            {room.moTa}
+          </p>
 
           <div className="mt-3 flex flex-wrap gap-1.5 text-[11px] text-slate-500 sm:mt-4 sm:gap-2 sm:text-xs">
             <span className="rounded-full border border-line px-2 py-1 sm:px-3">
@@ -53,9 +57,11 @@ export function RoomCard({ room }: RoomCardProps) {
             </span>
           </div>
 
-          <span className="mt-4 inline-flex w-full items-center justify-center rounded-full bg-slate-950 px-3 py-2 text-xs font-semibold text-white transition group-hover:bg-[#0f2f8e] sm:mt-5 sm:w-auto sm:px-4 sm:text-sm">
-            Xem chi tiết
-          </span>
+          <div className="mt-auto pt-6 sm:pt-7">
+            <span className="inline-flex w-full items-center justify-center rounded-full bg-slate-950 px-3 py-2 text-xs font-semibold text-white transition group-hover:bg-[#0f2f8e] sm:px-4 sm:text-sm">
+              Xem chi tiết
+            </span>
+          </div>
         </div>
       </article>
     </Link>

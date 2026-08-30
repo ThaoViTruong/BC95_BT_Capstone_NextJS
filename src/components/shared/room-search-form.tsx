@@ -2,6 +2,7 @@
 
 import {
   CarFront,
+  Check, 
   ChevronDown,
   CookingPot,
   MapPin,
@@ -21,7 +22,7 @@ type RoomSearchFormProps = {
   action: string;
   destination?: string;
   roomName?: string;
-  amenity?: string;
+  amenity?: string; 
   checkIn?: string;
   checkOut?: string;
   guest?: string;
@@ -109,18 +110,25 @@ export function RoomSearchForm({
   const [checkInValue, setCheckInValue] = useState(checkIn);
   const [checkOutValue, setCheckOutValue] = useState(checkOut);
   const [selectedDestination, setSelectedDestination] = useState(destination);
-  const [selectedAmenity, setSelectedAmenity] = useState(amenity);
+  
+  const [selectedAmenities, setSelectedAmenities] = useState<string[]>(() => {
+    return amenity ? amenity.split(",").map((item) => item.trim()).filter(Boolean) : [];
+  });
+  
   const [openPanel, setOpenPanel] = useState<"destination" | "amenity" | null>(null);
 
   const minCheckOutDate = useMemo(() => getNextDate(checkInValue), [checkInValue]);
+  
   const selectedLocationOption = useMemo(
     () => locationOptions.find((option) => option.value === selectedDestination) ?? null,
     [locationOptions, selectedDestination],
   );
-  const selectedAmenityOption = useMemo(
-    () => amenityOptions.find((option) => option.value === selectedAmenity) ?? null,
-    [amenityOptions, selectedAmenity],
+
+  const selectedAmenityOptions = useMemo(
+    () => amenityOptions.filter((option) => selectedAmenities.includes(option.value)),
+    [amenityOptions, selectedAmenities],
   );
+
   const isDestinationPanelOpen = openPanel === "destination";
   const isAmenityPanelOpen = openPanel === "amenity";
 
@@ -165,6 +173,15 @@ export function RoomSearchForm({
     setCheckOutValue("");
   };
 
+  const handleToggleAmenity = (value: string) => {
+    setSelectedAmenities((prev) => {
+      if (prev.includes(value)) {
+        return prev.filter((item) => item !== value); 
+      }
+      return [...prev, value]; 
+    });
+  };
+
   return (
     <form
       ref={formRef}
@@ -176,7 +193,8 @@ export function RoomSearchForm({
     >
       <input type="hidden" name="page" value="1" />
       <input type="hidden" name="diemDen" value={selectedDestination} />
-      <input type="hidden" name="tienIch" value={selectedAmenity} />
+      
+      <input type="hidden" name="tienIch" value={selectedAmenities.join(",")} />
 
       <div
         className={cn(
@@ -240,6 +258,7 @@ export function RoomSearchForm({
         />
       </label>
 
+    
       <div
         className={cn(
           "min-w-0 rounded-xl border border-line bg-white px-2 py-1.5 xl:col-span-3",
@@ -259,14 +278,23 @@ export function RoomSearchForm({
           )}
         >
           <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#eef4ff] text-[#0f2f8e] sm:h-10 sm:w-10 sm:rounded-2xl">
-            {renderAmenityIcon(selectedAmenityOption?.value ?? "", "h-3.5 w-3.5 sm:h-4.5 sm:w-4.5")}
+         
+            {renderAmenityIcon(
+              selectedAmenities[0] ?? "",
+              "h-3.5 w-3.5 sm:h-4.5 sm:w-4.5"
+            )}
           </span>
           <span className="min-w-0 flex-1">
             <span className="block truncate font-semibold text-slate-900">
-              {selectedAmenityOption?.label ?? "Tất cả tiện ích"}
+            
+              {selectedAmenities.length > 0
+                ? `${selectedAmenities.length} tiện ích được chọn`
+                : "Tất cả tiện ích"}
             </span>
             <span className="block truncate text-[10px] text-slate-500 sm:text-xs">
-              {selectedAmenityOption ? "Đang lọc theo tiện ích này" : "Chọn nhanh theo tiện ích nổi bật"}
+              {selectedAmenities.length > 0
+                ? selectedAmenityOptions.map((o) => o.label).join(", ")
+                : "Chọn nhanh theo tiện ích nổi bật"}
             </span>
           </span>
           <ChevronDown
@@ -342,7 +370,7 @@ export function RoomSearchForm({
             />
           </label>
 
-          <button
+          {/* <button
             type="button"
             onClick={handleClearDates}
             disabled={!checkInValue && !checkOutValue}
@@ -353,7 +381,7 @@ export function RoomSearchForm({
           >
             <X className="h-3.5 w-3.5" />
             Xóa ngày
-          </button>
+          </button> */}
         </div>
       </div>
 
@@ -386,26 +414,36 @@ export function RoomSearchForm({
               <div className="mb-2.5 flex items-center justify-between gap-2 sm:mb-3 sm:gap-3">
                 <div>
                   <p className="text-xs font-bold text-[#0f2f8e] sm:text-sm">
-                    {isDestinationPanelOpen ? "Chọn địa điểm" : "Chọn tiện ích"}
+                    {isDestinationPanelOpen ? "Chọn địa điểm" : "Chọn tiện ích (Chọn nhiều)"}
                   </p>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (isDestinationPanelOpen) {
-                      setSelectedDestination("");
-                    }
-
-                    if (isAmenityPanelOpen) {
-                      setSelectedAmenity("");
-                    }
-
-                    setOpenPanel(null);
-                  }}
-                  className="whitespace-nowrap rounded-full border border-line px-2.5 py-1 text-[11px] font-semibold text-slate-600 transition hover:border-[#0f2f8e] hover:text-[#0f2f8e] sm:px-3 sm:py-1.5 sm:text-xs"
-                >
-                  Bỏ chọn
-                </button>
+                
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (isDestinationPanelOpen) {
+                        setSelectedDestination("");
+                        setOpenPanel(null);
+                      }
+                      if (isAmenityPanelOpen) {
+                        setSelectedAmenities([]); 
+                      }
+                    }}
+                    className="whitespace-nowrap rounded-full border border-line px-2.5 py-1 text-[11px] font-semibold text-slate-600 transition hover:border-[#0f2f8e] hover:text-[#0f2f8e] sm:px-3 sm:py-1.5 sm:text-xs"
+                  >
+                    Xóa chọn
+                  </button>
+                  {isAmenityPanelOpen && (
+                    <button
+                      type="button"
+                      onClick={() => setOpenPanel(null)}
+                      className="whitespace-nowrap rounded-full bg-[#0f2f8e] px-2.5 py-1 text-[11px] font-semibold text-white transition hover:bg-[#0b246d] sm:px-3 sm:py-1.5 sm:text-xs"
+                    >
+                      Áp dụng
+                    </button>
+                  )}
+                </div>
               </div>
 
               {isDestinationPanelOpen ? (
@@ -446,20 +484,20 @@ export function RoomSearchForm({
                   })}
                 </div>
               ) : (
+               
                 <div className="grid max-h-[calc(100vh-6.5rem)] grid-cols-2 gap-1.5 overflow-y-auto pr-1 sm:max-h-[calc(100vh-9rem)] sm:grid-cols-2 sm:gap-2 md:grid-cols-3 md:gap-2.5 xl:max-h-[calc(100vh-12rem)] xl:grid-cols-4 2xl:grid-cols-5">
                   {amenityOptions.map((option) => {
-                    const isSelected = selectedAmenity === option.value;
+                    const isSelected = selectedAmenities.includes(option.value);
 
                     return (
                       <button
                         key={option.value}
                         type="button"
                         onClick={() => {
-                          setSelectedAmenity(option.value);
-                          setOpenPanel(null);
+                          handleToggleAmenity(option.value); 
                         }}
                         className={cn(
-                          "flex min-w-0 items-center gap-1.5 rounded-xl border px-2 py-2 text-left transition sm:gap-2 sm:rounded-2xl sm:px-2.5 sm:py-2.5 md:gap-2.5 md:px-3 md:py-3",
+                          "relative flex min-w-0 items-center gap-1.5 rounded-xl border px-2 py-2 text-left transition sm:gap-2 sm:rounded-2xl sm:px-2.5 sm:py-2.5 md:gap-2.5 md:px-3 md:py-3",
                           isSelected
                             ? "border-[#0f2f8e] bg-[#0f2f8e] text-white shadow-lg shadow-[#0f2f8e]/20"
                             : "border-slate-200 bg-white text-slate-900 hover:border-[#0f2f8e] hover:bg-[#f8fbff]",
@@ -473,11 +511,16 @@ export function RoomSearchForm({
                         >
                           {renderAmenityIcon(option.value, "h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-4.5 md:w-4.5")}
                         </span>
-                        <span className="min-w-0">
+                        <span className="min-w-0 flex-1">
                           <span className="block truncate text-xs font-bold leading-tight sm:text-sm md:text-[15px]">
                             {option.label}
                           </span>
                         </span>
+                        {isSelected && (
+                          <span className="absolute right-2 top-2 inline-flex h-4 w-4 items-center justify-center rounded-full bg-white text-[#0f2f8e]">
+                            <Check className="h-2.5 w-2.5 stroke-[3]" />
+                          </span>
+                        )}
                       </button>
                     );
                   })}

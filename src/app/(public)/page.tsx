@@ -42,7 +42,13 @@ type HomePageProps = {
 };
 
 type HomePageData =
-  | { ok: true; roomList: Room[]; locationList: Location[]; bookings: Booking[]; comments: Comment[] }
+  | {
+      ok: true;
+      roomList: Room[];
+      locationList: Location[];
+      bookings: Booking[];
+      comments: Comment[];
+    }
   | { ok: false; message: string };
 
 async function getHomePageData(): Promise<HomePageData> {
@@ -58,7 +64,10 @@ async function getHomePageData(): Promise<HomePageData> {
   } catch (error) {
     return {
       ok: false,
-      message: error instanceof Error ? error.message : "Không thể tải dữ liệu trang chủ.",
+      message:
+        error instanceof Error
+          ? error.message
+          : "Không thể tải dữ liệu trang chủ.",
     };
   }
 }
@@ -73,7 +82,11 @@ function buildRoomCountMap<T extends { maPhong: number }>(items: T[]) {
   return countMap;
 }
 
-function rankRoomsByPopularity(rooms: Room[], bookings: Booking[], comments: Comment[]) {
+function rankRoomsByPopularity(
+  rooms: Room[],
+  bookings: Booking[],
+  comments: Comment[],
+) {
   const bookingCountMap = buildRoomCountMap(bookings);
   const commentCountMap = buildRoomCountMap(comments);
 
@@ -123,18 +136,29 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     query,
   });
 
-  const rankedRooms = rankRoomsByPopularity(filteredRooms, data.bookings, data.comments);
+  const rankedRooms = rankRoomsByPopularity(
+    filteredRooms,
+    data.bookings,
+    data.comments,
+  );
   const pageSize = 12;
   const totalPages = Math.max(1, Math.ceil(rankedRooms.length / pageSize));
   const rawPage = Number(query.page ?? 1);
   const currentPage = Number.isFinite(rawPage)
     ? Math.min(Math.max(Math.floor(rawPage), 1), totalPages)
     : 1;
-  const startIndex = rankedRooms.length === 0 ? 0 : (currentPage - 1) * pageSize;
+  const startIndex =
+    rankedRooms.length === 0 ? 0 : (currentPage - 1) * pageSize;
   const roomsToShow = rankedRooms.slice(startIndex, startIndex + pageSize);
-  const locationOptions = buildLocationOptions(data.roomList, data.locationList);
+  const locationOptions = buildLocationOptions(
+    data.roomList,
+    data.locationList,
+  );
   const amenityOptions = buildAmenityOptions(data.roomList);
-  const searchableLocations = getSearchableLocations(data.roomList, data.locationList);
+  const searchableLocations = getSearchableLocations(
+    data.roomList,
+    data.locationList,
+  );
   const activeDestination = normalizeSearchText(query.diemDen ?? "");
 
   return (
@@ -157,8 +181,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                 Tìm nhanh phòng phù hợp
               </p>
               <p className="mt-2 text-sm leading-6 text-slate-600 sm:text-base">
-                Chọn điểm đến, tên phòng, tiện ích, ngày ở và số khách để lọc nhanh
-                các phòng còn trống phù hợp.
+                Chọn điểm đến, tên phòng, tiện ích, ngày ở và số khách để lọc
+                nhanh các phòng còn trống phù hợp.
               </p>
             </div>
 
@@ -191,15 +215,20 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           </p>
 
           <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-2.5 lg:flex lg:flex-wrap lg:gap-3">
-            {searchableLocations.slice(0, 8).map((location) => (
+            {searchableLocations.slice(0, 8).map((location) =>
               (() => {
                 const locationLabel = getLocationLabel(location);
-                const isActive = activeDestination === normalizeSearchText(locationLabel);
+                const isActive =
+                  activeDestination === normalizeSearchText(locationLabel);
 
                 return (
                   <Link
                     key={location.id}
-                    href={buildSearchHref("/", { diemDen: locationLabel }) as Route}
+                    href={
+                      `${buildSearchHref("/", {
+                        diemDen: locationLabel,
+                      })}#room-results` as Route
+                    }
                     className={cn(
                       "truncate rounded-full border px-3 py-1.5 text-center text-xs font-medium transition sm:px-3.5 sm:py-2 sm:text-sm",
                       isActive
@@ -210,13 +239,16 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                     {locationLabel}
                   </Link>
                 );
-              })()
-            ))}
+              })(),
+            )}
           </div>
         </div>
       </section>
 
-      <section className="mx-auto mt-8 w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+      <section
+        id="room-results"
+        className="mx-auto mt-8 w-full max-w-7xl scroll-mt-24 px-4 sm:px-6 lg:px-8"
+      >
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 className="text-xl font-bold text-slate-950 sm:text-2xl">
@@ -261,9 +293,12 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           </>
         ) : (
           <div className="mt-5 rounded-3xl border border-dashed border-line bg-white p-8 text-center">
-            <h3 className="text-xl font-semibold text-slate-900">Chưa có phòng phù hợp</h3>
+            <h3 className="text-xl font-semibold text-slate-900">
+              Chưa có phòng phù hợp
+            </h3>
             <p className="mt-2 text-sm leading-6 text-slate-600">
-              Hãy thử lại với điểm đến, ngày ở hoặc tiêu chí khác để xem thêm lựa chọn.
+              Hãy thử lại với điểm đến, ngày ở hoặc tiêu chí khác để xem thêm
+              lựa chọn.
             </p>
           </div>
         )}

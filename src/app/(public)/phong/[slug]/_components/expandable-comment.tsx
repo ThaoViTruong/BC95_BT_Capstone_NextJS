@@ -15,7 +15,10 @@ export function ExpandableComment({
 }: ExpandableCommentProps) {
   const [expanded, setExpanded] = useState(false);
 
-  const normalizedContent = useMemo(() => normalizeCommentContent(content), [content]);
+  const normalizedContent = useMemo(
+    () => normalizeCommentContent(content),
+    [content],
+  );
   const shouldTruncate = normalizedContent.length > previewLength;
   const previewContent = shouldTruncate
     ? `${normalizedContent.slice(0, previewLength).trimEnd()}...`
@@ -23,7 +26,7 @@ export function ExpandableComment({
 
   return (
     <div className="mt-3 min-w-0">
-      <p className="whitespace-pre-wrap break-words text-sm leading-7 text-slate-700 [overflow-wrap:anywhere]">
+      <p className="whitespace-pre-wrap break-anywhere text-sm leading-7 text-slate-700">
         {expanded ? normalizedContent : previewContent}
       </p>
 
